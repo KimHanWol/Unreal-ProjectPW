@@ -19,4 +19,12 @@ class PROJECTPW_API APWGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+protected:
+
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player);
+
+private:
+	
+	AActor* GetSpawnPoints(int32 PlayerIndex) const;
+
 };
