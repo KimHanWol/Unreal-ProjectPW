@@ -7,16 +7,10 @@
 
 //Game
 #include "GameFramework/GameStateBase.h"
+#include "Data/PWGameEnum.h"
 
 //Default
 #include "PWGameState.generated.h"
-
-UENUM(BlueprintType)
-enum class ETeamSide : uint8
-{
-	Red,
-	Blue,
-};
 
 USTRUCT(BlueprintType)
 struct FCharacterData

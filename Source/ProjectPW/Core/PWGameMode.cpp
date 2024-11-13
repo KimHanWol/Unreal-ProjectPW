@@ -9,6 +9,7 @@
 //Game
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/PWPlayerStart.h"
+#include "Data/PWGameEnum.h"
 #include "PWGameState.h"
 #include "Helper/PWGameplayStatics.h"
 
