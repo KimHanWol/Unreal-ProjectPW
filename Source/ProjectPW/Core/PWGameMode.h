@@ -11,9 +11,8 @@
 //Default
 #include "PWGameMode.generated.h"
 
-/**
- * 
- */
+enum class ETeamSide : uint8;
+
 UCLASS()
 class PROJECTPW_API APWGameMode : public AGameModeBase
 {
@@ -27,7 +26,8 @@ protected:
 
 private:
 
-	AActor* GetSpawnPoints(int32 PlayerIndex) const;
+	ETeamSide ChooseTeamSide(AController* Player);
+	AActor* GetSpawnPoints(ETeamSide TeamSide) const;
 	
 	void StartGame();
 	void TextTurn();

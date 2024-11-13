@@ -10,10 +10,13 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/PWPlayerStart.h"
 #include "PWGameState.h"
+#include "Helper/PWGameplayStatics.h"
 
+//현재 차례인 플레이어 컨트롤러 반환
 #define GET_PLAYER_INTURN(InWorldContext, InCurrentPlayersTurn) \
 	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), InCurrentPlayersTurn)))
 
+//다음 차례인 플레이어 컨트롤러 반환
 #define GET_PLAYER_NOTTURN(InWorldContext, InCurrentPlayersTurn) \
 	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), 1 - InCurrentPlayersTurn)))
 
@@ -30,13 +33,62 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 
 AActor* APWGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
-	// 현재 플레이어의 수에 따라서 플레이어의 Index 설정 
-	int32 PlayerNum = GetNumPlayers();
-	return GetSpawnPoints(PlayerNum - 1);
+	ETeamSide PlayerTeamSide = ChooseTeamSide(Player);
+	
+	return GetSpawnPoints(PlayerTeamSide);
+}
+
+ETeamSide APWGameMode::ChooseTeamSide(AController* Player)
+{
+	bool bIsRedTeam = false;
+	if (Player->HasAuthority() == true)
+	{
+		bIsRedTeam = FMath::RandBool();
+	}
+	else
+	{
+		APWPlayerController* PWPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+		if (IsValid(PWPlayerController) == true)
+		{
+			//서버 팀과는 반대로
+			bIsRedTeam = !(PWPlayerController->GetTeamSide() == ETeamSide::Red);
+		}
+	}
+
+	ETeamSide PlayerTeamSide = bIsRedTeam == true ? ETeamSide::Red : ETeamSide::Blue;
+
+	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Player);
+	if (IsValid(PWPlayerController) == true)
+	{
+		PWPlayerController->SetTeamSide(PlayerTeamSide);
+	}
+
+	return PlayerTeamSide;
+}
+
+AActor* APWGameMode::GetSpawnPoints(ETeamSide TeamSide) const
+{
+	TArray<AActor*> PlayerStartList;
+	UGameplayStatics::GetAllActorsOfClass(this, APWPlayerStart::StaticClass(), PlayerStartList);
+
+	for (AActor* PlayerStartActor : PlayerStartList)
+	{
+		const APWPlayerStart* PlayerStart = Cast<APWPlayerStart>(PlayerStartActor);
+		if (IsValid(PlayerStart) == true)
+		{
+			if (TeamSide == PlayerStart->GetTeamSide()) 
+			{
+				return PlayerStartActor;
+			}
+		}
+	}
+
+	return nullptr;
 }
 
 void APWGameMode::StartGame()
 {
+	//Turn Setting
 	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, 0);
 	if (IsValid(PlayerControllerInTurn) == true)
 	{
@@ -48,6 +100,11 @@ void APWGameMode::StartGame()
 	{
 		PlayerControllerNotTurn->SC_ChangeTurn(false);
 	}
+
+
+
+
+
 
 	UE_LOG(LogTemp, Log, TEXT("Turn Started : 0 Turn, Player 0"));
 }
@@ -76,26 +133,4 @@ void APWGameMode::TextTurn()
 	}
 
 	PWGameState->NextTurn();
-
-	UE_LOG(LogTemp, Log, TEXT("Turn Changed : %d Turn, Player %d"), PWGameState->GetCurrentRoundIndex() + 1, PWGameState->GetCurrentPlayerTurn());
-}
-
-AActor* APWGameMode::GetSpawnPoints(int32 PlayerIndex) const
-{
-	TArray<AActor*> PlayerStartList;
-	UGameplayStatics::GetAllActorsOfClass(this, APWPlayerStart::StaticClass(), PlayerStartList);
-
-	for (AActor* PlayerStartActor : PlayerStartList)
-	{
-		const APWPlayerStart* PlayerStart = Cast<APWPlayerStart>(PlayerStartActor);
-		if (IsValid(PlayerStart) == true)
-		{
-			if (PlayerIndex == PlayerStart->GetPlayerIndex()) 
-			{
-				return PlayerStartActor;
-			}
-		}
-	}
-
-	return nullptr;
 }

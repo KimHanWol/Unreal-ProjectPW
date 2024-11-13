@@ -4,10 +4,14 @@
 #include "PWPlayerController.h"
 
 //Engine
+#include "EngineUtils.h"
+#include "Net/UnrealNetwork.h"
 
 //Game
+#include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWPlayerState.h"
 #include "UI/MasterWidget.h"
+#include "Helper/PWGameplayStatics.h"
 
 void APWPlayerController::BeginPlay()
 {
@@ -18,6 +22,13 @@ void APWPlayerController::BeginPlay()
 	{
 		MasterWidget->AddToViewport();
 	}
+}
+
+void APWPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APWPlayerController, TeamSide);
 }
 
 void APWPlayerController::OnRep_PlayerState()
@@ -44,4 +55,29 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 	}
 
 	TurnChangedDelegate.Broadcast(bMyTurn);
+}
+
+void APWPlayerController::SetTeamSide(ETeamSide NewTeamSide)
+{
+	TeamSide = NewTeamSide;
+	OnRep_TeamSide();
+}
+
+void APWPlayerController::OnRep_TeamSide()
+{
+	const FString& TeamSideString = UPWGameplayStatics::ConvertEnumToString(this, TeamSide);
+
+	//Load Characters
+	for (TActorIterator<APWPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		APWPlayerCharacter* PlayerCharacter = *It;
+		if (IsValid(PlayerCharacter) == true)
+		{
+			if (PlayerCharacter->GetTeamSide() == TeamSide)
+			{
+				CharacterList.Add(PlayerCharacter);
+				UE_LOG(LogTemp, Log, TEXT("%s Team Character Loaded : %s"), *TeamSideString, *PlayerCharacter->GetName());
+			}
+		}
+	}
 }

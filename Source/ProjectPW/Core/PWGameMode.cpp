@@ -10,6 +10,7 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/PWPlayerStart.h"
 #include "PWGameState.h"
+#include "Helper/PWGameplayStatics.h"
 
 //현재 차례인 플레이어 컨트롤러 반환
 #define GET_PLAYER_INTURN(InWorldContext, InCurrentPlayersTurn) \
@@ -32,12 +33,41 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 
 AActor* APWGameMode::ChoosePlayerStart_Implementation(AController* Player)
 {
-	// 현재 플레이어의 수에 따라서 플레이어의 Index 설정 
-	int32 PlayerNum = GetNumPlayers();
-	return GetSpawnPoints(PlayerNum - 1);
+	ETeamSide PlayerTeamSide = ChooseTeamSide(Player);
+	
+	return GetSpawnPoints(PlayerTeamSide);
 }
 
-AActor* APWGameMode::GetSpawnPoints(int32 PlayerIndex) const
+ETeamSide APWGameMode::ChooseTeamSide(AController* Player)
+{
+	//서버 컨트롤러면 랜덤 배분
+	bool bIsRedTeam = false;
+	if (Player->IsLocalPlayerController() == true)
+	{
+		bIsRedTeam = FMath::RandBool();
+	}
+	//클라 컨트롤러면 서버 반대로
+	else
+	{
+		APWPlayerController* ServerPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+		if (IsValid(ServerPlayerController) == true)
+		{
+			bIsRedTeam = !(ServerPlayerController->GetTeamSide() == ETeamSide::Red);
+		}
+	}
+
+	ETeamSide PlayerTeamSide = bIsRedTeam == true ? ETeamSide::Red : ETeamSide::Blue;
+
+	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Player);
+	if (IsValid(PWPlayerController) == true)
+	{
+		PWPlayerController->SetTeamSide(PlayerTeamSide);
+	}
+
+	return PlayerTeamSide;
+}
+
+AActor* APWGameMode::GetSpawnPoints(ETeamSide TeamSide) const
 {
 	TArray<AActor*> PlayerStartList;
 	UGameplayStatics::GetAllActorsOfClass(this, APWPlayerStart::StaticClass(), PlayerStartList);
@@ -47,7 +77,7 @@ AActor* APWGameMode::GetSpawnPoints(int32 PlayerIndex) const
 		const APWPlayerStart* PlayerStart = Cast<APWPlayerStart>(PlayerStartActor);
 		if (IsValid(PlayerStart) == true)
 		{
-			if (PlayerIndex == PlayerStart->GetPlayerIndex()) 
+			if (TeamSide == PlayerStart->GetTeamSide()) 
 			{
 				return PlayerStartActor;
 			}
@@ -59,6 +89,7 @@ AActor* APWGameMode::GetSpawnPoints(int32 PlayerIndex) const
 
 void APWGameMode::StartGame()
 {
+	//Turn Setting
 	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, 0);
 	if (IsValid(PlayerControllerInTurn) == true)
 	{

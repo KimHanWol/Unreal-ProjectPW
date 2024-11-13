@@ -11,9 +11,8 @@
 //Default
 #include "PWPlayerStart.generated.h"
 
-/**
- * 
- */
+enum class ETeamSide : uint8;
+
 UCLASS()
 class PROJECTPW_API APWPlayerStart : public APlayerStart
 {
@@ -21,10 +20,10 @@ class PROJECTPW_API APWPlayerStart : public APlayerStart
 	
 public:
 
-	int32 GetPlayerIndex() const { return PlayerIndex; }
+	ETeamSide GetTeamSide() const { return TeamSide; }
 
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	int32 PlayerIndex = 0;
+	ETeamSide TeamSide;
 };

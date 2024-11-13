@@ -11,9 +11,27 @@
 //Default
 #include "PWGameState.generated.h"
 
-/**
- * 
- */
+UENUM(BlueprintType)
+enum class ETeamSide : uint8
+{
+	Red,
+	Blue,
+};
+
+USTRUCT(BlueprintType)
+struct FCharacterData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(Transient)
+	class APWPlayerCharacter* PlayerCharacter;
+
+	UPROPERTY(Transient)
+	ETeamSide PlayerTeamSide;
+};
+
 UCLASS()
 class PROJECTPW_API APWGameState : public AGameStateBase
 {
@@ -27,7 +45,7 @@ public:
 	int32 GetCurrentRoundIndex() const { return CurrentRoundIndex; }
 
 private:
-	
+
 	// 0 or 1
 	UPROPERTY(Transient)
 	int32 CurrentPlayersTurn = 0;

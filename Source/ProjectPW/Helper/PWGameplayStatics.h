@@ -23,4 +23,10 @@ public:
 
 	static class APWPlayerController* GetLocalPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
+
+	template <typename EnumType> 
+	static FORCEINLINE FString ConvertEnumToString(const UObject* WorldContextObj, const EnumType InValue)
+	{
+		return StaticEnum<EnumType>()->GetNameStringByValue(static_cast<int64>(InValue)); 
+	}
 };
