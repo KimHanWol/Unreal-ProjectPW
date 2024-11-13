@@ -5,9 +5,11 @@
 
 //Engine
 #include "EngineUtils.h"
+#include "Net/UnrealNetwork.h"
+
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/InputMappingContext.h"
-#include "Net/UnrealNetwork.h"
+
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
@@ -16,7 +18,6 @@
 #include "Core/PWPlayerState.h"
 #include "UI/MasterWidget.h"
 #include "Helper/PWGameplayStatics.h"
-
 
 void APWPlayerController::BeginPlay()
 {
@@ -28,8 +29,19 @@ void APWPlayerController::BeginPlay()
 		MasterWidget->AddToViewport();
 	}
 
-	//TODO: PlayerInputComponent 구현해서 넣기?
+	if (HasAuthority() == true)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Server"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Client"));
+	}
+
 	TryCreateInputHandler();
+
+	//Input Component 상속받아서 옮기기
+
 	if (IsValid(DefaultContext))
 	{
 		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
@@ -45,6 +57,11 @@ void APWPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APWPlayerController, TeamSide);
+}
+
+void APWPlayerController::AcknowledgePossession(APawn* P)
+{
+	Super::AcknowledgePossession(P);
 }
 
 void APWPlayerController::OnPossess(APawn* InPawn)
@@ -86,25 +103,13 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)
 {
-	bool bIsCommander = SelectNum == 0;
-
-	if (bIsCommander == true)
+	if (SelectNum == 0)
 	{
 		Possess(CommanderPawn);
 	}
 	else if (PossessableCharacterList.Num() > SelectNum)
 	{
 		Possess(PossessableCharacterList[SelectNum - 1]);
-	}
-
-	if (IsValid(CommanderInputHandler) == true)
-	{
-		CommanderInputHandler->SetInputEnabled(bIsCommander);
-	}
-
-	if (IsValid(CharacterInputHandler) == true)
-	{
-		CharacterInputHandler->SetInputEnabled(!bIsCommander);
 	}
 }
 
@@ -145,16 +150,18 @@ void APWPlayerController::TryCreateInputHandler()
 	{
 		if (IsValid(CommanderInputHandlerClass) == true)
 		{
-			CommanderInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
-			CommanderInputHandler->SetupKeyBindings(this, InputComponent);
-			CommanderInputHandler->SetInputEnabled(true);
+			UCommanderInputHandler* NewInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
+			NewInputHandler->SetupKeyBindings(this, InputComponent);
+			NewInputHandler->SetInputEnabled(true);
+			CommanderInputHandler = NewInputHandler;
 		}
 
 		if (IsValid(CharacterInputHandlerClass) == true)
 		{
-			CharacterInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
-			CharacterInputHandler->SetupKeyBindings(this, InputComponent);
-			CharacterInputHandler->SetInputEnabled(false);
+			UCharacterInputHandler* NewInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
+			NewInputHandler->SetupKeyBindings(this, InputComponent);
+			NewInputHandler->SetInputEnabled(false);
+			CharacterInputHandler = NewInputHandler;
 		}
 	}
 }

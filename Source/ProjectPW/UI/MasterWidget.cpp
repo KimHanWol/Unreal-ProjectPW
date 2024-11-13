@@ -6,7 +6,7 @@
 //Engine
 
 //Game
-#include "UI/MainWidget.h"
+#include "UI/Main/MainWidget.h"
 
 void UMasterWidget::NativeConstruct()
 {

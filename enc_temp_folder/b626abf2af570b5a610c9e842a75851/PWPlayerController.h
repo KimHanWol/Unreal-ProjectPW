@@ -23,10 +23,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	virtual void AcknowledgePossession(class APawn* P) override;
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
-
 public:
 
 	UFUNCTION(Client, Reliable)
@@ -39,7 +39,6 @@ public:
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
 private:
-
 
 	UFUNCTION()
 	void OnRep_TeamSide();
