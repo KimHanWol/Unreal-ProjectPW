@@ -26,10 +26,9 @@ protected:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player);
 
 private:
-
-	AActor* GetSpawnPoints(int32 PlayerIndex) const;
 	
 	void StartGame();
 	void TextTurn();
 
+	AActor* GetSpawnPoints(int32 PlayerIndex) const;
 };

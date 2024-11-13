@@ -11,11 +11,9 @@
 #include "Actor/PWPlayerStart.h"
 #include "PWGameState.h"
 
-//현재 차례인 플레이어 컨트롤러 반환
 #define GET_PLAYER_INTURN(InWorldContext, InCurrentPlayersTurn) \
 	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), InCurrentPlayersTurn)))
 
-//다음 차례인 플레이어 컨트롤러 반환
 #define GET_PLAYER_NOTTURN(InWorldContext, InCurrentPlayersTurn) \
 	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), 1 - InCurrentPlayersTurn)))
 
@@ -35,26 +33,6 @@ AActor* APWGameMode::ChoosePlayerStart_Implementation(AController* Player)
 	// 현재 플레이어의 수에 따라서 플레이어의 Index 설정 
 	int32 PlayerNum = GetNumPlayers();
 	return GetSpawnPoints(PlayerNum - 1);
-}
-
-AActor* APWGameMode::GetSpawnPoints(int32 PlayerIndex) const
-{
-	TArray<AActor*> PlayerStartList;
-	UGameplayStatics::GetAllActorsOfClass(this, APWPlayerStart::StaticClass(), PlayerStartList);
-
-	for (AActor* PlayerStartActor : PlayerStartList)
-	{
-		const APWPlayerStart* PlayerStart = Cast<APWPlayerStart>(PlayerStartActor);
-		if (IsValid(PlayerStart) == true)
-		{
-			if (PlayerIndex == PlayerStart->GetPlayerIndex()) 
-			{
-				return PlayerStartActor;
-			}
-		}
-	}
-
-	return nullptr;
 }
 
 void APWGameMode::StartGame()
@@ -98,4 +76,26 @@ void APWGameMode::TextTurn()
 	}
 
 	PWGameState->NextTurn();
+
+	UE_LOG(LogTemp, Log, TEXT("Turn Changed : %d Turn, Player %d"), PWGameState->GetCurrentRoundIndex() + 1, PWGameState->GetCurrentPlayerTurn());
+}
+
+AActor* APWGameMode::GetSpawnPoints(int32 PlayerIndex) const
+{
+	TArray<AActor*> PlayerStartList;
+	UGameplayStatics::GetAllActorsOfClass(this, APWPlayerStart::StaticClass(), PlayerStartList);
+
+	for (AActor* PlayerStartActor : PlayerStartList)
+	{
+		const APWPlayerStart* PlayerStart = Cast<APWPlayerStart>(PlayerStartActor);
+		if (IsValid(PlayerStart) == true)
+		{
+			if (PlayerIndex == PlayerStart->GetPlayerIndex()) 
+			{
+				return PlayerStartActor;
+			}
+		}
+	}
+
+	return nullptr;
 }

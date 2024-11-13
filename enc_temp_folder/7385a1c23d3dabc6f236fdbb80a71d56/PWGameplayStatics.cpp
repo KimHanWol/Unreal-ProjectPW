@@ -5,7 +5,10 @@
 
 //Engine
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWGameState.h"
 #include "Core/PWPlayerState.h"
+#include "GameFramework/Controller.h"
+#include "GameFramework/PlayerState.h"
 
 //Game
 
