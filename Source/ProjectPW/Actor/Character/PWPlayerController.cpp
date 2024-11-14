@@ -142,7 +142,7 @@ void APWPlayerController::SetTeamSide(ETeamSide NewTeamSide)
 
 void APWPlayerController::SetMouseInputToUI(bool bInShowWithCursor)
 {
-	bShowMouseCursor = bShowMouseCursor;
+	bShowMouseCursor = bInShowWithCursor;
 
 	FlushPressedKeys();
 
@@ -152,6 +152,8 @@ void APWPlayerController::SetMouseInputToUI(bool bInShowWithCursor)
 
 void APWPlayerController::SetMouseInputToGame()
 {
+	bShowMouseCursor = false;
+
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
 }

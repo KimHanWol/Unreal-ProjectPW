@@ -5,11 +5,9 @@
 
 //Engine
 #include "EngineUtils.h"
-#include "Net/UnrealNetwork.h"
-
 #include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 #include "EnhancedInput/Public/InputMappingContext.h"
-
+#include "Net/UnrealNetwork.h"
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
@@ -18,6 +16,12 @@
 #include "Core/PWPlayerState.h"
 #include "UI/MasterWidget.h"
 #include "Helper/PWGameplayStatics.h"
+
+APWPlayerController::APWPlayerController()
+{
+	bShowMouseCursor = true;
+}
+
 
 void APWPlayerController::BeginPlay()
 {
@@ -29,19 +33,8 @@ void APWPlayerController::BeginPlay()
 		MasterWidget->AddToViewport();
 	}
 
-	if (HasAuthority() == true)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Server"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Client"));
-	}
-
+	//TODO: PlayerInputComponent 구현해서 넣기?
 	TryCreateInputHandler();
-
-	//Input Component 상속받아서 옮기기
-
 	if (IsValid(DefaultContext))
 	{
 		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
@@ -57,11 +50,6 @@ void APWPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APWPlayerController, TeamSide);
-}
-
-void APWPlayerController::AcknowledgePossession(APawn* P)
-{
-	Super::AcknowledgePossession(P);
 }
 
 void APWPlayerController::OnPossess(APawn* InPawn)
@@ -103,13 +91,46 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)
 {
-	if (SelectNum == 0)
+	if (IsValid(CommanderInputHandler) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (IsValid(CharacterInputHandler) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	bool bIsCommander = SelectNum == 0;
+
+	if (bIsCommander == true)
 	{
 		Possess(CommanderPawn);
+		CommanderInputHandler->SetInputEnabled(true);
+		CharacterInputHandler->SetInputEnabled(false);
+
+		//TODO: Event 로 전환
+		if (IsValid(MasterWidget))
+		{
+			MasterWidget->EnableMainWidget(true);
+		}
+
+		SetMouseInputToUI(true);
 	}
-	else if (PossessableCharacterList.Num() > SelectNum)
+	else if (PossessableCharacterList.Num() > SelectNum - 1)
 	{
 		Possess(PossessableCharacterList[SelectNum - 1]);
+		CommanderInputHandler->SetInputEnabled(false);
+		CharacterInputHandler->SetInputEnabled(true);
+
+		if (IsValid(MasterWidget))
+		{
+			MasterWidget->EnableMainWidget(false);
+		}
+
+		SetMouseInputToGame();
 	}
 }
 
@@ -117,6 +138,22 @@ void APWPlayerController::SetTeamSide(ETeamSide NewTeamSide)
 {
 	TeamSide = NewTeamSide;
 	OnRep_TeamSide();
+}
+
+void APWPlayerController::SetMouseInputToUI(bool bInShowWithCursor)
+{
+	bShowMouseCursor = bShowMouseCursor;
+
+	FlushPressedKeys();
+
+	FInputModeUIOnly InputMode;
+	SetInputMode(InputMode);
+}
+
+void APWPlayerController::SetMouseInputToGame()
+{
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
 }
 
 void APWPlayerController::OnRep_TeamSide()
@@ -150,18 +187,16 @@ void APWPlayerController::TryCreateInputHandler()
 	{
 		if (IsValid(CommanderInputHandlerClass) == true)
 		{
-			UCommanderInputHandler* NewInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
-			NewInputHandler->SetupKeyBindings(this, InputComponent);
-			NewInputHandler->SetInputEnabled(true);
-			CommanderInputHandler = NewInputHandler;
+			CommanderInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
+			CommanderInputHandler->SetupKeyBindings(this, InputComponent);
+			CommanderInputHandler->SetInputEnabled(true);
 		}
 
 		if (IsValid(CharacterInputHandlerClass) == true)
 		{
-			UCharacterInputHandler* NewInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
-			NewInputHandler->SetupKeyBindings(this, InputComponent);
-			NewInputHandler->SetInputEnabled(false);
-			CharacterInputHandler = NewInputHandler;
+			CharacterInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
+			CharacterInputHandler->SetupKeyBindings(this, InputComponent);
+			CharacterInputHandler->SetInputEnabled(false);
 		}
 	}
 }
