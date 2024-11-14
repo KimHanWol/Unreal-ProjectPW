@@ -18,7 +18,14 @@ class PROJECTPW_API APWPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	APWPlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+protected:
+
+	virtual void BeginPlay() override;
+
 public:
+
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
@@ -26,4 +33,7 @@ private:
 
 	UPROPERTY(EditInstanceOnly)
 	ETeamSide TeamSide;
+
+	UPROPERTY(EditAnywhere)
+	class UPWEquipmentComponent* PWEquipmentComponent;
 };

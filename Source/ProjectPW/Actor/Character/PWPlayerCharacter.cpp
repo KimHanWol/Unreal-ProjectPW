@@ -6,3 +6,21 @@
 //Engine
 
 //Game
+#include "Component/PWEquipmentComponent.h"
+
+
+APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
+: Super(ObjectInitializer)
+{
+	PWEquipmentComponent = CreateDefaultSubobject<UPWEquipmentComponent>(TEXT("EquipmentComponent"));
+}
+
+void APWPlayerCharacter::BeginPlay()
+{	
+	Super::BeginPlay();
+
+	if (IsValid(PWEquipmentComponent))
+	{
+		PWEquipmentComponent->InitializeComponent();
+	}
+}
