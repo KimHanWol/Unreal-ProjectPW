@@ -27,8 +27,6 @@ private:
 
 	void CloseAllWidget();
 
-public:
-
 	void EnableMainWidget(bool bEnabled);
 
 protected:

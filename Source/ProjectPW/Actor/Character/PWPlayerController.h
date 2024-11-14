@@ -18,6 +18,8 @@ class PROJECTPW_API APWPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+	APWPlayerController();
+
 protected:
 	
 	virtual void BeginPlay() override;
@@ -37,6 +39,9 @@ public:
 
 	void SetTeamSide(ETeamSide NewTeamSide);
 	ETeamSide GetTeamSide() const { return TeamSide; }
+
+	void SetMouseInputToUI(bool bInShowWithCursor = true);
+	void SetMouseInputToGame();
 
 private:
 

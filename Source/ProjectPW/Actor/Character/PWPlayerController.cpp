@@ -17,6 +17,11 @@
 #include "UI/MasterWidget.h"
 #include "Helper/PWGameplayStatics.h"
 
+APWPlayerController::APWPlayerController()
+{
+	bShowMouseCursor = true;
+}
+
 
 void APWPlayerController::BeginPlay()
 {
@@ -86,25 +91,46 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)
 {
+	if (IsValid(CommanderInputHandler) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (IsValid(CharacterInputHandler) == false)
+	{
+		ensure(false);
+		return;
+	}
+
 	bool bIsCommander = SelectNum == 0;
 
 	if (bIsCommander == true)
 	{
 		Possess(CommanderPawn);
+		CommanderInputHandler->SetInputEnabled(true);
+		CharacterInputHandler->SetInputEnabled(false);
+
+		//TODO: Event 로 전환
+		if (IsValid(MasterWidget))
+		{
+			MasterWidget->EnableMainWidget(true);
+		}
+
+		SetMouseInputToUI(true);
 	}
-	else if (PossessableCharacterList.Num() > SelectNum)
+	else if (PossessableCharacterList.Num() > SelectNum - 1)
 	{
 		Possess(PossessableCharacterList[SelectNum - 1]);
-	}
+		CommanderInputHandler->SetInputEnabled(false);
+		CharacterInputHandler->SetInputEnabled(true);
 
-	if (IsValid(CommanderInputHandler) == true)
-	{
-		CommanderInputHandler->SetInputEnabled(bIsCommander);
-	}
+		if (IsValid(MasterWidget))
+		{
+			MasterWidget->EnableMainWidget(false);
+		}
 
-	if (IsValid(CharacterInputHandler) == true)
-	{
-		CharacterInputHandler->SetInputEnabled(!bIsCommander);
+		SetMouseInputToGame();
 	}
 }
 
@@ -112,6 +138,22 @@ void APWPlayerController::SetTeamSide(ETeamSide NewTeamSide)
 {
 	TeamSide = NewTeamSide;
 	OnRep_TeamSide();
+}
+
+void APWPlayerController::SetMouseInputToUI(bool bInShowWithCursor)
+{
+	bShowMouseCursor = bShowMouseCursor;
+
+	FlushPressedKeys();
+
+	FInputModeUIOnly InputMode;
+	SetInputMode(InputMode);
+}
+
+void APWPlayerController::SetMouseInputToGame()
+{
+	FInputModeGameOnly InputMode;
+	SetInputMode(InputMode);
 }
 
 void APWPlayerController::OnRep_TeamSide()

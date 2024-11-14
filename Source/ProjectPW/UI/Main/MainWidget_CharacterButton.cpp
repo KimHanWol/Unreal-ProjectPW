@@ -1,18 +1,47 @@
 // LINK
 
 //Default
+#include "Actor/Character/PWPlayerController.h"
+#include "Core/PWPlayerState.h"
+#include "Helper/PWGameplayStatics.h"
 #include "MainWidget_CharacterButton.h"
 
 //Engine
 
 //Game
 
-void UMainWidget_CharacterButton::InitializeWidget(int32 Number, const FName& InCharacterKey)
+void UMainWidget_CharacterButton::InitializeWidget(const FName& InCharacterKey)
 {
-	ButtonNum = Number;
 	CharacterKey = InCharacterKey;
 
 	InvalidateWidget();
+}
+
+FReply UMainWidget_CharacterButton::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	//TODO: 키보드 입력과 합칠 수 있으면 좋을 듯 (예: 이벤트시스템)
+	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(LocalPlayerController) == false)
+	{
+		ensure(false);
+		return FReply::Unhandled();
+	}
+
+	const APWPlayerState* PWPlayerState = LocalPlayerController->GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		ensure(false);
+		return FReply::Unhandled();
+	}
+
+	if (PWPlayerState->IsMyTurn() == false)
+	{
+		return FReply::Unhandled();
+	}
+
+	LocalPlayerController->SelectCharacter(ButtonIndex + 1);
+
+	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 void UMainWidget_CharacterButton::InvalidateWidget()
@@ -21,7 +50,7 @@ void UMainWidget_CharacterButton::InvalidateWidget()
 
 	if (IsValid(Text_Num) == true)
 	{
-		Text_Num->SetText(FText::FromString(FString::FromInt(ButtonNum)));
+		Text_Num->SetText(FText::FromString(FString::FromInt(ButtonIndex + 1)));
 	}
 
 	//Image_Portrait

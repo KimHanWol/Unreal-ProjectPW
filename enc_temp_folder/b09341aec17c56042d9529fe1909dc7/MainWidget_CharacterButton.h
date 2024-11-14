@@ -21,23 +21,14 @@ class PROJECTPW_API UMainWidget_CharacterButton : public UPWUserWidget
 
 public:
 
-	void InitializeWidget(const FName& InCharacterKey);
-
-	virtual FReply NativeOnMouseButtonDown( const FGeometry& InGeometry, const FPointerEvent& InMouseEvent ) override;
+	void InitializeWidget(int32 Number, const FName& InCharacterKey);
 
 protected:
 
 	virtual void InvalidateWidget() override;
 
-public:
-
-	DECLARE_MULTICAST_DELEGATE(FButtonPressed)
-	FButtonPressed ButtonPressedDelegate;
 
 protected:
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	int32 ButtonIndex = 0;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UTextBlock* Text_Num;
@@ -52,6 +43,9 @@ protected:
 	class UHorizontalBox* HBox_Stemina;
 
 private:
+
+	UPROPERTY(Transient)
+	int32 ButtonNum = 0;
 
 	UPROPERTY(Transient)
 	FName CharacterKey = NAME_None;
