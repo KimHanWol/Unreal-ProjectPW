@@ -9,9 +9,10 @@
 //Game
 #include "Actor/Equipments/PWEquipmentActorBase.h"
 
-void UPWEquipmentComponent::InitializeComponent()
+
+void UPWEquipmentComponent::BeginPlay()
 {
-	Super::InitializeComponent();
+	Super::BeginPlay();
 
 	//Hide already spawned useless bone
 	const ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
@@ -28,6 +29,16 @@ void UPWEquipmentComponent::InitializeComponent()
 	SpawnEquipmentActor();
 }
 
+void UPWEquipmentComponent::Execute()
+{
+	if (IsValid(SpawnedEquipmentActor) == false)
+	{
+		return;
+	}
+
+	SpawnedEquipmentActor->Execute();
+}
+
 void UPWEquipmentComponent::SpawnEquipmentActor()
 {
 	if (IsValid(EquipmentActorClass) == false)
@@ -40,10 +51,10 @@ void UPWEquipmentComponent::SpawnEquipmentActor()
 		return;
 	}
 
-	APWEquipmentActorBase* PWEquipmentActorBase = GetWorld()->SpawnActor<APWEquipmentActorBase>(EquipmentActorClass);
+	SpawnedEquipmentActor = GetWorld()->SpawnActor<APWEquipmentActorBase>(EquipmentActorClass);
 	if (IsValid(OwnerSkeletalMesh) == true)
 	{
-		PWEquipmentActorBase->AttachToComponent(OwnerSkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
-		PWEquipmentActorBase->SetOwner(GetOwner());
+		SpawnedEquipmentActor->AttachToComponent(OwnerSkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		SpawnedEquipmentActor->SetOwner(GetOwner());
 	}
 }

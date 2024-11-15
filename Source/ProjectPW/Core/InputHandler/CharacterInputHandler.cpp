@@ -26,7 +26,7 @@ void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerCon
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Move);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Jump);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Look);
-	EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Fire);
+	EnhancedInputComponent->BindAction(ExecuteAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Execute);
 	EnhancedInputComponent->BindAction(SelectAction_ESC, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Select_ESC);
 }
 
@@ -109,12 +109,20 @@ void UCharacterInputHandler::Look(const FInputActionValue& Value)
 	PWPlayerCharacter->AddControllerPitchInput(Value.Get<FVector2D>().Y);
 }
 
-void UCharacterInputHandler::Fire(const FInputActionValue& Value)
+void UCharacterInputHandler::Execute(const FInputActionValue& Value)
 {
 	if (IsInputEnabled() == false)
 	{
 		return;
 	}
+
+	APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(PWPlayerController->GetPawn());
+	if (IsValid(PWPlayerCharacter) == false)
+	{
+		return;
+	}
+
+	PWPlayerCharacter->Execute();
 }
 
 void UCharacterInputHandler::Select_ESC(const FInputActionValue& Value)

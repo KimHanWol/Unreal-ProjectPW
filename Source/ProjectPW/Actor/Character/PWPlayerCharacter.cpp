@@ -15,12 +15,10 @@ APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	PWEquipmentComponent = CreateDefaultSubobject<UPWEquipmentComponent>(TEXT("EquipmentComponent"));
 }
 
-void APWPlayerCharacter::BeginPlay()
-{	
-	Super::BeginPlay();
-
-	if (IsValid(PWEquipmentComponent))
+void APWPlayerCharacter::Execute()
+{
+	if (IsValid(PWEquipmentComponent) == true)
 	{
-		PWEquipmentComponent->InitializeComponent();
+		PWEquipmentComponent->Execute();
 	}
 }

@@ -17,9 +17,13 @@ class PROJECTPW_API UPWEquipmentComponent: public UActorComponent
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+
 public:
 
-	virtual void InitializeComponent() override;
+	void Execute();
 
 private:
 
@@ -32,4 +36,7 @@ private:
 
 	UPROPERTY(Transient)
 	USkeletalMeshComponent* OwnerSkeletalMesh;
+
+	UPROPERTY(Transient)
+	class APWEquipmentActorBase* SpawnedEquipmentActor;
 };

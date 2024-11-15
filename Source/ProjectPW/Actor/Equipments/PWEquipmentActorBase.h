@@ -17,4 +17,20 @@ class PROJECTPW_API APWEquipmentActorBase: public AActor
 {
 	GENERATED_BODY()
 
+protected:
+
+	APWEquipmentActorBase(const FObjectInitializer& ObjectInitializer);
+
+
+public:
+
+	virtual void Execute() {};
+
+	class UMeshComponent* GetMesh() { return MeshComponent; }
+
+private:
+
+	UPROPERTY(EditAnywhere)
+	class UMeshComponent* MeshComponent;
+
 };

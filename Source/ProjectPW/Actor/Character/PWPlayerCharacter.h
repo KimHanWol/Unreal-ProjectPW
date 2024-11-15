@@ -20,12 +20,9 @@ class PROJECTPW_API APWPlayerCharacter : public ACharacter
 
 	APWPlayerCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-protected:
-
-	virtual void BeginPlay() override;
-
 public:
 
+	void Execute();
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
