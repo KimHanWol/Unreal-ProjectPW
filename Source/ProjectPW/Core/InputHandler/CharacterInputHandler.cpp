@@ -26,7 +26,10 @@ void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerCon
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Move);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Jump);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Look);
-	EnhancedInputComponent->BindAction(ExecuteAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Execute);
+	EnhancedInputComponent->BindAction(ExecuteAction_Main, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Execute_Main_Triggered);
+	EnhancedInputComponent->BindAction(ExecuteAction_Main, ETriggerEvent::Completed, this, &UCharacterInputHandler::Execute_Main_Completed);
+	EnhancedInputComponent->BindAction(ExecuteAction_Sub, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Execute_Sub_Triggered);
+	EnhancedInputComponent->BindAction(ExecuteAction_Sub, ETriggerEvent::Completed, this, &UCharacterInputHandler::Execute_Sub_Completed);
 	EnhancedInputComponent->BindAction(SelectAction_ESC, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Select_ESC);
 }
 
@@ -109,7 +112,7 @@ void UCharacterInputHandler::Look(const FInputActionValue& Value)
 	PWPlayerCharacter->AddControllerPitchInput(Value.Get<FVector2D>().Y);
 }
 
-void UCharacterInputHandler::Execute(const FInputActionValue& Value)
+void UCharacterInputHandler::Execute_Main_Triggered(const FInputActionValue& Value)
 {
 	if (IsInputEnabled() == false)
 	{
@@ -122,7 +125,55 @@ void UCharacterInputHandler::Execute(const FInputActionValue& Value)
 		return;
 	}
 
-	PWPlayerCharacter->Execute();
+	PWPlayerCharacter->Execute_Main_Triggered();
+}
+
+void UCharacterInputHandler::Execute_Main_Completed(const FInputActionValue& Value)
+{
+	if (IsInputEnabled() == false)
+	{
+		return;
+	}
+
+	APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(PWPlayerController->GetPawn());
+	if (IsValid(PWPlayerCharacter) == false)
+	{
+		return;
+	}
+
+	PWPlayerCharacter->Execute_Main_Completed();
+}
+
+void UCharacterInputHandler::Execute_Sub_Triggered(const FInputActionValue& Value)
+{
+	if (IsInputEnabled() == false)
+	{
+		return;
+	}
+
+	APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(PWPlayerController->GetPawn());
+	if (IsValid(PWPlayerCharacter) == false)
+	{
+		return;
+	}
+
+	PWPlayerCharacter->Execute_Sub_Triggered();
+}
+
+void UCharacterInputHandler::Execute_Sub_Completed(const FInputActionValue& Value)
+{
+	if (IsInputEnabled() == false)
+	{
+		return;
+	}
+
+	APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(PWPlayerController->GetPawn());
+	if (IsValid(PWPlayerCharacter) == false)
+	{
+		return;
+	}
+
+	PWPlayerCharacter->Execute_Sub_Completed();
 }
 
 void UCharacterInputHandler::Select_ESC(const FInputActionValue& Value)

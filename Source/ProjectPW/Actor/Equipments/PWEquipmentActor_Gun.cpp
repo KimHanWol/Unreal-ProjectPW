@@ -7,29 +7,30 @@
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystem.h"
+#include "Runtime/CoreUObject/Public/UObject/SoftObjectPtr.h"
 
 //Game
+#include "Helper/PWGameplayStatics.h"
 
 void APWEquipmentActor_Gun::BeginPlay()
 {
 	Super::BeginPlay();
 
 	TArray<FSoftObjectPath> ItemsToStream;
-
-    FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-	if (MuzzleEffect.IsNull() == false)
+	if (MuzzleEffect.IsNull() == false && ImpactEffect.IsNull() == false && Montage_ADS.IsNull() == false)
 	{
 		ItemsToStream.AddUnique(MuzzleEffect.ToSoftObjectPath());
 		ItemsToStream.AddUnique(ImpactEffect.ToSoftObjectPath());
+		ItemsToStream.AddUnique(Montage_ADS.ToSoftObjectPath());
 	}
 
-    Streamable.RequestAsyncLoad(ItemsToStream);
+	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
 }
 
-void APWEquipmentActor_Gun::Execute()
+void APWEquipmentActor_Gun::Execute_Main_Triggered()
 {
-	Super::Execute();
+	Super::Execute_Main_Triggered();
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
@@ -48,12 +49,14 @@ void APWEquipmentActor_Gun::Execute()
 	//Muzzle Effect
 	if (MuzzleEffect.IsNull() == false)
 	{
-		UGameplayStatics::SpawnEmitterAttached(
+		UPWGameplayStatics::SpawnEmitterAttached(
 			MuzzleEffect.LoadSynchronous(),
 			GetMesh(),
 			TEXT("MuzzleFlashSocket")
 		);
 	}
+
+	EnableADS(true);
 
 	//Hit Test
 	bool bHitSuccess = false;
@@ -82,6 +85,59 @@ void APWEquipmentActor_Gun::Execute()
 	const FVector& ShotDirection = -ViewPointRotation.Vector();
 	if (ImpactEffect.IsNull() == false)
 	{
-		UGameplayStatics::SpawnEmitterAtLocation(this, ImpactEffect.LoadSynchronous() ,HitResult.Location, ShotDirection.Rotation());
+		UPWGameplayStatics::SpawnEmitterAtLocation(this, ImpactEffect.LoadSynchronous() ,HitResult.Location, ShotDirection.Rotation());
+	}
+}
+
+void APWEquipmentActor_Gun::Execute_Main_Completed()
+{
+	if (bIsSubExecuting == false)
+	{
+		EnableADS(false);
+	}
+}
+
+void APWEquipmentActor_Gun::Execute_Sub_Triggered()
+{
+	Super::Execute_Sub_Triggered();
+
+	bIsSubExecuting = true;
+	EnableADS(true);
+}
+
+void APWEquipmentActor_Gun::Execute_Sub_Completed()
+{
+	Super::Execute_Sub_Completed();
+
+	bIsSubExecuting = false;
+	EnableADS(false);
+}
+
+void APWEquipmentActor_Gun::EnableADS(bool bEnabled)
+{
+	if (bEnabled == bIsADSAnimPlaying)
+	{
+		return;
+	}
+
+	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	if (IsValid(OwnerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (Montage_ADS.IsNull() == false)
+	{
+		if (bEnabled == true)
+		{
+			OwnerCharacter->PlayAnimMontage(Montage_ADS.LoadSynchronous());
+			bIsADSAnimPlaying = true;
+		}
+		else
+		{
+			OwnerCharacter->StopAnimMontage(Montage_ADS.LoadSynchronous());
+			bIsADSAnimPlaying = false;
+		}
 	}
 }

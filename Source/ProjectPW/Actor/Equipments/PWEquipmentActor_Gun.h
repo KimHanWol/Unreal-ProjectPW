@@ -24,16 +24,37 @@ protected:
 public:
 
 	//Fire
-	virtual void Execute() override;
+	virtual void Execute_Main_Triggered() override;
+	virtual void Execute_Main_Completed() override;
+
+	//ADS
+	virtual void Execute_Sub_Triggered() override;
+	virtual void Execute_Sub_Completed() override;
 
 private:
 
-	UPROPERTY(EditDefaultsOnly)
+	void EnableADS(bool bEnabled);
+
+private:
+
+	//TODO: Particle Table 같은 곳으로 이전
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
 	TSoftObjectPtr<class UParticleSystem> MuzzleEffect;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Effect")
 	TSoftObjectPtr<class UParticleSystem> ImpactEffect;
+
+	//TODO: Character AnimSet 같은 곳으로 이전
+	UPROPERTY(EditDefaultsOnly, Category = "Anim")
+	TSoftObjectPtr<class UAnimMontage> Montage_ADS;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxRange = 1000.f;
+
+	UPROPERTY(Transient)
+	bool bIsADSAnimPlaying = false;
+
+	//Weather RMB is pressed
+	UPROPERTY(Transient)
+	bool bIsSubExecuting = false;
 };

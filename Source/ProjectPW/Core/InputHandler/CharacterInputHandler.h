@@ -28,7 +28,10 @@ private:
 	void Move(const struct FInputActionValue& Value);
 	void Jump(const struct FInputActionValue& Value);
 	void Look(const struct FInputActionValue& Value);
-	void Execute(const struct FInputActionValue& Value);
+	void Execute_Main_Triggered(const struct FInputActionValue& Value);
+	void Execute_Main_Completed(const struct FInputActionValue& Value);
+	void Execute_Sub_Triggered(const struct FInputActionValue& Value);
+	void Execute_Sub_Completed(const struct FInputActionValue& Value);
 	void Select_ESC(const struct FInputActionValue& Value);
 
 private:
@@ -43,7 +46,10 @@ private:
 	class UInputAction* LookAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
-	class UInputAction* ExecuteAction;
+	class UInputAction* ExecuteAction_Main;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
+	class UInputAction* ExecuteAction_Sub;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
 	class UInputAction* SelectAction_ESC;

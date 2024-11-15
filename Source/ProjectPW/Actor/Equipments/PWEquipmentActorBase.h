@@ -24,7 +24,11 @@ protected:
 
 public:
 
-	virtual void Execute() {};
+	virtual void Execute_Main_Triggered() {};
+	virtual void Execute_Main_Completed() {};
+
+	virtual void Execute_Sub_Triggered() {};
+	virtual void Execute_Sub_Completed() {};
 
 	class UMeshComponent* GetMesh() { return MeshComponent; }
 

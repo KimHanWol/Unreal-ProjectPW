@@ -29,14 +29,44 @@ void UPWEquipmentComponent::BeginPlay()
 	SpawnEquipmentActor();
 }
 
-void UPWEquipmentComponent::Execute()
+void UPWEquipmentComponent::Execute_Main_Triggered()
 {
 	if (IsValid(SpawnedEquipmentActor) == false)
 	{
 		return;
 	}
 
-	SpawnedEquipmentActor->Execute();
+	SpawnedEquipmentActor->Execute_Main_Triggered();
+}
+
+void UPWEquipmentComponent::Execute_Main_Completed()
+{
+	if (IsValid(SpawnedEquipmentActor) == false)
+	{
+		return;
+	}
+
+	SpawnedEquipmentActor->Execute_Main_Completed();
+}
+
+void UPWEquipmentComponent::Execute_Sub_Triggered()
+{
+	if (IsValid(SpawnedEquipmentActor) == false)
+	{
+		return;
+	}
+
+	SpawnedEquipmentActor->Execute_Sub_Triggered();
+}
+
+void UPWEquipmentComponent::Execute_Sub_Completed()
+{
+	if (IsValid(SpawnedEquipmentActor) == false)
+	{
+		return;
+	}
+
+	SpawnedEquipmentActor->Execute_Sub_Completed();
 }
 
 void UPWEquipmentComponent::SpawnEquipmentActor()

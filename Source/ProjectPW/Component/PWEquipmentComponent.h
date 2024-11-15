@@ -23,7 +23,11 @@ protected:
 
 public:
 
-	void Execute();
+	void Execute_Main_Triggered();
+	void Execute_Main_Completed();
+
+	void Execute_Sub_Triggered();
+	void Execute_Sub_Completed();
 
 private:
 
