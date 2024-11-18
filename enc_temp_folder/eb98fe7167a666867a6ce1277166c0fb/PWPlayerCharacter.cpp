@@ -109,8 +109,6 @@ void APWPlayerCharacter::LoadCharacterDefaultStats()
 		{
 			PWAttributeSet_Damageable->InitHealth(PWCharacterDataTableRow->Health);
 			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), PWCharacterDataTableRow->Health));
-			PWAttributeSet_Damageable->InitMaxHealth(PWCharacterDataTableRow->Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), PWCharacterDataTableRow->Health));
 		}
 		if (IsValid(PWAttributeSet_Attackable) == true)
 		{

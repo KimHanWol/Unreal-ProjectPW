@@ -22,6 +22,7 @@ class PROJECTPW_API UPWGameInstance : public UGameInstance
 protected:
 
 	virtual void Init() override;
+	virtual void Shutdown() override;
 
 public:
 
@@ -29,6 +30,9 @@ public:
 
 	static class UPWGameData* GetGameData(const UObject* WorldContextObj);
 	class UPWGameData* GetGameData();
+
+	static class UPWEventManager* GetEventManager(const UObject* WorldContextObj);
+	FORCEINLINE class UPWEventManager* GetEventManager() const { return PWEventManager; }
 
 protected:
 
@@ -39,4 +43,7 @@ private:
 
 	UPROPERTY(Transient)
 	class UPWGameData* PWGameData;
+
+	UPROPERTY(Transient)
+	class UPWEventManager* PWEventManager;
 };

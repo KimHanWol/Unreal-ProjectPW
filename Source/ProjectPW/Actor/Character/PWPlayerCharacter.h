@@ -66,6 +66,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UAbilitySystemComponent* AbilitySystemComponent;
 
+	UPROPERTY(VisibleAnywhere)
+	class UPWCharacterHUDComponent* CharacterHUDComponent;
+
 	UPROPERTY(Transient)
 	class UPWAttributeSet_Attackable* PWAttributeSet_Attackable;
 

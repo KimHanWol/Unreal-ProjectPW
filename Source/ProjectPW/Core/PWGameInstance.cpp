@@ -8,6 +8,7 @@
 //Game
 #include "Data/DataAsset/PWGameData.h"
 #include "Helper/PWGameplayStatics.h"
+#include "PWEventManager.h"
 
 void UPWGameInstance::Init()
 {
@@ -19,6 +20,19 @@ void UPWGameInstance::Init()
 		ItemsToStream.AddUnique(PWGameDataPtr.ToSoftObjectPath());
 	}
 	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
+
+	PWEventManager = NewObject<UPWEventManager>(this, UPWEventManager::StaticClass());
+	PWEventManager->AddToRoot();
+}
+
+void UPWGameInstance::Shutdown()
+{
+	Super::Shutdown();
+
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->RemoveFromRoot();
+	}
 }
 
 UPWGameInstance* UPWGameInstance::Get(const UObject* WorldContextObj)
@@ -47,4 +61,9 @@ UPWGameData* UPWGameInstance::GetGameData()
 	}
 
 	return nullptr;
+}
+
+UPWEventManager* UPWGameInstance::GetEventManager(const UObject* WorldContextObj)
+{
+	return UPWGameInstance::Get(WorldContextObj)->GetEventManager();
 }

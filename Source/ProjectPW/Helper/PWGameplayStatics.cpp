@@ -6,11 +6,24 @@
 //Engine
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
+#include "GameFramework/Character.h"
 #include "Particles/ParticleSystem.h"
 
 //Game
+#include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWPlayerState.h"
+
+APWPlayerCharacter* UPWGameplayStatics::GetLocalPlayerCharacter(const UObject* WorldContextObj)
+{
+	APWPlayerController* PWPlayerController = GetLocalPlayerController(WorldContextObj);
+	if (IsValid(PWPlayerController) == true)
+	{
+		 return Cast<APWPlayerCharacter>(PWPlayerController->GetCharacter());
+	}
+
+	return nullptr;
+}
 
 APWPlayerController* UPWGameplayStatics::GetLocalPlayerController(const UObject* WorldContextObj)
 {

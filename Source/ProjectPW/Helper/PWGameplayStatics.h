@@ -21,6 +21,7 @@ class PROJECTPW_API UPWGameplayStatics : public UGameplayStatics
 
 public:
 
+	static class APWPlayerCharacter* GetLocalPlayerCharacter(const UObject* WorldContextObj);
 	static class APWPlayerController* GetLocalPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
