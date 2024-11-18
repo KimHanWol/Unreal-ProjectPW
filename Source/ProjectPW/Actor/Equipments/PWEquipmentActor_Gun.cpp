@@ -4,6 +4,7 @@
 #include "PWEquipmentActor_Gun.h"
 
 //Engine
+#include "AbilitySystemComponent.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "GameFramework/Character.h"
@@ -11,7 +12,11 @@
 #include "Runtime/CoreUObject/Public/UObject/SoftObjectPtr.h"
 
 //Game
+#include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
+#include "Actor/Character/PWPlayerCharacter.h"
 #include "Helper/PWGameplayStatics.h"
+#include "Interface/PWAttackableInterface.h"
+#include "Interface/PWDamageableInterface.h"
 
 void APWEquipmentActor_Gun::BeginPlay()
 {
@@ -32,7 +37,7 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 {
 	Super::Execute_Main_Triggered();
 
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
 	{
 		ensure(false);
@@ -76,16 +81,33 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 		bHitSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, ViewPointLocation, EndLocation, ECollisionChannel::ECC_GameTraceChannel1, Params);
 	}
 
-	if (bHitSuccess == false)
+	if (bHitSuccess == true)
 	{
-		return;
-	}
+		//Hit Success
+		const FVector& ShotDirection = -ViewPointRotation.Vector();
+		if (ImpactEffect.IsNull() == false)
+		{
+			UPWGameplayStatics::SpawnEmitterAtLocation(this, ImpactEffect.LoadSynchronous() ,HitResult.Location, ShotDirection.Rotation());
+		}
 
-	//Hit Success
-	const FVector& ShotDirection = -ViewPointRotation.Vector();
-	if (ImpactEffect.IsNull() == false)
-	{
-		UPWGameplayStatics::SpawnEmitterAtLocation(this, ImpactEffect.LoadSynchronous() ,HitResult.Location, ShotDirection.Rotation());
+		IPWAttackableInterface* AttackableSource = Cast<IPWAttackableInterface>(GetOwner());
+		IPWDamageableInterface* DamageableTarget = Cast<IPWDamageableInterface>(HitResult.GetActor());
+		if (AttackableSource == nullptr || DamageableTarget == nullptr)
+		{
+			return;
+		}
+
+		//Apply Damage
+		const UAbilitySystemComponent* OwnerASC = OwnerCharacter->GetAbilitySystemComponent();
+		if (IsValid(OwnerASC) == true)
+		{
+			const UPWAttributeSet_Attackable* OwnerAttributeSet_Attackable = Cast<UPWAttributeSet_Attackable>(OwnerASC->GetAttributeSet(UPWAttributeSet_Attackable::StaticClass()));
+			if (IsValid(OwnerAttributeSet_Attackable) == true)
+			{
+				OwnerAttributeSet_Attackable->GetDamage();
+			}
+			DamageableTarget->ApplyDamage(AttackableSource, OwnerAttributeSet_Attackable->GetDamage());
+		}
 	}
 }
 
