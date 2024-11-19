@@ -21,9 +21,13 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps( TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
 
+private:
+
+	UFUNCTION() void OnRep_HealAmount();
+
 public:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Heal", Replicated)
+	UPROPERTY(BlueprintReadOnly, Category = "Heal", ReplicatedUsing = OnRep_HealAmount)
 	FGameplayAttributeData HealAmount;
 	ATTRIBUTE_ACCESSORS(UPWAttributeSet_Healable, HealAmount)
 };

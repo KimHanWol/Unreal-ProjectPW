@@ -14,3 +14,7 @@ void UPWAttributeSet_Healable::GetLifetimeReplicatedProps(TArray<class FLifetime
 
     DOREPLIFETIME(UPWAttributeSet_Healable, HealAmount);
 }
+
+void UPWAttributeSet_Healable::OnRep_HealAmount()
+{
+}

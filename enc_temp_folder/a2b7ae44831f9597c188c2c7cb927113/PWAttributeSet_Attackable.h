@@ -21,9 +21,13 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps( TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
 
+private:
+
+	UFUNCTION() void OnRep_Damage();
+
 public:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Damage", Replicated)
+	UPROPERTY(BlueprintReadOnly, Category = "Damage", ReplicatedUsing = OnRep_Damage)
 	FGameplayAttributeData Damage;
 	ATTRIBUTE_ACCESSORS(UPWAttributeSet_Attackable, Damage)
 };

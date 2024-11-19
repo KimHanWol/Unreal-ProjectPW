@@ -70,7 +70,6 @@ void UMainWidget::OnGameOver(bool bWon)
 {
 	if (IsValid(Text_Result) == true)
 	{
-		Text_Result->SetVisibility(ESlateVisibility::Visible);
 		Text_Result->SetText(bWon ? FText::FromString(TEXT("You Win")) : FText::FromString(TEXT("You Lose")));
 	}
 }

@@ -35,6 +35,10 @@ public:
 	void SC_ChangeTurn(bool bMyTurn);
 	void SC_ChangeTurn_Implementation(bool bMyTurn);
 
+	UFUNCTION(Client, Reliable)
+	void SC_GameOver(bool bWon);
+	void SC_GameOver_Implementation(bool bWon);
+
 	void SelectCharacter(int32 SelectNum);
 
 	void SetTeamSide(ETeamSide NewTeamSide);
@@ -44,7 +48,6 @@ public:
 	void SetMouseInputToGame();
 
 private:
-
 
 	UFUNCTION()
 	void OnRep_TeamSide();

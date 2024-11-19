@@ -10,6 +10,7 @@
 //Game
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/Character/PWPlayerCharacter.h"
+#include "Core/PWEventManager.h"
 #include "UI/HUD/CharacterInGameHUD.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -17,17 +18,16 @@ void UPWCharacterHUDComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (ensure(IsValid(WidgetClass) == true))
+	UCharacterInGameHUD* InGameHUDWidget = Cast<UCharacterInGameHUD>(GetUserWidgetObject());
+	if (IsValid(InGameHUDWidget) == true)
 	{
-		UCharacterInGameHUD* InGameHUDWidget = Cast<UCharacterInGameHUD>(GetUserWidgetObject());
-		if (IsValid(InGameHUDWidget) == true)
-		{
-			InGameHUDWidget->InitializeHUDWidget(Cast<APWPlayerCharacter>(GetOwner()));
-		}
+		InGameHUDWidget->InitializeHUDWidget(Cast<APWPlayerCharacter>(GetOwner()));
 	}
+
+	RequestRedraw();
 }
 
-void UPWCharacterHUDComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UPWCharacterHUDComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 

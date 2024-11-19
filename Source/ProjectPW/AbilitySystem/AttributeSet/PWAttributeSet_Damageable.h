@@ -19,15 +19,20 @@ class PROJECTPW_API UPWAttributeSet_Damageable: public UPWAttributeSetBase
 
 protected:
 
-	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void GetLifetimeReplicatedProps( TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
+
+private:
+
+	UFUNCTION() void OnRep_Health();
+	UFUNCTION() void OnRep_MaxHealth();
 
 public:
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UPWAttributeSet_Damageable, Health)
 
-	UPROPERTY(BlueprintReadOnly, Category = "Health")
+	UPROPERTY(BlueprintReadOnly, Category = "Health", ReplicatedUsing = OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
 	ATTRIBUTE_ACCESSORS(UPWAttributeSet_Damageable, MaxHealth)
 

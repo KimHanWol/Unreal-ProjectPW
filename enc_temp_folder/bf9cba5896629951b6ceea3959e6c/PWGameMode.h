@@ -28,17 +28,17 @@ protected:
 private:
 
 	void LoadCharacter();
-	void StartGame();
-	void TextTurn();
 
 	void BindEvents();
-	void CheckGameOver();
-
 	void OnCharcterDead(class APWPlayerCharacter* DeadCharacter);
+	void CheckGameOver();
 	void OnGameOver();
 
 	ETeamSide ChooseTeamSide(AController* Player);
 	AActor* GetSpawnPoints(ETeamSide TeamSide) const;
+	
+	void StartGame();
+	void TextTurn();
 
 private:
 

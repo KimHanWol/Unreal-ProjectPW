@@ -14,3 +14,7 @@ void UPWAttributeSet_Attackable::GetLifetimeReplicatedProps(TArray<class FLifeti
 
 	DOREPLIFETIME(UPWAttributeSet_Attackable, Damage);
 }
+
+void UPWAttributeSet_Attackable::OnRep_Damage()
+{
+}

@@ -12,10 +12,12 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Healable.h"
 #include "Component/PWCharacterHUDComponent.h"
 #include "Component/PWEquipmentComponent.h"
+#include "Core/PWEventManager.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 
+#include "Core/PWGameInstance.h"
 
 APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -32,9 +34,9 @@ APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	AbilitySystemComponent->AddAttributeSetSubobject(PWAttributeSet_Damageable);
 }
 
-void APWPlayerCharacter::PossessedBy(AController* NewController)
+void APWPlayerCharacter::BeginPlay()
 {
-	Super::PossessedBy(NewController);
+	Super::BeginPlay();
 
 	LoadCharacterDefaultStats();
 }
@@ -88,29 +90,40 @@ UPWAttributeSet_Damageable* APWPlayerCharacter::GetPWAttributeSet_Damageable() c
 
 void APWPlayerCharacter::OnFullyDamaged()
 {
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->CharacterDeadDelegate.Broadcast(this);
+	}
 	//애니메이션 재생
 }
 
-void APWPlayerCharacter::LoadCharacterDefaultStats()
+const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 {
 	const UPWGameData* PWGameData = UPWGameData::Get(this);
 	if (IsValid(PWGameData) == false)
 	{
 		ensure(false);
-		return;
+		return nullptr;
 	}
 
-	if (const FPWCharacterDataTableRow* PWCharacterDataTableRow = PWGameData->FindTableRow<FPWCharacterDataTableRow>(EDataTableType::Character, CharacterType))
+	return PWGameData->FindTableRow<FPWCharacterDataTableRow>(EDataTableType::Character, CharacterKey);
+}
+
+void APWPlayerCharacter::LoadCharacterDefaultStats()
+{
+	if (const FPWCharacterDataTableRow* PWCharacterDataTableRow = GetCharacterData())
 	{
 		FString LogString;
 
-		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *CharacterType.ToString()));
+		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *CharacterKey.ToString()));
 		if (IsValid(PWAttributeSet_Damageable) == true)
 		{
-			PWAttributeSet_Damageable->InitHealth(PWCharacterDataTableRow->Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), PWCharacterDataTableRow->Health));
-			PWAttributeSet_Damageable->InitMaxHealth(PWCharacterDataTableRow->Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), PWCharacterDataTableRow->Health));
+			float Health = PWCharacterDataTableRow->Health;
+			PWAttributeSet_Damageable->InitHealth(Health);
+			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), Health));
+			PWAttributeSet_Damageable->InitMaxHealth(Health);
+			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), Health));
 		}
 		if (IsValid(PWAttributeSet_Attackable) == true)
 		{

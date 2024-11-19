@@ -98,14 +98,9 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 		}
 
 		//Apply Damage
-		const UAbilitySystemComponent* OwnerASC = OwnerCharacter->GetAbilitySystemComponent();
-		if (IsValid(OwnerASC) == true)
+		const UPWAttributeSet_Attackable* OwnerAttributeSet_Attackable = OwnerCharacter->GetPWAttributeSet_Attackable();
+		if (IsValid(OwnerAttributeSet_Attackable) == true)
 		{
-			const UPWAttributeSet_Attackable* OwnerAttributeSet_Attackable = Cast<UPWAttributeSet_Attackable>(OwnerASC->GetAttributeSet(UPWAttributeSet_Attackable::StaticClass()));
-			if (IsValid(OwnerAttributeSet_Attackable) == true)
-			{
-				OwnerAttributeSet_Attackable->GetDamage();
-			}
 			DamageableTarget->ApplyDamage(AttackableSource, OwnerAttributeSet_Attackable->GetDamage());
 		}
 	}

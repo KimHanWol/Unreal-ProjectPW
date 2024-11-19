@@ -13,6 +13,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/InputHandler/CharacterInputHandler.h"
 #include "Core/InputHandler/CommanderInputHandler.h"
+#include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
 #include "UI/MasterWidget.h"
 #include "Helper/PWGameplayStatics.h"
@@ -87,6 +88,15 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 	}
 
 	TurnChangedDelegate.Broadcast(bMyTurn);
+}
+
+void APWPlayerController::SC_GameOver_Implementation(bool bWon)
+{
+	UPWEventManager* EventManager = UPWEventManager::Get(this);
+	if (IsValid(EventManager) == true)
+	{
+		EventManager->GameOverDelegate.Broadcast(bWon);
+	}
 }
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)

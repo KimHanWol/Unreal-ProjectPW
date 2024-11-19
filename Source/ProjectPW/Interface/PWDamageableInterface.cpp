@@ -49,7 +49,7 @@ void IPWDamageableInterface::ApplyDamage(class IPWAttackableInterface* Attacker,
 	{
 		SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName(TEXT("SetByCaller.Common.Amount"))), -DamageAmount);
 		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
-		UE_LOG(LogTemp, Warning, TEXT("%s Damaged \nCurrent Health : %f"), *Instigator->GetName(), Cast<UPWAttributeSet_Damageable>(GetAbilitySystemComponent()->GetAttributeSet(UPWAttributeSet_Damageable::StaticClass()))->GetHealth());
+		UE_LOG(LogTemp, Warning, TEXT("%s Damaged \nCurrent Health : %f"), *Instigator->GetName(), GetPWAttributeSet_Damageable()->GetHealth());
 	}
 
 	PostApplyDamage();
@@ -93,7 +93,7 @@ void IPWDamageableInterface::PostApplyDamage()
 		return;
 	}
 
-	const UPWAttributeSet_Damageable* OwnerAttributeSet_Damageable = Cast<UPWAttributeSet_Damageable>(OwnerASC->GetAttributeSet(UPWAttributeSet_Damageable::StaticClass()));
+	const UPWAttributeSet_Damageable* OwnerAttributeSet_Damageable = GetPWAttributeSet_Damageable();
 	if (IsValid(OwnerAttributeSet_Damageable) == false)
 	{
 		ensure(false);

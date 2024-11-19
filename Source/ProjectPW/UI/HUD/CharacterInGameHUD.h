@@ -19,8 +19,6 @@ class PROJECTPW_API UCharacterInGameHUD : public UPWUserWidget
 {
 	GENERATED_BODY()
 
-	UCharacterInGameHUD();
-
 protected:
 
 	virtual void NativeConstruct() override;
@@ -28,9 +26,6 @@ protected:
 public:
 
 	void InitializeHUDWidget(class APWPlayerCharacter* InHUDOwnerCharacter);
-
-private:
-
 	void OnHealthChanged(AActor* TargetActor, float MaxHealth, float CurrentHealth);
 
 protected:
@@ -42,10 +37,4 @@ private:
 
 	UPROPERTY(Transient)
 	class APWPlayerCharacter* HUDOwnerCharacter;
-
-	UPROPERTY(Transient)
-	class UCameraComponent* LocalPlayerCameraComponent;
-
-	UPROPERTY(Transient)
-	class UPWCharacterHUDComponent* CharacterHUDComponent;
 };

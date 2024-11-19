@@ -6,46 +6,34 @@
 //Engine
 #include "Camera/CameraComponent.h"
 #include "Components/ProgressBar.h"
-#include "Kismet/KismetMathLibrary.h"
 
 //Game
-#include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
-#include "Actor/Character/PWPlayerController.h"
-#include "Component/PWCharacterHUDComponent.h"
 #include "Core/PWEventManager.h"
-#include "Helper/PWGameplayStatics.h"
 
-UCharacterInGameHUD::UCharacterInGameHUD()
-{
-}
 
 void UCharacterInGameHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	UPWEventManager* EventManager = UPWEventManager::Get(this);
-	if (IsValid(EventManager) == false)
+	if (IsValid(EventManager) == true)
 	{
-		ensure(false);
-		return;
+		EventManager->HealthChangedDelegate.AddUObject(this, &UCharacterInGameHUD::OnHealthChanged);
 	}
-
-	EventManager->HealthChangedDelegate.AddUObject(this, &UCharacterInGameHUD::OnHealthChanged);
 }
 
 void UCharacterInGameHUD::InitializeHUDWidget(class APWPlayerCharacter* InHUDOwnerCharacter)
 {
 	HUDOwnerCharacter = InHUDOwnerCharacter;
-
-	if (IsValid(HUDOwnerCharacter) == true)
-	{
-		CharacterHUDComponent = Cast<UPWCharacterHUDComponent>(HUDOwnerCharacter->GetComponentByClass(UPWCharacterHUDComponent::StaticClass()));
-	}
 }
 
 void UCharacterInGameHUD::OnHealthChanged(AActor* TargetActor, float MaxHealth, float CurrentHealth)
 {
+	// TODO: 체력 반영 안되는 이유 찾아야 함
+	// 값은 정상적으로 세팅되고 F8로 나가면 잘 보이는데 인게임에서만 아무런 변화가 없음
+	// Visibility 같은 변화도 없음.
+
 	if (IsValid(HUDOwnerCharacter) == false || HUDOwnerCharacter != TargetActor)
 	{
 		return;
@@ -53,6 +41,8 @@ void UCharacterInGameHUD::OnHealthChanged(AActor* TargetActor, float MaxHealth, 
 
 	if (IsValid(ProgressBar_Health) == true)
 	{
-		ProgressBar_Health->SetPercent(CurrentHealth / MaxHealth);
+		ProgressBar_Health->SetPercent(FMath::Clamp(CurrentHealth / MaxHealth, 0.f, 1.f));
 	}
 }
+
+

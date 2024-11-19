@@ -25,7 +25,7 @@ class PROJECTPW_API APWPlayerCharacter : public ACharacter, public IPWAttackable
 
 protected:
 
-	virtual void PossessedBy(AController* NewController) override;
+	virtual void BeginPlay() override;
 
 public:
 
@@ -37,7 +37,7 @@ public:
 	void Execute_Sub_Completed();
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
-	const FName& GetCharacterName() const { return CharacterType; }
+	const FName& GetCharacterKey() const { return CharacterKey; }
 
 	//IPWAttackableInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -46,6 +46,8 @@ public:
 	//IPWDamageableInterface
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const override;
 	virtual void OnFullyDamaged();
+
+	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
 private:
 
@@ -58,7 +60,7 @@ private:
 
 	//Character Table Key
 	UPROPERTY(EditInstanceOnly)
-	FName CharacterType;
+	FName CharacterKey;
 
 	UPROPERTY(EditAnywhere)
 	class UPWEquipmentComponent* PWEquipmentComponent;

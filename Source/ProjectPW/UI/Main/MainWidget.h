@@ -25,15 +25,20 @@ public:
 
 protected:
 
+
 	virtual void BindEvents() override;
 	virtual void UnbindEvents() override;
 
 private:
 	
 	void OnTurnChanged(bool bIsMyTurn);
+	void OnGameOver(bool bWon);
 
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UTextBlock* Text_Turn;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UTextBlock* Text_Result;
 };
