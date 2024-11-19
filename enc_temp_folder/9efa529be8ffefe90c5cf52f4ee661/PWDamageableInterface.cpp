@@ -106,3 +106,8 @@ void IPWDamageableInterface::PostApplyDamage(IPWAttackableInterface* Attacker)
 		OnFullyDamaged(Attacker);
 	}
 }
+
+void IPWDamageableInterface::OnFullyDamaged(IPWAttackableInterface* Killer)
+{
+	//TODO: 총 남은 캐릭터 수 변경 이벤트 보내기
+}

@@ -5,6 +5,7 @@
 
 //Engine
 #include "AbilitySystemComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
@@ -15,9 +16,6 @@
 #include "Core/PWEventManager.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
-#include "Helper/PWGameplayStatics.h"
-
-#include "Core/PWGameInstance.h"
 
 APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -39,6 +37,16 @@ void APWPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	LoadCharacterDefaultStats();
+}
+
+void APWPlayerCharacter::LifeSpanExpired()
+{
+	if (IsValid(PWEquipmentComponent) == true)
+	{
+		PWEquipmentComponent->OnDeath();
+	}
+
+	Super::LifeSpanExpired();
 }
 
 void APWPlayerCharacter::Execute_Main_Triggered()
@@ -88,14 +96,30 @@ UPWAttributeSet_Damageable* APWPlayerCharacter::GetPWAttributeSet_Damageable() c
 	return PWAttributeSet_Damageable;
 }
 
-void APWPlayerCharacter::OnFullyDamaged()
+void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 {
+	if (bIsDead == true)
+	{
+		return;
+	}
+	bIsDead = true;
+
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->CharacterDeadDelegate.Broadcast(this);
 	}
-	//애니메이션 재생
+
+	//LookAt
+	const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Cast<AActor>(Killer)->GetActorLocation());
+	SetActorRotation(LookRotator);
+
+	if (DeathAnimation.IsNull() == false)
+	{
+		PlayAnimMontage(DeathAnimation.LoadSynchronous());
+	}
+
+	SetLifeSpan(3.f);
 }
 
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const

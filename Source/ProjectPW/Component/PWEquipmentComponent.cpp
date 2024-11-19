@@ -69,6 +69,12 @@ void UPWEquipmentComponent::Execute_Sub_Completed()
 	SpawnedEquipmentActor->Execute_Sub_Completed();
 }
 
+void UPWEquipmentComponent::OnDeath()
+{
+	SpawnedEquipmentActor->Destroy();
+	SpawnedEquipmentActor = nullptr;
+}
+
 void UPWEquipmentComponent::SpawnEquipmentActor()
 {
 	if (IsValid(EquipmentActorClass) == false)

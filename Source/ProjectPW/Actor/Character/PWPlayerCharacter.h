@@ -26,6 +26,7 @@ class PROJECTPW_API APWPlayerCharacter : public ACharacter, public IPWAttackable
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void LifeSpanExpired() override;
 
 public:
 
@@ -45,7 +46,7 @@ public:
 
 	//IPWDamageableInterface
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const override;
-	virtual void OnFullyDamaged();
+	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) override;
 
 	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
@@ -61,6 +62,10 @@ private:
 	//Character Table Key
 	UPROPERTY(EditInstanceOnly)
 	FName CharacterKey;
+
+	//TODO: 애니메이션이 많아지면 AnimSet 으로 이전
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	TSoftObjectPtr<class UAnimMontage> DeathAnimation;
 
 	UPROPERTY(EditAnywhere)
 	class UPWEquipmentComponent* PWEquipmentComponent;
@@ -80,4 +85,6 @@ private:
 	UPROPERTY(Transient)
 	class UPWAttributeSet_Healable* PWAttributeSet_Healable;
 
+	UPROPERTY(Transient)
+	bool bIsDead = false;
 };

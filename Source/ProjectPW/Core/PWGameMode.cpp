@@ -83,10 +83,6 @@ void APWGameMode::OnCharcterDead(APWPlayerCharacter* DeadCharacter)
 	{
 		AliveCharacterMap.Remove(DeadCharacter);
 		CheckGameOver();
-
-		//Character 에서 Destroy 하면 Map 데이터가 유효하지 않을 수 있어서 여기서 지움
-		//TODO: 애니메이션 추가 및 LifeTime 조정으로 수정 예정
-		Destroy();
 	}
 }
 

@@ -33,5 +33,5 @@ public:
 
 private:
 
-	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) = 0;
+	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer);
 };
