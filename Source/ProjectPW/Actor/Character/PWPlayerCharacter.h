@@ -28,6 +28,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void LifeSpanExpired() override;
 
+	virtual void Tick(float DeltaTime) override;
+
 public:
 
 	//Execute
@@ -87,4 +89,7 @@ private:
 
 	UPROPERTY(Transient)
 	bool bIsDead = false;
+
+	UPROPERTY(Transient)
+	FVector PrevLocation;
 };

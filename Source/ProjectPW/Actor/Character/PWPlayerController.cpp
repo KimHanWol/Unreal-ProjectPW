@@ -77,6 +77,25 @@ void APWPlayerController::OnRep_PlayerState()
 	PlayerStateLoadedDelegate.Broadcast();
 }
 
+void APWPlayerController::ChangeTurn(bool bMyTurn)
+{
+	if (HasAuthority() == true)
+	{
+		SC_ChangeTurn(bMyTurn);
+		SS_ChangeTurn(bMyTurn);
+		APWPlayerController* OtherPlayerController = UPWGameplayStatics::GetOtherPlayerController(this);
+		if (IsValid(OtherPlayerController) == true)
+		{
+			OtherPlayerController->SC_ChangeTurn(!bMyTurn);
+			OtherPlayerController->SS_ChangeTurn(!bMyTurn);
+		}
+	}
+	else
+	{
+		CS_ChangeTurn(bMyTurn);
+	}
+}
+
 void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 {
 	IsMyTurn = bMyTurn;
@@ -90,6 +109,11 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 	TurnChangedDelegate.Broadcast(bMyTurn);
 }
 
+void APWPlayerController::CS_ChangeTurn_Implementation(bool bMyTurn)
+{
+	ChangeTurn(bMyTurn);
+}
+
 void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 {
 	UPWEventManager* EventManager = UPWEventManager::Get(this);
@@ -101,25 +125,12 @@ void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)
 {
-	if (IsValid(CommanderInputHandler) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	if (IsValid(CharacterInputHandler) == false)
-	{
-		ensure(false);
-		return;
-	}
-
 	bool bIsCommander = SelectNum == 0;
 
 	if (bIsCommander == true)
 	{
 		Possess(CommanderPawn);
-		CommanderInputHandler->SetInputEnabled(true);
-		CharacterInputHandler->SetInputEnabled(false);
+		SC_ChangeInputEnabled(true, false);
 
 		//TODO: Event 로 전환
 		if (IsValid(MasterWidget))
@@ -132,8 +143,7 @@ void APWPlayerController::SelectCharacter(int32 SelectNum)
 	else if (PossessableCharacterList.Num() > SelectNum - 1)
 	{
 		Possess(PossessableCharacterList[SelectNum - 1]);
-		CommanderInputHandler->SetInputEnabled(false);
-		CharacterInputHandler->SetInputEnabled(true);
+		SC_ChangeInputEnabled(false, true);
 
 		if (IsValid(MasterWidget))
 		{
@@ -166,6 +176,28 @@ void APWPlayerController::SetMouseInputToGame()
 
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
+}
+
+void APWPlayerController::SS_ChangeTurn(bool bMyTurn)
+{
+	SelectCharacter(0);
+	if(bMyTurn == false)
+	{
+		SC_ChangeInputEnabled(false, false);
+	}
+}
+
+void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter)
+{
+	if (IsValid(CommanderInputHandler) == false ||
+		IsValid(CharacterInputHandler) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	CommanderInputHandler->SetInputEnabled(bEnableCommander);
+	CharacterInputHandler->SetInputEnabled(bEnableCharacter);
 }
 
 void APWPlayerController::OnRep_TeamSide()

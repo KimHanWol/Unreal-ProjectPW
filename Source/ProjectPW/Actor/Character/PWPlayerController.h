@@ -31,9 +31,7 @@ protected:
 
 public:
 
-	UFUNCTION(Client, Reliable)
-	void SC_ChangeTurn(bool bMyTurn);
-	void SC_ChangeTurn_Implementation(bool bMyTurn);
+	void ChangeTurn(bool bMyTurn);
 
 	UFUNCTION(Client, Reliable)
 	void SC_GameOver(bool bWon);
@@ -48,6 +46,20 @@ public:
 	void SetMouseInputToGame();
 
 private:
+
+	void SS_ChangeTurn(bool bMyTurn);
+
+	UFUNCTION(Client, Reliable)
+	void SC_ChangeTurn(bool bMyTurn);
+	void SC_ChangeTurn_Implementation(bool bMyTurn);
+
+	UFUNCTION(Server, Reliable)
+	void CS_ChangeTurn(bool bMyTurn);
+	void CS_ChangeTurn_Implementation(bool bMyTurn);
+
+	UFUNCTION(Client, Reliable)
+	void SC_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
+	void SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter);
 
 	UFUNCTION()
 	void OnRep_TeamSide();

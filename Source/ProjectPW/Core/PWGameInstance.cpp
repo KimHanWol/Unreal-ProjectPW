@@ -7,6 +7,7 @@
 
 //Game
 #include "Data/DataAsset/PWGameData.h"
+#include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWEventManager.h"
 
@@ -58,6 +59,21 @@ UPWGameData* UPWGameInstance::GetGameData()
 	if (PWGameDataPtr.IsNull() == false)
 	{
 		return PWGameDataPtr.LoadSynchronous();
+	}
+
+	return nullptr;
+}
+
+UPWGameSetting* UPWGameInstance::GetGameSetting(const UObject* WorldContextObj)
+{
+	return UPWGameInstance::Get(WorldContextObj)->GetGameSetting();
+}
+
+UPWGameSetting* UPWGameInstance::GetGameSetting()
+{
+	if (PWGameSettingPtr.IsNull() == false)
+	{
+		return PWGameSettingPtr.LoadSynchronous();
 	}
 
 	return nullptr;

@@ -31,6 +31,9 @@ public:
 	static class UPWGameData* GetGameData(const UObject* WorldContextObj);
 	class UPWGameData* GetGameData();
 
+	static class UPWGameSetting* GetGameSetting(const UObject* WorldContextObj);
+	class UPWGameSetting* GetGameSetting();
+
 	static class UPWEventManager* GetEventManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWEventManager* GetEventManager() const { return PWEventManager; }
 
@@ -39,10 +42,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSoftObjectPtr<class UPWGameData> PWGameDataPtr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSoftObjectPtr<class UPWGameSetting> PWGameSettingPtr;
+
 private:
 
 	UPROPERTY(Transient)
 	class UPWGameData* PWGameData;
+
+	UPROPERTY(Transient)
+	class UPWGameSetting* PWGameSetting;
 
 	UPROPERTY(Transient)
 	class UPWEventManager* PWEventManager;

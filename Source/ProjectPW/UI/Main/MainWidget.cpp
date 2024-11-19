@@ -4,11 +4,13 @@
 #include "MainWidget.h"
 
 //Engine
+#include "Components/ProgressBar.h"
 
 //Game
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
+#include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 
 void UMainWidget::InvalidateWidget()
@@ -37,6 +39,7 @@ void UMainWidget::BindEvents()
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->GameOverDelegate.AddUObject(this, &UMainWidget::OnGameOver);
+		PWEventManager->TeamCharacterMovedDelegate.AddUObject(this, &UMainWidget::OnTeamCharacterMoved);
 	}
 }
 
@@ -55,6 +58,7 @@ void UMainWidget::UnbindEvents()
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->GameOverDelegate.RemoveAll(this);
+		PWEventManager->TeamCharacterMovedDelegate.RemoveAll(this);
 	}
 }
 
@@ -72,5 +76,26 @@ void UMainWidget::OnGameOver(bool bWon)
 	{
 		Text_Result->SetVisibility(ESlateVisibility::Visible);
 		Text_Result->SetText(bWon ? FText::FromString(TEXT("You Win")) : FText::FromString(TEXT("You Lose")));
+	}
+}
+
+void UMainWidget::OnTeamCharacterMoved(float CurrentTurnActivePoint)
+{
+	float MaxTurnActivePoint = 0.f;
+	const UPWGameSetting* GameSetting = UPWGameSetting::Get(this);
+	if (IsValid(GameSetting) == true)
+	{
+		MaxTurnActivePoint = GameSetting->TurnActivePoint;
+	}
+
+	if (MaxTurnActivePoint <= 0.f)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (IsValid(ProgressBar_TurnPoint) == true)
+	{
+		ProgressBar_TurnPoint->SetPercent(CurrentTurnActivePoint / MaxTurnActivePoint);
 	}
 }

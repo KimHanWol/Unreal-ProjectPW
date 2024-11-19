@@ -211,16 +211,8 @@ void APWGameMode::StartGame()
 	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, 0);
 	if (IsValid(PlayerControllerInTurn) == true)
 	{
-		PlayerControllerInTurn->SC_ChangeTurn(true);
+		PlayerControllerInTurn->ChangeTurn(true);
 	}
-
-	APWPlayerController* PlayerControllerNotTurn = GET_PLAYER_NOTTURN(this, 0);
-	if (IsValid(PlayerControllerNotTurn) == true)
-	{
-		PlayerControllerNotTurn->SC_ChangeTurn(false);
-	}
-
-	UE_LOG(LogTemp, Log, TEXT("Turn Started : 0 Turn, Player 0"));
 }
 
 void APWGameMode::TextTurn()
@@ -237,13 +229,7 @@ void APWGameMode::TextTurn()
 	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, CurrentPlayersTurn);
 	if (IsValid(PlayerControllerInTurn) == true)
 	{
-		PlayerControllerInTurn->SC_ChangeTurn(false);
-	}
-
-	APWPlayerController* PlayerControllerNotTurn = GET_PLAYER_NOTTURN(this, CurrentPlayersTurn);
-	if (IsValid(PlayerControllerNotTurn) == true)
-	{
-		PlayerControllerNotTurn->SC_ChangeTurn(true);
+		PlayerControllerInTurn->ChangeTurn(false);
 	}
 
 	PWGameState->NextTurn();

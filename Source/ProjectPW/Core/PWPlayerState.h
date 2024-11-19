@@ -28,6 +28,8 @@ public:
 	void SetTeamSide(ETeamSide InTeamSide);
 	void LoadCharacters();
 	
+	void OnCharacterMoved(ETeamSide InTeamSide, float Distance);
+
 	void SetIsMyTurn(bool bInIsMyTurn);
 	bool IsMyTurn() const { return bIsMyTurn; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
@@ -39,7 +41,7 @@ public:
 
 private:
 
-	UPROPERTY(Transient)
+	UPROPERTY(Transient, Replicated)
 	bool bIsMyTurn;
 
 	UPROPERTY(Transient, Replicated)
@@ -47,4 +49,9 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<class APWPlayerCharacter*> CharacterList;
+
+	//턴 행동력
+	//Tick 에서 매번 변화되는 변수라서 Replicate 시키지 않고 서버에서만 유지
+	UPROPERTY(Transient)
+	float CurrentTurnActivePoint = 0.f;
 };

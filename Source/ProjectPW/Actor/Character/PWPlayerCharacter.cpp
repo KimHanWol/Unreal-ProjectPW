@@ -14,8 +14,11 @@
 #include "Component/PWCharacterHUDComponent.h"
 #include "Component/PWEquipmentComponent.h"
 #include "Core/PWEventManager.h"
+#include "Core/PWPlayerState.h"
 #include "Data/DataAsset/PWGameData.h"
+#include "Data/DataAsset/PWGameSetting.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Helper/PWGameplayStatics.h"
 
 APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -47,6 +50,24 @@ void APWPlayerCharacter::LifeSpanExpired()
 	}
 
 	Super::LifeSpanExpired();
+}
+
+void APWPlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+    FVector CurrentLocation = GetActorLocation();
+    float DistanceMoved = FVector::Dist(CurrentLocation, PrevLocation);
+    PrevLocation = CurrentLocation;
+
+	if (DistanceMoved > 0.f)
+	{
+		APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
+		if (IsValid(PWPlayerState) == true)
+		{
+			PWPlayerState->OnCharacterMoved(GetTeamSide(), DistanceMoved / 100.f);
+		}
+	}
 }
 
 void APWPlayerCharacter::Execute_Main_Triggered()
@@ -119,7 +140,11 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 		PlayAnimMontage(DeathAnimation.LoadSynchronous());
 	}
 
-	SetLifeSpan(3.f);
+	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+	if (IsValid(PWGameSetting) == true)
+	{
+		 SetLifeSpan(PWGameSetting->DeathLifeSpan);
+	}
 }
 
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const

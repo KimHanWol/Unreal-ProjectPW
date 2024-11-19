@@ -11,9 +11,8 @@
 //Default
 #include "PWEventManager.generated.h"
 
-/**
- * 
- */
+enum class ETeamSide : uint8;
+
 UCLASS()
 class PROJECTPW_API UPWEventManager : public UObject
 {
@@ -30,10 +29,14 @@ public:
 	DECLARE_MULTICAST_DELEGATE_ThreeParams(FHealthChanged, AActor* TargetActor, float MaxHealth, float CurrentHealth);
 	FHealthChanged HealthChangedDelegate;
 
-	//System
+	//Game
+	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMoved, float CurrentTurnActivePoint);
+	FCharacterMoved TeamCharacterMovedDelegate;
+
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterDead, class APWPlayerCharacter* DeadCharacter);
 	FCharacterDead CharacterDeadDelegate;
 
+	//System
 	DECLARE_MULTICAST_DELEGATE_OneParam(FGameOver, bool bWon);
 	FGameOver GameOverDelegate;
 

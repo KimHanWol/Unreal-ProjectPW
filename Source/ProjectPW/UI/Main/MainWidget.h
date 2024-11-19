@@ -33,6 +33,7 @@ private:
 	
 	void OnTurnChanged(bool bIsMyTurn);
 	void OnGameOver(bool bWon);
+	void OnTeamCharacterMoved(float CurrentTurnActivePoint);
 
 protected:
 
@@ -41,4 +42,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UTextBlock* Text_Result;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UProgressBar* ProgressBar_TurnPoint;
 };

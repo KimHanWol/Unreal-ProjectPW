@@ -11,6 +11,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Data/DataAsset/PWGameSetting.h"
 #include "PWEventManager.h"
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
 
@@ -53,4 +54,46 @@ void APWPlayerState::LoadCharacters()
 void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
 {
 	bIsMyTurn = bInIsMyTurn;
+
+	if (bIsMyTurn == true)
+	{
+		const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+		if (IsValid(PWGameSetting) == true)
+		{
+			 CurrentTurnActivePoint = PWGameSetting->TurnActivePoint;
+		}
+
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
+		}
+	}
+}
+
+void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
+{
+	if (InTeamSide != TeamSide)
+	{
+		return;
+	}
+
+	CurrentTurnActivePoint -= Distance;
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
+	}
+
+	if (CurrentTurnActivePoint <= 0.f)
+	{
+		CurrentTurnActivePoint = 0.f;
+		
+		APWPlayerController* OwningPlayerController = Cast<APWPlayerController>(GetOwningController());
+		if (IsValid(OwningPlayerController) == true)
+		{
+			OwningPlayerController->ChangeTurn(false);
+		}
+	}
 }
