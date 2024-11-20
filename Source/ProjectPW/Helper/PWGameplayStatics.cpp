@@ -44,16 +44,21 @@ APWPlayerController* UPWGameplayStatics::GetLocalPlayerController(const UObject*
 	return nullptr;
 }
 
-APWPlayerController* UPWGameplayStatics::GetOtherPlayerController(const UObject* WorldContextObj)
+APWPlayerController* UPWGameplayStatics::GetOtherPlayerController(class APWPlayerController* CurrentPlayerController)
 {
-	UWorld* World = WorldContextObj->GetWorld();
+	if (IsValid(CurrentPlayerController) == false)
+	{
+		return nullptr;
+	}
+
+	UWorld* World = CurrentPlayerController->GetWorld();
 
 	if (IsValid(World))
 	{
 		for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator() ; Iterator ; ++Iterator)
 		{
 			APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Iterator->Get());
-			if (IsValid(PWPlayerController) == true && PWPlayerController ->IsLocalController() == false)
+			if (IsValid(PWPlayerController) == true && PWPlayerController != CurrentPlayerController)
 			{
 				return PWPlayerController;
 			}

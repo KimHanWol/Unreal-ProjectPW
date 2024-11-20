@@ -23,7 +23,7 @@ public:
 
 	static class APWPlayerCharacter* GetLocalPlayerCharacter(const UObject* WorldContextObj);
 	static class APWPlayerController* GetLocalPlayerController(const UObject* WorldContextObj);
-	static class APWPlayerController* GetOtherPlayerController(const UObject* WorldContextObj);
+	static class APWPlayerController* GetOtherPlayerController(class APWPlayerController* CurrentPlayerController);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
 

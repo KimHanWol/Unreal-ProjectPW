@@ -5,7 +5,10 @@
 
 //Engine
 #include "AbilitySystemComponent.h"
+#include "Animation/AnimMontage.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
@@ -56,6 +59,17 @@ void APWPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (IsLocallyControlled() == false)
+	{
+		return;
+	}
+
+	if (PrevLocation == FVector::ZeroVector)
+	{
+		PrevLocation = GetActorLocation();
+		return;
+	}
+
     FVector CurrentLocation = GetActorLocation();
     float DistanceMoved = FVector::Dist(CurrentLocation, PrevLocation);
     PrevLocation = CurrentLocation;
@@ -67,6 +81,109 @@ void APWPlayerCharacter::Tick(float DeltaTime)
 		{
 			PWPlayerState->OnCharacterMoved(GetTeamSide(), DistanceMoved / 100.f);
 		}
+	}
+}
+
+void APWPlayerCharacter::PossessedBy(class AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	SM_EnableCharacterAnimation(true);
+}
+
+void APWPlayerCharacter::UnPossessed()
+{
+	PrevLocation = FVector::ZeroVector;
+
+	SM_EnableCharacterAnimation(false);
+
+	Super::UnPossessed();
+}
+
+void APWPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerCharacter, bIsDead, COND_None, REPNOTIFY_Always);
+}
+
+void APWPlayerCharacter::PlayMontage(TSoftObjectPtr<UAnimMontage> AnimMontage)
+{
+	if (AnimMontage.IsNull() == true)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (HasAuthority() == true)
+	{
+		SM_PlayMontage(AnimMontage.LoadSynchronous());
+	}
+	else
+	{
+		CS_PlayMontage(AnimMontage.LoadSynchronous());
+	}
+}
+
+void APWPlayerCharacter::StopMontage(TSoftObjectPtr<UAnimMontage> AnimMontage)
+{
+	if (AnimMontage.IsNull() == true)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (HasAuthority() == true)
+	{
+		SM_StopMontage(AnimMontage.LoadSynchronous());
+	}
+	else
+	{
+		CS_StopMontage(AnimMontage.LoadSynchronous());
+	}
+}
+
+void APWPlayerCharacter::CS_PlayMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	PlayMontage(AnimMontage);
+}
+
+void APWPlayerCharacter::SM_PlayMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	PlayAnimMontage(AnimMontage);
+}
+
+void APWPlayerCharacter::CS_StopMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	StopMontage(AnimMontage);
+}
+
+void APWPlayerCharacter::SM_StopMontage_Implementation(UAnimMontage* AnimMontage)
+{
+	StopAnimMontage(AnimMontage);
+}
+
+void APWPlayerCharacter::SM_EnableCharacterAnimation_Implementation(bool bEnabled)
+{
+	if (bEnabled == true)
+	{
+		if (IsValid(GetCharacterMovement()) == true)
+		{
+			GetCharacterMovement()->Velocity = PrevVelocity;
+			GetCharacterMovement()->UpdateComponentVelocity();
+		}
+
+		CustomTimeDilation = 1.f;
+	}
+	else
+	{
+		if (IsValid(GetCharacterMovement()) == true)
+		{
+			PrevVelocity = GetCharacterMovement()->Velocity;
+			GetCharacterMovement()->Velocity = FVector::ZeroVector;
+			GetCharacterMovement()->UpdateComponentVelocity();
+		}
+
+		CustomTimeDilation = 0.f;
 	}
 }
 
@@ -125,6 +242,8 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	}
 	bIsDead = true;
 
+	SM_EnableCharacterAnimation(true);
+
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
@@ -135,10 +254,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Cast<AActor>(Killer)->GetActorLocation());
 	SetActorRotation(LookRotator);
 
-	if (DeathAnimation.IsNull() == false)
-	{
-		PlayAnimMontage(DeathAnimation.LoadSynchronous());
-	}
+	SM_PlayMontage(DeathAnimation.LoadSynchronous());
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == true)

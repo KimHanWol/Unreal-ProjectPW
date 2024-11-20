@@ -137,7 +137,7 @@ void APWEquipmentActor_Gun::EnableADS(bool bEnabled)
 		return;
 	}
 
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
 	{
 		ensure(false);
@@ -148,12 +148,12 @@ void APWEquipmentActor_Gun::EnableADS(bool bEnabled)
 	{
 		if (bEnabled == true)
 		{
-			OwnerCharacter->PlayAnimMontage(Montage_ADS.LoadSynchronous());
+			OwnerCharacter->PlayMontage(Montage_ADS);
 			bIsADSAnimPlaying = true;
 		}
 		else
 		{
-			OwnerCharacter->StopAnimMontage(Montage_ADS.LoadSynchronous());
+			OwnerCharacter->StopMontage(Montage_ADS);
 			bIsADSAnimPlaying = false;
 		}
 	}

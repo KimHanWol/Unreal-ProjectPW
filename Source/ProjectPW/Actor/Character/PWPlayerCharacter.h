@@ -30,7 +30,17 @@ protected:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void PossessedBy(class AController* NewController) override;
+	virtual void UnPossessed() override;
+
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 public:
+
+	void PlayMontage(TSoftObjectPtr<class UAnimMontage> AnimMontage);
+	void StopMontage(TSoftObjectPtr<class UAnimMontage> AnimMontage);
+
+	void OnGameStateChanged(bool bIsStarted);
 
 	//Execute
 	void Execute_Main_Triggered();
@@ -55,6 +65,32 @@ public:
 private:
 
 	void LoadCharacterDefaultStats();
+
+	UFUNCTION(Server, Reliable)
+	void CS_PlayMontage(class UAnimMontage* AnimMontage);
+	void CS_PlayMontage_Implementation(class UAnimMontage* AnimMontage);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_PlayMontage(class UAnimMontage* AnimMontage);
+	void SM_PlayMontage_Implementation(class UAnimMontage* AnimMontage);
+
+	UFUNCTION(Server, Reliable)
+	void CS_StopMontage(class UAnimMontage* AnimMontage);
+	void CS_StopMontage_Implementation(class UAnimMontage* AnimMontage);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_StopMontage(class UAnimMontage* AnimMontage);
+	void SM_StopMontage_Implementation(class UAnimMontage* AnimMontage);
+
+	//기본적인 움직임이 아닌 캐릭터의 모션을 완전히 멈춤
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_EnableCharacterAnimation(bool bEnabled);
+	void SM_EnableCharacterAnimation_Implementation(bool bEnabled);
+
+protected:
+
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bIsDead = false;
 
 private:
 
@@ -88,8 +124,8 @@ private:
 	class UPWAttributeSet_Healable* PWAttributeSet_Healable;
 
 	UPROPERTY(Transient)
-	bool bIsDead = false;
+	FVector PrevLocation = FVector::ZeroVector;
 
 	UPROPERTY(Transient)
-	FVector PrevLocation;
+	FVector PrevVelocity = FVector::ZeroVector;
 };

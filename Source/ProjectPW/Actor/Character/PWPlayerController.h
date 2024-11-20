@@ -33,17 +33,21 @@ public:
 
 	void ChangeTurn(bool bMyTurn);
 
+	UFUNCTION(Server, Reliable)
+	void CS_SetTeamSide(ETeamSide NewTeamSide);
+	void CS_SetTeamSide_Implementation(ETeamSide NewTeamSide);
+	ETeamSide GetTeamSide() const { return TeamSide; }
+
 	UFUNCTION(Client, Reliable)
 	void SC_GameOver(bool bWon);
 	void SC_GameOver_Implementation(bool bWon);
 
 	void SelectCharacter(int32 SelectNum);
 
-	void SetTeamSide(ETeamSide NewTeamSide);
-	ETeamSide GetTeamSide() const { return TeamSide; }
-
-	void SetMouseInputToUI(bool bInShowWithCursor = true);
+	void SetMouseInputToGameAndUI(bool bInShowWithCursor = true);
 	void SetMouseInputToGame();
+
+	void LoadCharacter();
 
 private:
 
@@ -61,8 +65,13 @@ private:
 	void SC_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
 	void SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter);
 
-	UFUNCTION()
-	void OnRep_TeamSide();
+	UFUNCTION(Server, Reliable)
+	void CS_SelectCharacter(int32 SelectNum);
+	void CS_SelectCharacter_Implementation(int32 SelectNum);
+
+	UFUNCTION(Client, Reliable)
+	void SC_SelectCharacter(int32 SelectNum);
+	void SC_SelectCharacter_Implementation(int32 SelectNum);
 
 	void TryCreateInputHandler();
 
@@ -88,7 +97,7 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	class UMasterWidget* MasterWidget;
 
-	UPROPERTY(ReplicatedUsing = OnRep_TeamSide)
+	UPROPERTY(Replicated)
 	ETeamSide TeamSide;
 
 	UPROPERTY(transient)
@@ -100,7 +109,7 @@ private:
 	UPROPERTY(transient)
 	class APawn* CommanderPawn;
 
-	UPROPERTY(transient)
+	UPROPERTY(transient, Replicated)
 	TArray<class APWPlayerCharacter*> PossessableCharacterList;
 
 	UPROPERTY(transient)

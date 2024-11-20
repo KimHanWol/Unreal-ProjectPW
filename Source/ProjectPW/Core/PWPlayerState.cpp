@@ -73,6 +73,11 @@ void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
 
 void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
 {
+	if (IsValid(GetOwningController()) == false || GetOwningController()->IsLocalPlayerController() == false)
+	{
+		return;
+	}
+
 	if (InTeamSide != TeamSide)
 	{
 		return;

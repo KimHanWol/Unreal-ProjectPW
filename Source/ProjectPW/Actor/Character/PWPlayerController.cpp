@@ -50,7 +50,8 @@ void APWPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(APWPlayerController, TeamSide);
+	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerController, TeamSide, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerController, PossessableCharacterList, COND_None, REPNOTIFY_Always);
 }
 
 void APWPlayerController::OnPossess(APawn* InPawn)
@@ -79,7 +80,7 @@ void APWPlayerController::OnRep_PlayerState()
 
 void APWPlayerController::ChangeTurn(bool bMyTurn)
 {
-	if (HasAuthority() == true)
+ 	if (HasAuthority() == true)
 	{
 		SC_ChangeTurn(bMyTurn);
 		SS_ChangeTurn(bMyTurn);
@@ -94,6 +95,18 @@ void APWPlayerController::ChangeTurn(bool bMyTurn)
 	{
 		CS_ChangeTurn(bMyTurn);
 	}
+}
+
+void APWPlayerController::CS_SetTeamSide_Implementation(ETeamSide NewTeamSide)
+{
+	TeamSide = NewTeamSide;
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == true)
+	{
+		PWPlayerState->SetTeamSide(NewTeamSide);
+	}
+
+	LoadCharacter();
 }
 
 void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
@@ -125,48 +138,35 @@ void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)
 {
-	bool bIsCommander = SelectNum == 0;
+	if(HasAuthority() == true)
+	{ 
+		SC_SelectCharacter(SelectNum);
 
-	if (bIsCommander == true)
-	{
-		Possess(CommanderPawn);
-		SC_ChangeInputEnabled(true, false);
-
-		//TODO: Event 로 전환
-		if (IsValid(MasterWidget))
+		bool bIsCommander = SelectNum == 0;
+		if (bIsCommander == true)
 		{
-			MasterWidget->EnableMainWidget(true);
+			Possess(CommanderPawn);
+			SC_ChangeInputEnabled(true, false);
 		}
-
-		SetMouseInputToUI(true);
+		else if (PossessableCharacterList.Num() > SelectNum - 1)
+		{
+			Possess(PossessableCharacterList[SelectNum - 1]);
+			SC_ChangeInputEnabled(false, true);
+		}
 	}
-	else if (PossessableCharacterList.Num() > SelectNum - 1)
+	else
 	{
-		Possess(PossessableCharacterList[SelectNum - 1]);
-		SC_ChangeInputEnabled(false, true);
-
-		if (IsValid(MasterWidget))
-		{
-			MasterWidget->EnableMainWidget(false);
-		}
-
-		SetMouseInputToGame();
+		CS_SelectCharacter(SelectNum);
 	}
 }
 
-void APWPlayerController::SetTeamSide(ETeamSide NewTeamSide)
-{
-	TeamSide = NewTeamSide;
-	OnRep_TeamSide();
-}
-
-void APWPlayerController::SetMouseInputToUI(bool bInShowWithCursor)
+void APWPlayerController::SetMouseInputToGameAndUI(bool bInShowWithCursor)
 {
 	bShowMouseCursor = bInShowWithCursor;
 
 	FlushPressedKeys();
 
-	FInputModeUIOnly InputMode;
+	FInputModeGameAndUI InputMode;
 	SetInputMode(InputMode);
 }
 
@@ -176,6 +176,25 @@ void APWPlayerController::SetMouseInputToGame()
 
 	FInputModeGameOnly InputMode;
 	SetInputMode(InputMode);
+}
+
+void APWPlayerController::LoadCharacter()
+{
+	//Load Characters
+	const FString& TeamSideString = UPWGameplayStatics::ConvertEnumToString(this, TeamSide);
+
+	for (TActorIterator<APWPlayerCharacter> It(GetWorld()); It; ++It)
+	{
+		APWPlayerCharacter* PlayerCharacter = *It;
+		if (IsValid(PlayerCharacter) == true)
+		{
+			if (PlayerCharacter->GetTeamSide() == TeamSide)
+			{
+				PossessableCharacterList.AddUnique(PlayerCharacter);
+				UE_LOG(LogTemp, Log, TEXT("%s Team Character Loaded : %s"), *TeamSideString, *PlayerCharacter->GetName());
+			}
+		}
+	}
 }
 
 void APWPlayerController::SS_ChangeTurn(bool bMyTurn)
@@ -189,6 +208,8 @@ void APWPlayerController::SS_ChangeTurn(bool bMyTurn)
 
 void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter)
 {
+	TryCreateInputHandler();
+
 	if (IsValid(CommanderInputHandler) == false ||
 		IsValid(CharacterInputHandler) == false)
 	{
@@ -200,22 +221,32 @@ void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableComma
 	CharacterInputHandler->SetInputEnabled(bEnableCharacter);
 }
 
-void APWPlayerController::OnRep_TeamSide()
+void APWPlayerController::CS_SelectCharacter_Implementation(int32 SelectNum)
 {
-	//Load Characters
-	const FString& TeamSideString = UPWGameplayStatics::ConvertEnumToString(this, TeamSide);
+	SelectCharacter(SelectNum);
+}
 
-	for (TActorIterator<APWPlayerCharacter> It(GetWorld()); It; ++It)
+void APWPlayerController::SC_SelectCharacter_Implementation(int32 SelectNum)
+{
+	bool bIsCommander = SelectNum == 0;
+	if (bIsCommander == true)
 	{
-		APWPlayerCharacter* PlayerCharacter = *It;
-		if (IsValid(PlayerCharacter) == true)
+		//TODO: Event 로 전환
+		if (IsValid(MasterWidget))
 		{
-			if (PlayerCharacter->GetTeamSide() == TeamSide)
-			{
-				PossessableCharacterList.Add(PlayerCharacter);
-				UE_LOG(LogTemp, Log, TEXT("%s Team Character Loaded : %s"), *TeamSideString, *PlayerCharacter->GetName());
-			}
+			MasterWidget->EnableMainWidget(true);
 		}
+
+		SetMouseInputToGameAndUI(true);
+	}
+	else if (PossessableCharacterList.Num() > SelectNum - 1)
+	{
+		if (IsValid(MasterWidget))
+		{
+			MasterWidget->EnableMainWidget(false);
+		}
+
+		SetMouseInputToGame();
 	}
 }
 
@@ -233,7 +264,7 @@ void APWPlayerController::TryCreateInputHandler()
 		{
 			CommanderInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
 			CommanderInputHandler->SetupKeyBindings(this, InputComponent);
-			CommanderInputHandler->SetInputEnabled(true);
+			CommanderInputHandler->SetInputEnabled(false);
 		}
 
 		if (IsValid(CharacterInputHandlerClass) == true)

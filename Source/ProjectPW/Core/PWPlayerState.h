@@ -51,7 +51,7 @@ private:
 	TArray<class APWPlayerCharacter*> CharacterList;
 
 	//턴 행동력
-	//Tick 에서 매번 변화되는 변수라서 Replicate 시키지 않고 서버에서만 유지
+	//로컬에서 계산
 	UPROPERTY(Transient)
 	float CurrentTurnActivePoint = 0.f;
 };

@@ -173,13 +173,7 @@ ETeamSide APWGameMode::ChooseTeamSide(AController* Player)
 	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Player);
 	if (IsValid(PWPlayerController) == true)
 	{
-		PWPlayerController->SetTeamSide(PlayerTeamSide);
-
-		APWPlayerState* PWPlayerState = PWPlayerController->GetPlayerState<APWPlayerState>();
-		if (IsValid(PWPlayerState) == true)
-		{
-			PWPlayerState->SetTeamSide(PlayerTeamSide);
-		}
+		PWPlayerController->CS_SetTeamSide(PlayerTeamSide);
 	}
 
 	return PlayerTeamSide;

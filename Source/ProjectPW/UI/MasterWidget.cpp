@@ -34,7 +34,6 @@ void UMasterWidget::EnableMainWidget(bool bEnabled)
 {
 	if (IsValid(MainWidget) == false)
 	{
-		ensure(false);
 		return;
 	}
 
@@ -45,6 +44,6 @@ void UMasterWidget::EnableMainWidget(bool bEnabled)
 	}
 	else
 	{
-		MainWidget->SetVisibility(ESlateVisibility::Collapsed);
+		//MainWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
 }
