@@ -23,6 +23,6 @@ class IPWHealableInterface
 public:
 
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const = 0;
-	virtual class UAttributeSet_Healable* GetPWAttributeSet_Healable() const = 0;
+	virtual class UPWAttributeSet_Healable* GetPWAttributeSet_Healable() const = 0;
 
 };

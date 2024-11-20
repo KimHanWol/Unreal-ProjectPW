@@ -37,9 +37,6 @@ private:
 
 private:
 
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class APWEquipmentActorBase> EquipmentActorClass;
-
 	UPROPERTY(Transient)
 	USkeletalMeshComponent* OwnerSkeletalMesh;
 

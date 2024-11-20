@@ -256,6 +256,11 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	}
 }
 
+UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const
+{
+	return PWAttributeSet_Healable;
+}
+
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 {
 	const UPWGameData* PWGameData = UPWGameData::Get(this);
@@ -268,7 +273,7 @@ const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 	return PWGameData->FindTableRow<FPWCharacterDataTableRow>(EDataTableType::Character, CharacterKey);
 }
 
-void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPWDamageableInterface>& Victim)
+void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPWDamageableInterface>& Victim, float Damage)
 {
 	APWPlayerCharacter* VictimCharacter = Cast<APWPlayerCharacter>(Victim.GetObject());
 	if (IsValid(VictimCharacter) == false)
@@ -278,11 +283,7 @@ void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPW
 	}
 
 	//Apply Damage
-	const UPWAttributeSet_Attackable* OwnerAttributeSet_Attackable = GetPWAttributeSet_Attackable();
-	if (IsValid(OwnerAttributeSet_Attackable) == true)
-	{
-		VictimCharacter->ApplyDamage(this, OwnerAttributeSet_Attackable->GetDamage());
-	}
+	VictimCharacter->ApplyDamage(this, Damage);
 }
 
 void APWPlayerCharacter::LoadCharacterDefaultStats()

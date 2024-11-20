@@ -4,10 +4,11 @@
 #include "PWEquipmentComponent.h"
 
 //Engine
-#include "GameFramework/Character.h"
 
 //Game
 #include "Actor/Equipments/PWEquipmentActorBase.h"
+#include "Actor/Character/PWPlayerCharacter.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 
 
 void UPWEquipmentComponent::BeginPlay()
@@ -77,6 +78,19 @@ void UPWEquipmentComponent::OnDeath()
 
 void UPWEquipmentComponent::SpawnEquipmentActor()
 {
+	const APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
+	if (IsValid(OwnerCharacter) == false)
+	{
+		return;
+	}
+		
+	const FPWCharacterDataTableRow* CharacterData = OwnerCharacter->GetCharacterData();
+	if (CharacterData == nullptr)
+	{
+		return;
+	}
+
+	TSubclassOf<class APWEquipmentActorBase> EquipmentActorClass = CharacterData->EquipmentActorClass;
 	if (IsValid(EquipmentActorClass) == false)
 	{
 		return;

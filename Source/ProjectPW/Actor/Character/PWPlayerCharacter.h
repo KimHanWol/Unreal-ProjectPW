@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "Interface/PWAttackableInterface.h"
 #include "Interface/PWDamageableInterface.h"
+#include "Interface/PWHealableInterface.h"
 
 //Default
 #include "PWPlayerCharacter.generated.h"
@@ -17,7 +18,8 @@
 
 UCLASS()
 class PROJECTPW_API APWPlayerCharacter : public ACharacter, public IPWAttackableInterface, 
-															public IPWDamageableInterface
+															public IPWDamageableInterface,
+															public IPWHealableInterface
 {
 	GENERATED_BODY()
 
@@ -58,11 +60,14 @@ public:
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const override;
 	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) override;
 
+	//IPWHealableInterface
+	virtual class UPWAttributeSet_Healable* GetPWAttributeSet_Healable() const override;
+
 	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
 	UFUNCTION(Server, Reliable)
-	void CS_GiveDamage(const TScriptInterface<class IPWDamageableInterface>& Victim);
-	void CS_GiveDamage_Implementation(const TScriptInterface<class IPWDamageableInterface>& Victim);
+	void CS_GiveDamage(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
+	void CS_GiveDamage_Implementation(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
 
 private:
 

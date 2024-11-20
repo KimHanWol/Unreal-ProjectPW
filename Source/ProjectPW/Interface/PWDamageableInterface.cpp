@@ -60,6 +60,9 @@ void IPWDamageableInterface::ApplyDamage(class IPWAttackableInterface* Attacker,
 	{
 		SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName(TEXT("SetByCaller.Common.Amount"))), -DamageAmount);
 		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
+
+		float ClampHealth = FMath::Clamp(GetPWAttributeSet_Damageable()->GetHealth(), 0.f, GetPWAttributeSet_Damageable()->GetMaxHealth());
+		GetPWAttributeSet_Damageable()->SetHealth(ClampHealth);
 		UE_LOG(LogTemp, Warning, TEXT("%s Damaged \nCurrent Health : %f"), *Instigator->GetName(), GetPWAttributeSet_Damageable()->GetHealth());
 	}
 

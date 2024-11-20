@@ -98,7 +98,11 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 			return;
 		}
 
-		OwnerCharacter->CS_GiveDamage(TScriptInterface<IPWDamageableInterface>(HitResult.GetActor()));
+		UPWAttributeSet_Attackable* OwnerAttribute_Attackable = OwnerCharacter->GetPWAttributeSet_Attackable();
+		if (IsValid(OwnerAttribute_Attackable) == true)
+		{
+			OwnerCharacter->CS_GiveDamage(TScriptInterface<IPWDamageableInterface>(HitResult.GetActor()), OwnerAttribute_Attackable->GetDamage());
+		}
 	}
 }
 

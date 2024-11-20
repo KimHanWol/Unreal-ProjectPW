@@ -23,7 +23,10 @@ public:
 	FName DisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSoftObjectPtr<class UImage> Portrait;
+	TSoftObjectPtr<class UTexture> Portrait;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSubclassOf<class APWEquipmentActorBase> EquipmentActorClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")
 	float Health = 100.f;
