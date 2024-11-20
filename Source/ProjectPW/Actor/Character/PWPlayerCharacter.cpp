@@ -166,19 +166,12 @@ void APWPlayerCharacter::SM_EnableCharacterAnimation_Implementation(bool bEnable
 {
 	if (bEnabled == true)
 	{
-		if (IsValid(GetCharacterMovement()) == true)
-		{
-			GetCharacterMovement()->Velocity = PrevVelocity;
-			GetCharacterMovement()->UpdateComponentVelocity();
-		}
-
 		CustomTimeDilation = 1.f;
 	}
 	else
 	{
 		if (IsValid(GetCharacterMovement()) == true)
 		{
-			PrevVelocity = GetCharacterMovement()->Velocity;
 			GetCharacterMovement()->Velocity = FVector::ZeroVector;
 			GetCharacterMovement()->UpdateComponentVelocity();
 		}
@@ -273,6 +266,23 @@ const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 	}
 
 	return PWGameData->FindTableRow<FPWCharacterDataTableRow>(EDataTableType::Character, CharacterKey);
+}
+
+void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPWDamageableInterface>& Victim)
+{
+	APWPlayerCharacter* VictimCharacter = Cast<APWPlayerCharacter>(Victim.GetObject());
+	if (IsValid(VictimCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	//Apply Damage
+	const UPWAttributeSet_Attackable* OwnerAttributeSet_Attackable = GetPWAttributeSet_Attackable();
+	if (IsValid(OwnerAttributeSet_Attackable) == true)
+	{
+		VictimCharacter->ApplyDamage(this, OwnerAttributeSet_Attackable->GetDamage());
+	}
 }
 
 void APWPlayerCharacter::LoadCharacterDefaultStats()

@@ -15,6 +15,17 @@
 
 void IPWDamageableInterface::ApplyDamage(class IPWAttackableInterface* Attacker, float DamageAmount)
 {
+	AActor* ThisActor = Cast<AActor>(this);
+	if (IsValid(ThisActor) == false || IsValid(GetAbilitySystemComponent()) == false)
+	{
+		return;
+	}
+
+	if (ThisActor->HasAuthority() == false)
+	{
+		return;
+	}
+
 	if (DamageAmount == 0)
 	{
 		return;

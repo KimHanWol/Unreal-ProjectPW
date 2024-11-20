@@ -40,6 +40,8 @@ public:
 	void PlayMontage(TSoftObjectPtr<class UAnimMontage> AnimMontage);
 	void StopMontage(TSoftObjectPtr<class UAnimMontage> AnimMontage);
 
+	void OnGameStateChanged(bool bIsStarted);
+
 	//Execute
 	void Execute_Main_Triggered();
 	void Execute_Main_Completed();

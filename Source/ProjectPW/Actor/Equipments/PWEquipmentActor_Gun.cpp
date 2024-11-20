@@ -10,6 +10,7 @@
 #include "GameFramework/Character.h"
 #include "Particles/ParticleSystem.h"
 #include "Runtime/CoreUObject/Public/UObject/SoftObjectPtr.h"
+#include "UObject/ScriptInterface.h"
 
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
@@ -97,12 +98,7 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 			return;
 		}
 
-		//Apply Damage
-		const UPWAttributeSet_Attackable* OwnerAttributeSet_Attackable = OwnerCharacter->GetPWAttributeSet_Attackable();
-		if (IsValid(OwnerAttributeSet_Attackable) == true)
-		{
-			DamageableTarget->ApplyDamage(AttackableSource, OwnerAttributeSet_Attackable->GetDamage());
-		}
+		OwnerCharacter->CS_GiveDamage(TScriptInterface<IPWDamageableInterface>(HitResult.GetActor()));
 	}
 }
 
