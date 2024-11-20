@@ -36,9 +36,6 @@ APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializ
 
 	PWAttributeSet_Damageable = CreateDefaultSubobject<UPWAttributeSet_Damageable>(TEXT("AttributeSet_Damageable"));
 	AbilitySystemComponent->AddAttributeSetSubobject(PWAttributeSet_Damageable);
-
-	PWAttributeSet_Healable = CreateDefaultSubobject<UPWAttributeSet_Healable>(TEXT("AttributeSet_Healable"));
-	AbilitySystemComponent->AddAttributeSetSubobject(PWAttributeSet_Healable);
 }
 
 void APWPlayerCharacter::BeginPlay()
