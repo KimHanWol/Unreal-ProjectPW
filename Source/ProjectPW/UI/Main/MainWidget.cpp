@@ -40,6 +40,7 @@ void UMainWidget::BindEvents()
 	{
 		PWEventManager->GameOverDelegate.AddUObject(this, &UMainWidget::OnGameOver);
 		PWEventManager->TeamCharacterMovedDelegate.AddUObject(this, &UMainWidget::OnTeamCharacterMoved);
+		PWEventManager->TargetIsOnCrosshairDelegate.AddUObject(this, &UMainWidget::OnTargetIsonCrosshair);
 	}
 }
 
@@ -97,5 +98,22 @@ void UMainWidget::OnTeamCharacterMoved(float CurrentTurnActivePoint)
 	if (IsValid(ProgressBar_TurnPoint) == true)
 	{
 		ProgressBar_TurnPoint->SetPercent(CurrentTurnActivePoint / MaxTurnActivePoint);
+	}
+}
+
+void UMainWidget::OnTargetIsonCrosshair(bool bIsOnCrosshair)
+{
+	if (IsValid(Text_Crosshair) == false)
+	{
+		return;
+	}
+
+	if (bIsOnCrosshair == true)
+	{
+		Text_Crosshair->SetColorAndOpacity(FSlateColor(FColor::Red));
+	}
+	else
+	{
+		Text_Crosshair->SetColorAndOpacity(FSlateColor(FColor::White));
 	}
 }

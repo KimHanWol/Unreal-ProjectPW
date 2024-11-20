@@ -25,7 +25,6 @@ public:
 public:
 
 	//Health
-
 	DECLARE_MULTICAST_DELEGATE_ThreeParams(FHealthChanged, AActor* TargetActor, float MaxHealth, float CurrentHealth);
 	FHealthChanged HealthChangedDelegate;
 
@@ -35,6 +34,9 @@ public:
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterDead, class APWPlayerCharacter* DeadCharacter);
 	FCharacterDead CharacterDeadDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTargetIsOnCrosshair, bool bIsOnCrosshair);
+	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;
 
 	//System
 	DECLARE_MULTICAST_DELEGATE_OneParam(FGameOver, bool bWon);

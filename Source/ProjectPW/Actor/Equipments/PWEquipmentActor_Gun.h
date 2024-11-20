@@ -17,9 +17,12 @@ class PROJECTPW_API APWEquipmentActor_Gun: public APWEquipmentActorBase
 {
 	GENERATED_BODY()
 
+	APWEquipmentActor_Gun(const FObjectInitializer& ObjectInitializer);
+
 protected:
 		
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 
 public:
 
@@ -34,6 +37,8 @@ public:
 private:
 
 	void EnableADS(bool bEnabled);
+
+	bool EqiupmentActorLineTrace(FHitResult& OutHitResult, FRotator& OutViewPointRotation);
 
 private:
 
@@ -57,4 +62,8 @@ private:
 	//Weather RMB is pressed
 	UPROPERTY(Transient)
 	bool bIsSubExecuting = false;
+
+	//타겟을 겨냥하고 있는가?
+	UPROPERTY(Transient)
+	bool bIsTargetOn = false;
 };

@@ -49,11 +49,9 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 	FRotator ViewPointRotation;
 	bool bHitSuccess = EqiupmentActorLineTrace(HitResult, ViewPointRotation);
 
-	//공격할 수 있는 적일 때만
-	bool bHitOnDemageableActor = bHitSuccess && (Cast<IPWDamageableInterface>(HitResult.GetActor()) != nullptr);
-	if (bHitOnDemageableActor != bIsTargetOn)
+	if (bHitSuccess != bIsTargetOn)
 	{
-		bIsTargetOn = bHitOnDemageableActor;
+		bIsTargetOn = bHitSuccess;
 
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
@@ -196,10 +194,6 @@ bool APWEquipmentActor_Gun::EqiupmentActorLineTrace(FHitResult& OutHitResult, FR
 
 		bHitSuccess = GetWorld()->LineTraceSingleByChannel(OutHitResult, ViewPointLocation, EndLocation, ECollisionChannel::ECC_GameTraceChannel1, Params);
 	}
-
-	bool bHitOnDamageableActor = Cast<IPWDamageableInterface>(OutHitResult.GetActor()) != nullptr;
-
-	bHitSuccess &= bHitOnDamageableActor;
 
 	return bHitSuccess;
 }
