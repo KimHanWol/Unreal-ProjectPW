@@ -11,9 +11,8 @@
 //Default
 #include "MainWidget.generated.h"
 
-/**
- * 
- */
+enum class ETeamSide : uint8;
+
 UCLASS()
 class PROJECTPW_API UMainWidget : public UPWUserWidget
 {
@@ -21,9 +20,12 @@ class PROJECTPW_API UMainWidget : public UPWUserWidget
 
 public:
 
+	virtual void NativeConstruct() override;
 	virtual void InvalidateWidget() override;
 
 protected:
+
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 	virtual void BindEvents() override;
 	virtual void UnbindEvents() override;
@@ -33,7 +35,11 @@ private:
 	void OnTurnChanged(bool bIsMyTurn);
 	void OnGameOver(bool bWon);
 	void OnTeamCharacterMoved(float CurrentTurnActivePoint);
+	void OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class APWPlayerCharacter*>& TeamCharcterList);
 	void OnTargetIsonCrosshair(bool bIsOnCrosshair);
+	void OnCharacterSelected(bool bIsCommander);
+
+	void TryInitializeCharacterData();
 
 protected:
 
@@ -48,4 +54,31 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UProgressBar* ProgressBar_TurnPoint;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Commander;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Character;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UMainWidget_CharacterButton* MainWidget_CharacterButton_1;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UMainWidget_CharacterButton* MainWidget_CharacterButton_2;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UMainWidget_CharacterButton* MainWidget_CharacterButton_3;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UMainWidget_CharacterButton* MainWidget_CharacterButton_4;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UMainWidget_CharacterButton* MainWidget_CharacterButton_5;
+
+	UPROPERTY(Transient)
+	TArray<class UMainWidget_CharacterButton*> CharacterButtonList;
+
+	UPROPERTY(Transient)
+	bool bIsCharacterDataInitialized = false;
 };

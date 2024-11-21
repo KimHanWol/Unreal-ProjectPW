@@ -11,9 +11,8 @@
 //Default
 #include "PWGameplayStatics.generated.h"
 
-/**
- * 
- */
+ enum class ETeamSide : uint8;
+
 UCLASS()
 class PROJECTPW_API UPWGameplayStatics : public UGameplayStatics
 {
@@ -24,8 +23,10 @@ public:
 	static class APWPlayerCharacter* GetLocalPlayerCharacter(const UObject* WorldContextObj);
 	static class APWPlayerController* GetLocalPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerController* GetOtherPlayerController(class APWPlayerController* CurrentPlayerController);
+	static class TArray<APWPlayerController*> GetAllPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
+	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);
 
 	template <typename EnumType> 
 	static FORCEINLINE FString ConvertEnumToString(const UObject* WorldContextObj, const EnumType InValue)

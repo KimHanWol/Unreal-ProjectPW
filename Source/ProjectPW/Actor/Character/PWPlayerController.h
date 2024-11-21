@@ -24,8 +24,6 @@ protected:
 	
 	virtual void BeginPlay() override;
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
 
@@ -33,23 +31,24 @@ public:
 
 	void ChangeTurn(bool bMyTurn);
 
-	UFUNCTION(Server, Reliable)
-	void CS_SetTeamSide(ETeamSide NewTeamSide);
-	void CS_SetTeamSide_Implementation(ETeamSide NewTeamSide);
-	ETeamSide GetTeamSide() const { return TeamSide; }
+	ETeamSide GetTeamSide() const;
 
 	UFUNCTION(Client, Reliable)
 	void SC_GameOver(bool bWon);
 	void SC_GameOver_Implementation(bool bWon);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_OnHealthChanged(AActor* TargetActor, float MaxHealth, float CurrentHealth);
+	void SM_OnHealthChanged_Implementation(AActor* TargetActor, float MaxHealth, float CurrentHealth);
 
 	void SelectCharacter(int32 SelectNum);
 
 	void SetMouseInputToGameAndUI(bool bInShowWithCursor = true);
 	void SetMouseInputToGame();
 
-	void LoadCharacter();
-
 private:
+
+	void LP_OnPossess(bool bIsCommander);
 
 	void SS_ChangeTurn(bool bMyTurn);
 
@@ -65,13 +64,13 @@ private:
 	void SC_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
 	void SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter);
 
+	UFUNCTION(Client, Reliable)
+	void SC_OnPossess(bool bIsCommander);
+	void SC_OnPossess_Implementation(bool bIsCommander);
+
 	UFUNCTION(Server, Reliable)
 	void CS_SelectCharacter(int32 SelectNum);
 	void CS_SelectCharacter_Implementation(int32 SelectNum);
-
-	UFUNCTION(Client, Reliable)
-	void SC_SelectCharacter(int32 SelectNum);
-	void SC_SelectCharacter_Implementation(int32 SelectNum);
 
 	void TryCreateInputHandler();
 
@@ -97,9 +96,6 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	class UMasterWidget* MasterWidget;
 
-	UPROPERTY(Replicated)
-	ETeamSide TeamSide;
-
 	UPROPERTY(transient)
 	class UCommanderInputHandler* CommanderInputHandler;
 
@@ -109,10 +105,6 @@ private:
 	UPROPERTY(transient)
 	class APawn* CommanderPawn;
 
-	UPROPERTY(transient, Replicated)
-	TArray<class APWPlayerCharacter*> PossessableCharacterList;
-
 	UPROPERTY(transient)
 	bool IsMyTurn = false;
-
 };

@@ -20,14 +20,12 @@ class PROJECTPW_API APWGameMode : public AGameModeBase
 	
 protected:
 
-	virtual void OnPostLogin(AController* NewPlayer) override;
-	virtual AActor* ChoosePlayerStart_Implementation(AController* Player);
-
 	virtual void BeginPlay() override;
+	virtual void OnPostLogin(AController* NewPlayer) override;
 
 private:
 
-	void LoadCharacter();
+	void ReadyToStart();
 	void StartGame();
 	void TextTurn();
 
@@ -35,14 +33,24 @@ private:
 	void CheckGameOver();
 
 	void OnCharcterDead(class APWPlayerCharacter* DeadCharacter);
+	void OnInitialPossess(class APWPlayerController* PWPlayerController);
 	void OnGameOver();
 
-	ETeamSide ChooseTeamSide(AController* Player);
-	AActor* GetSpawnPoints(ETeamSide TeamSide) const;
+	void ChooseTeamSide(AController* Player);
+	AActor* GetCommanderPointActor(ETeamSide TeamSide) const;
+
+	void TransformCommanderPawns();
+
 
 private:
 
 	UPROPERTY(Transient)
-	TMap<class APWPlayerCharacter*, ETeamSide> AliveCharacterMap;
+	class APWPlayerController* RedTeamPlayerController;
+
+	UPROPERTY(Transient)
+	class APWPlayerController* BlueTeamPlayerController;
+
+	UPROPERTY(Transient)
+	int32 InitialPossessedCount = 0;
 
 };

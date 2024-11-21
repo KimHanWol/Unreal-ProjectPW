@@ -12,15 +12,21 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameSetting.h"
+#include "Data/PWGameEnum.h"
 #include "PWEventManager.h"
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
-
 
 void APWPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	LoadCharacters();
+	OwningPlayerController = Cast<APWPlayerController>(GetOwningController());
+
+	UPWEventManager* PWEventManger = UPWEventManager::Get(this);
+	if (IsValid(PWEventManger) == true)
+	{
+		PWEventManger->CharacterDeadDelegate.AddUObject(this, &APWPlayerState::OnCharacterDead);
+	}
 }
 
 void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -28,15 +34,23 @@ void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APWPlayerState, TeamSide);
+	DOREPLIFETIME(APWPlayerState, TeamCharacterDataList);
 }
 
-void APWPlayerState::SetTeamSide(ETeamSide InTeamSide)
+void APWPlayerState::SS_InitializePlayerState(ETeamSide InTeamSide)
 {
 	TeamSide = InTeamSide;
+	SS_LoadCharacters();
 }
 
-void APWPlayerState::LoadCharacters()
+void APWPlayerState::SS_LoadCharacters()
 {
+	if (TeamCharacterDataList.Num() > 0)
+	{
+		return;
+	}
+
+	TArray<FCharacterAliveData> InTeamCharacterDataList;
 	for (TActorIterator<APWPlayerCharacter> PlayerCharacter(GetWorld()); PlayerCharacter; ++PlayerCharacter)
 	{
 		if (IsValid(*PlayerCharacter) == false)
@@ -46,27 +60,28 @@ void APWPlayerState::LoadCharacters()
 
 		if (PlayerCharacter->GetTeamSide() == TeamSide)
 		{
-			CharacterList.AddUnique(*PlayerCharacter);
+			FCharacterAliveData CharacterData;
+			CharacterData.PlayerCharacter = *PlayerCharacter;
+			CharacterData.bIsAlive = true;
+			InTeamCharacterDataList.Add(CharacterData);
 		}
 	}
+
+	TeamCharacterDataList = InTeamCharacterDataList;
+	OnRep_TeamCharacterDataList();
 }
 
-void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
+void APWPlayerState::OnCharacterDead(APWPlayerCharacter* DeadCharacter)
 {
-	bIsMyTurn = bInIsMyTurn;
-
-	if (bIsMyTurn == true)
+	if (IsValid(DeadCharacter) == true)
 	{
-		const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
-		if (IsValid(PWGameSetting) == true)
+		for (FCharacterAliveData& CharcterData : TeamCharacterDataList)
 		{
-			 CurrentTurnActivePoint = PWGameSetting->TurnActivePoint;
-		}
-
-		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-		if (IsValid(PWEventManager) == true)
-		{
-			PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
+			if (CharcterData.PlayerCharacter == DeadCharacter)
+			{
+				CharcterData.bIsAlive = false;
+				break;
+			}
 		}
 	}
 }
@@ -95,10 +110,94 @@ void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
 	{
 		CurrentTurnActivePoint = 0.f;
 		
-		APWPlayerController* OwningPlayerController = Cast<APWPlayerController>(GetOwningController());
 		if (IsValid(OwningPlayerController) == true)
 		{
 			OwningPlayerController->ChangeTurn(false);
 		}
 	}
+}
+
+bool APWPlayerState::IsCharacterAlive(int32 CharacterNum) const
+{
+	if (TeamCharacterDataList.Num() > CharacterNum - 1)
+	{
+		return TeamCharacterDataList[CharacterNum - 1].bIsAlive;
+	}
+
+	return false;
+}
+
+const FCharacterAliveData APWPlayerState::GetTeamCharacterData(int32 CharacterNum) const
+{
+	if (TeamCharacterDataList.Num() > CharacterNum - 1)
+	{
+		return TeamCharacterDataList[CharacterNum - 1];
+	}
+
+	return FCharacterAliveData();
+}
+
+TArray<APWPlayerCharacter*> APWPlayerState::GetAliveTeamCharacterList() const
+{
+	TArray<APWPlayerCharacter*> AliveTeamCharacterList;
+	for (const FCharacterAliveData& CharcterData : TeamCharacterDataList)
+	{
+		if (CharcterData.bIsAlive == true)
+		{
+			AliveTeamCharacterList.Add(CharcterData.PlayerCharacter);
+		}
+	}
+
+	return AliveTeamCharacterList;
+}
+
+TArray<class APWPlayerCharacter*> APWPlayerState::GetTeamCharacterList() const
+{
+	TArray<APWPlayerCharacter*> TeamCharacterList;
+	for (const FCharacterAliveData& CharcterData : TeamCharacterDataList)
+	{
+		TeamCharacterList.Add(CharcterData.PlayerCharacter);
+	}
+	return TeamCharacterList;
+}
+
+int32 APWPlayerState::GetAliveTeamCharacterNum() const
+{
+	return GetAliveTeamCharacterList().Num();
+}
+
+void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
+{
+	bIsMyTurn = bInIsMyTurn;
+
+	if (bIsMyTurn == true)
+	{
+		const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+		if (IsValid(PWGameSetting) == true)
+		{
+			 CurrentTurnActivePoint = PWGameSetting->TurnActivePoint;
+		}
+
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
+		}
+	}
+}
+
+void APWPlayerState::OnRep_TeamCharacterDataList()
+{
+	if (IsValid(GetOwningController()) == false || GetOwningController()->IsLocalPlayerController() == false)
+	{
+		return;
+	}
+
+	UPWEventManager* PWEventManger = UPWEventManager::Get(this);
+	if (IsValid(PWEventManger) == true)
+	{
+		PWEventManger->TeamCharcterLoadedDelegate.Broadcast(TeamSide, GetTeamCharacterList());
+	}
+
+	bIsTeamCharacterInitialized = true;
 }

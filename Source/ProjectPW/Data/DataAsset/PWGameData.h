@@ -38,11 +38,6 @@ public:
 	template <typename TRowType>
 	const TRowType* FindTableRow(EDataTableType DataTableType, const FName& KeyName) const
 	{
-		for (TTuple<TEnumAsByte<EDataTableType>, TSoftObjectPtr<class UDataTable>>DataTableData : DataTableMap)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *DataTableData.Value.Get()->GetName());
-		}
-
 		if (DataTableMap.Contains(DataTableType) == false)
 		{
 			ensureMsgf(false, TEXT("There's no data table. You may have forgotten to registor it with DataTableMap."));

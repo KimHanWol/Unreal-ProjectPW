@@ -5,12 +5,13 @@
 
 //Engine
 #include "EngineUtils.h"
+#include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
-#include "Actor/PWPlayerStart.h"
+#include "Actor/PWCommanderPointActor.h"
 #include "Data/PWGameEnum.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWGameState.h"
@@ -26,42 +27,31 @@
 	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), 1 - InCurrentPlayersTurn)))
 
 
-void APWGameMode::OnPostLogin(AController* NewPlayer)
-{
-	Super::OnPostLogin(NewPlayer);
-
-	if (GetNumPlayers() == 2)
-	{
-		StartGame();
-	}
-
-	BindEvents();
-}
-
-AActor* APWGameMode::ChoosePlayerStart_Implementation(AController* Player)
-{
-	ETeamSide PlayerTeamSide = ChooseTeamSide(Player);
-	
-	return GetSpawnPoints(PlayerTeamSide);
-}
-
 void APWGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	LoadCharacter();
+	BindEvents();
 }
 
-void APWGameMode::LoadCharacter()
+void APWGameMode::OnPostLogin(AController* NewPlayer)
 {
-	for (TActorIterator<APWPlayerCharacter> PlayerCharacter(GetWorld()); PlayerCharacter; ++PlayerCharacter)
-	{
-		if (IsValid(*PlayerCharacter) == false)
-		{
-			continue;
-		}
+	Super::OnPostLogin(NewPlayer);
 
-		AliveCharacterMap.Add(TTuple<APWPlayerCharacter*, ETeamSide>(*PlayerCharacter, PlayerCharacter->GetTeamSide()));
+	//한번만 바인딩 하기 위해서 서버 로컬 컨트롤러에서만
+	if (NewPlayer->IsLocalPlayerController() == true)
+	{
+		InitialPossessedCount = 0;
+		UPWEventManager* EventManager = UPWEventManager::Get(this);
+		if (IsValid(EventManager) == true)
+		{
+			EventManager->InitialPossessDelegate.AddUObject(this, &APWGameMode::OnInitialPossess);
+		}
+	}
+
+	if (GetNumPlayers() == 2)
+	{
+		ReadyToStart();
 	}
 }
 
@@ -79,67 +69,78 @@ void APWGameMode::BindEvents()
 
 void APWGameMode::OnCharcterDead(APWPlayerCharacter* DeadCharacter)
 {
-	if (AliveCharacterMap.Contains(DeadCharacter) == true)
+	CheckGameOver();
+}
+
+void APWGameMode::OnInitialPossess(class APWPlayerController* PWPlayerController)
+{
+	InitialPossessedCount++;
+
+	//둘 다 폰이 생겨 빙의되면 게임 시작
+	if (InitialPossessedCount >= 2)
 	{
-		AliveCharacterMap.Remove(DeadCharacter);
-		CheckGameOver();
+		UPWEventManager* EventManager = UPWEventManager::Get(this);
+		if (IsValid(EventManager) == true)
+		{
+			EventManager->InitialPossessDelegate.RemoveAll(this);
+		}
+
+		StartGame();
 	}
 }
 
 void APWGameMode::CheckGameOver()
 {
-	int32 RedTeamAliveCount = 0;
-	int32 BlueTeamAliveCount = 0;
-	for (TTuple<class APWPlayerCharacter*, ETeamSide> AliveCharacterData : AliveCharacterMap)
+	if (IsValid(RedTeamPlayerController) == false)
 	{
-		if (AliveCharacterData.Value == ETeamSide::Red)
-		{
-			++RedTeamAliveCount;
-		}
-		else
-		{
-			++BlueTeamAliveCount;
-		}
+		ensure(false);
+		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Current Score : Red : %d, Blue : %d"), RedTeamAliveCount, BlueTeamAliveCount);
-
-	//Red Win
-	if (RedTeamAliveCount == 0 || BlueTeamAliveCount == 0)
+	if (IsValid(BlueTeamPlayerController) == false)
 	{
-		int32 PlayerCount = UPWGameplayStatics::GetNumPlayerControllers(this);
-		for (int32 i = 0; i < PlayerCount; i++)
-		{
-			APWPlayerController* PlayerController = Cast<APWPlayerController>(UPWGameplayStatics::GetPlayerController(this, i));
-			if (IsValid(PlayerController) == true)
-			{
-				//Red Win
-				if(BlueTeamAliveCount == 0)
-				{
-					if(PlayerController->GetTeamSide() == ETeamSide::Red)
-					{
-						PlayerController->SC_GameOver(true);
-					}
-					else
-					{
-						PlayerController->SC_GameOver(false);
-					}
-				}
-				//Blue Win
-				else
-				{
-					if(PlayerController->GetTeamSide() == ETeamSide::Blue)
-					{
-						PlayerController->SC_GameOver(true);
-					}
-					else
-					{
-						PlayerController->SC_GameOver(false);
-					}
-				}
-			}
-		}
+		ensure(false);
+		return;
+	}
 
+	int32 RedTeamCharacterNum = 0;
+	APWPlayerState* RedPlayerState = RedTeamPlayerController->GetPlayerState<APWPlayerState>();
+	if (IsValid(RedPlayerState) == true)
+	{
+		RedTeamCharacterNum = RedPlayerState->GetAliveTeamCharacterNum();
+	}
+
+	int32 BlueTeamCharacterNum = 0;
+	APWPlayerState* BluePlayerState = BlueTeamPlayerController->GetPlayerState<APWPlayerState>();
+	if (IsValid(BluePlayerState) == true)
+	{
+		BlueTeamCharacterNum = BluePlayerState->GetAliveTeamCharacterNum();
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Current Score : Red : %d, Blue : %d"), RedTeamCharacterNum, BlueTeamCharacterNum);
+
+	bool bGameOver = false;
+	//Blue team win
+	if (RedTeamCharacterNum <= 0)
+	{
+		RedTeamPlayerController->SC_GameOver(false);
+		BlueTeamPlayerController->SC_GameOver(true);
+
+		bGameOver = true;
+	}
+
+	//Red team win
+	else if (BlueTeamCharacterNum <= 0)
+	{
+		RedTeamPlayerController->SC_GameOver(true);
+		BlueTeamPlayerController->SC_GameOver(false);
+
+		bGameOver = true;
+	}
+
+	//GameOver
+	if (bGameOver == true)
+	{
 		OnGameOver();
 	}
 }
@@ -150,15 +151,26 @@ void APWGameMode::OnGameOver()
 	//Restart?
 }
 
-ETeamSide APWGameMode::ChooseTeamSide(AController* Player)
+void APWGameMode::ChooseTeamSide(AController* Player)
 {
-	//서버 컨트롤러면 랜덤 배분
+	if (IsValid(Player) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (Player->HasAuthority() == false)
+	{
+		return;
+	}
+
+	//서버에 있는 로컬 컨트롤러면 랜덤 배분
 	bool bIsRedTeam = false;
 	if (Player->IsLocalPlayerController() == true)
 	{
 		bIsRedTeam = FMath::RandBool();
 	}
-	//클라 컨트롤러면 서버 반대로
+	//서버에 있는 클라 컨트롤러면 서버 반대로
 	else
 	{
 		APWPlayerController* ServerPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
@@ -169,29 +181,35 @@ ETeamSide APWGameMode::ChooseTeamSide(AController* Player)
 	}
 
 	ETeamSide PlayerTeamSide = bIsRedTeam == true ? ETeamSide::Red : ETeamSide::Blue;
-
-	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Player);
-	if (IsValid(PWPlayerController) == true)
+	APWPlayerState* PWPlayerState = Player->GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == true)
 	{
-		PWPlayerController->CS_SetTeamSide(PlayerTeamSide);
+		PWPlayerState->SS_InitializePlayerState(PlayerTeamSide);
 	}
 
-	return PlayerTeamSide;
+	if (bIsRedTeam == true)
+	{
+		RedTeamPlayerController = Cast<APWPlayerController>(Player);
+	}
+	else
+	{
+		BlueTeamPlayerController = Cast<APWPlayerController>(Player);
+	}
 }
 
-AActor* APWGameMode::GetSpawnPoints(ETeamSide TeamSide) const
+AActor* APWGameMode::GetCommanderPointActor(ETeamSide TeamSide) const
 {
-	TArray<AActor*> PlayerStartList;
-	UGameplayStatics::GetAllActorsOfClass(this, APWPlayerStart::StaticClass(), PlayerStartList);
+	TArray<AActor*> CommanderPointActorList;
+	UGameplayStatics::GetAllActorsOfClass(this, APWCommanderPointActor::StaticClass(), CommanderPointActorList);
 
-	for (AActor* PlayerStartActor : PlayerStartList)
+	for (AActor* InCommanderPointActor : CommanderPointActorList)
 	{
-		const APWPlayerStart* PlayerStart = Cast<APWPlayerStart>(PlayerStartActor);
-		if (IsValid(PlayerStart) == true)
+		const APWCommanderPointActor* CommanderPointActor = Cast<APWCommanderPointActor>(InCommanderPointActor);
+		if (IsValid(CommanderPointActor) == true)
 		{
-			if (TeamSide == PlayerStart->GetTeamSide()) 
+			if (TeamSide == CommanderPointActor->GetTeamSide()) 
 			{
-				return PlayerStartActor;
+				return InCommanderPointActor;
 			}
 		}
 	}
@@ -199,8 +217,35 @@ AActor* APWGameMode::GetSpawnPoints(ETeamSide TeamSide) const
 	return nullptr;
 }
 
+void APWGameMode::TransformCommanderPawns()
+{
+	TArray<APWPlayerController*> PlayerControllerList = UPWGameplayStatics::GetAllPlayerController(this);
+	for (APWPlayerController* PlayerController : PlayerControllerList)
+	{
+		AActor* CommanderPointActor = GetCommanderPointActor(PlayerController->GetTeamSide());
+		APawn* CommanderPawn = PlayerController->GetPawn();
+		if (IsValid(CommanderPointActor) == true && IsValid(CommanderPawn) == true)
+		{
+			CommanderPawn->SetActorTransform(CommanderPointActor->GetActorTransform());	
+		}
+	}
+}
+
+void APWGameMode::ReadyToStart()
+{
+	//Set Team Side
+	int32 ControllerNum = UPWGameplayStatics::GetNumPlayerControllers(this);
+	for (int32 i = 0; i < ControllerNum; i++)
+	{
+		ChooseTeamSide(UPWGameplayStatics::GetPlayerController(this, i));
+	}	
+}
+
 void APWGameMode::StartGame()
 {
+	//Move player to commander position
+	TransformCommanderPawns();
+
 	//Turn Setting
 	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, 0);
 	if (IsValid(PlayerControllerInTurn) == true)

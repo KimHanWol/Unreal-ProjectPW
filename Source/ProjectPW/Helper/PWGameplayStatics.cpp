@@ -13,6 +13,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWPlayerState.h"
+#include "Data/PWGameEnum.h"
 
 APWPlayerCharacter* UPWGameplayStatics::GetLocalPlayerCharacter(const UObject* WorldContextObj)
 {
@@ -67,6 +68,26 @@ APWPlayerController* UPWGameplayStatics::GetOtherPlayerController(class APWPlaye
 	return nullptr;
 }
 
+TArray<APWPlayerController*> UPWGameplayStatics::GetAllPlayerController(const UObject* WorldContextObj)
+{
+	TArray<APWPlayerController*> AllPlayerControllerList;
+
+	UWorld* World = WorldContextObj->GetWorld();
+	if (IsValid(World))
+	{
+		for (FConstPlayerControllerIterator Iterator = World->GetPlayerControllerIterator() ; Iterator ; ++Iterator)
+		{
+			APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Iterator->Get());
+			if (IsValid(PWPlayerController) == true)
+			{
+				AllPlayerControllerList.Add(PWPlayerController);
+			}
+		}
+	}
+
+	return AllPlayerControllerList;
+}
+
 APWPlayerState* UPWGameplayStatics::GetLocalPlayerState(const UObject* WorldContextObj)
 {
 	APWPlayerState* PWPlayerState = nullptr;
@@ -82,6 +103,18 @@ APWPlayerState* UPWGameplayStatics::GetLocalPlayerState(const UObject* WorldCont
 	}
 
 	return nullptr;
+}
+
+ETeamSide UPWGameplayStatics::GetLocalPlayerTeamSide(const UObject* WorldContextObj)
+{
+	APWPlayerController* LocalPlayerController = GetLocalPlayerController(WorldContextObj);
+	if (IsValid(LocalPlayerController) == true)
+	{
+		return LocalPlayerController->GetTeamSide();
+	}
+
+	ensure(false);
+	return ETeamSide::Red;
 }
 
 void UPWGameplayStatics::AsyncLoadAsset(const FSoftObjectPath& AsyncLoadAssetPath)

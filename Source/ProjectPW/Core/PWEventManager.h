@@ -29,8 +29,14 @@ public:
 	FHealthChanged HealthChangedDelegate;
 
 	//Game
+	DECLARE_MULTICAST_DELEGATE_OneParam(FInitialPossessed, class APWPlayerController* PWPlayerController);
+	FInitialPossessed InitialPossessDelegate;
+
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMoved, float CurrentTurnActivePoint);
 	FCharacterMoved TeamCharacterMovedDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSelected, bool bIsCommander);
+	FCharacterSelected CharacterSelectedDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterDead, class APWPlayerCharacter* DeadCharacter);
 	FCharacterDead CharacterDeadDelegate;
@@ -41,5 +47,8 @@ public:
 	//System
 	DECLARE_MULTICAST_DELEGATE_OneParam(FGameOver, bool bWon);
 	FGameOver GameOverDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FTeamCharcterLoaded, ETeamSide TeamSide, const TArray<APWPlayerCharacter*>& TeamCharacterList);
+	FTeamCharcterLoaded TeamCharcterLoadedDelegate;
 
 };

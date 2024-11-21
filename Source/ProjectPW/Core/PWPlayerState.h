@@ -13,6 +13,20 @@
 
 enum class ETeamSide : uint8;
 
+USTRUCT()
+struct FCharacterAliveData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(Transient)
+	class APWPlayerCharacter* PlayerCharacter;
+
+	UPROPERTY(Transient)
+	bool bIsAlive = true;
+};
+
 UCLASS()
 class PROJECTPW_API APWPlayerState : public APlayerState
 {
@@ -25,14 +39,30 @@ protected:
 
 public:
 
-	void SetTeamSide(ETeamSide InTeamSide);
-	void LoadCharacters();
+	void SS_InitializePlayerState(ETeamSide InTeamSide);
 	
 	void OnCharacterMoved(ETeamSide InTeamSide, float Distance);
+
+	bool IsCharacterAlive(int32 CharacterNum) const;
+	const FCharacterAliveData GetTeamCharacterData(int32 CharacterNum) const;
+	TArray<class APWPlayerCharacter*> GetAliveTeamCharacterList() const;
+	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
+	int32 GetAliveTeamCharacterNum() const;
 
 	void SetIsMyTurn(bool bInIsMyTurn);
 	bool IsMyTurn() const { return bIsMyTurn; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
+
+	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
+
+private:
+
+	void SS_LoadCharacters();
+
+	void OnCharacterDead(class APWPlayerCharacter* DeadCharacter);
+
+	UFUNCTION()
+	void OnRep_TeamCharacterDataList();
 
 public:
 
@@ -47,11 +77,18 @@ private:
 	UPROPERTY(Transient, Replicated)
 	ETeamSide TeamSide;
 
-	UPROPERTY(Transient)
-	TArray<class APWPlayerCharacter*> CharacterList;
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterDataList)
+	TArray<FCharacterAliveData> TeamCharacterDataList;
 
 	//턴 행동력
 	//로컬에서 계산
 	UPROPERTY(Transient)
 	float CurrentTurnActivePoint = 0.f;
+
+	UPROPERTY(Transient)
+	bool bIsTeamCharacterInitialized = false;
+
+	UPROPERTY(Transient)
+	class APWPlayerController* OwningPlayerController;
+
 };

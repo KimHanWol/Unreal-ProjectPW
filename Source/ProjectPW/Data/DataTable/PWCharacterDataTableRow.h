@@ -23,7 +23,7 @@ public:
 	FName DisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSoftObjectPtr<class UTexture> Portrait;
+	TSoftObjectPtr<class UTexture2D> Portrait;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class APWEquipmentActorBase> EquipmentActorClass;

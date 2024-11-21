@@ -29,9 +29,12 @@ void APWPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	//TODO: Event 시스템 구현해서 이벤트로 날리기
-	if (IsValid(MasterWidget))
+	if (IsLocalPlayerController() == true)
 	{
-		MasterWidget->AddToViewport();
+		if (IsValid(MasterWidget))
+		{
+			MasterWidget->AddToViewport();
+		}
 	}
 
 	//TODO: PlayerInputComponent 구현해서 넣기?
@@ -46,23 +49,27 @@ void APWPlayerController::BeginPlay()
 	}
 }
 
-void APWPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerController, TeamSide, COND_None, REPNOTIFY_Always);
-	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerController, PossessableCharacterList, COND_None, REPNOTIFY_Always);
-}
-
 void APWPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	//Commander Pawn
+	//Game Start
 	if (IsValid(CommanderPawn) == false)
 	{
 		CommanderPawn = InPawn;
+
+		if (IsValid(InPawn) == true)
+		{
+			UPWEventManager* EventManager = UPWEventManager::Get(this);
+			if (IsValid(EventManager) == true)
+			{
+				EventManager->InitialPossessDelegate.Broadcast(this);
+			}
+		}
 	}
+
+	bool bIsCommander = CommanderPawn == InPawn;
+	SC_OnPossess(bIsCommander);
 ;}
 
 void APWPlayerController::OnRep_PlayerState()
@@ -97,16 +104,15 @@ void APWPlayerController::ChangeTurn(bool bMyTurn)
 	}
 }
 
-void APWPlayerController::CS_SetTeamSide_Implementation(ETeamSide NewTeamSide)
+ETeamSide APWPlayerController::GetTeamSide() const
 {
-	TeamSide = NewTeamSide;
 	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
 	if (IsValid(PWPlayerState) == true)
 	{
-		PWPlayerState->SetTeamSide(NewTeamSide);
+		return PWPlayerState->GetTeamSide();
 	}
 
-	LoadCharacter();
+	return ETeamSide();
 }
 
 void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
@@ -136,22 +142,43 @@ void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 	}
 }
 
+void APWPlayerController::SM_OnHealthChanged_Implementation(AActor* TargetActor, float MaxHealth, float CurrentHealth)
+{
+	UPWEventManager* EventManager = UPWEventManager::Get(this);
+	if (IsValid(EventManager) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	EventManager->HealthChangedDelegate.Broadcast(TargetActor, MaxHealth, CurrentHealth);
+}
+
 void APWPlayerController::SelectCharacter(int32 SelectNum)
 {
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		ensure(false);
+		return;
+	}
+
 	if(HasAuthority() == true)
 	{ 
-		SC_SelectCharacter(SelectNum);
-
 		bool bIsCommander = SelectNum == 0;
 		if (bIsCommander == true)
 		{
 			Possess(CommanderPawn);
 			SC_ChangeInputEnabled(true, false);
 		}
-		else if (PossessableCharacterList.Num() > SelectNum - 1)
+		else
 		{
-			Possess(PossessableCharacterList[SelectNum - 1]);
-			SC_ChangeInputEnabled(false, true);
+			const FCharacterAliveData& CharacterData = PWPlayerState->GetTeamCharacterData(SelectNum);
+			if (CharacterData.bIsAlive == true)
+			{
+				Possess(CharacterData.PlayerCharacter);
+				SC_ChangeInputEnabled(false, true);
+			}
 		}
 	}
 	else
@@ -178,25 +205,6 @@ void APWPlayerController::SetMouseInputToGame()
 	SetInputMode(InputMode);
 }
 
-void APWPlayerController::LoadCharacter()
-{
-	//Load Characters
-	const FString& TeamSideString = UPWGameplayStatics::ConvertEnumToString(this, TeamSide);
-
-	for (TActorIterator<APWPlayerCharacter> It(GetWorld()); It; ++It)
-	{
-		APWPlayerCharacter* PlayerCharacter = *It;
-		if (IsValid(PlayerCharacter) == true)
-		{
-			if (PlayerCharacter->GetTeamSide() == TeamSide)
-			{
-				PossessableCharacterList.AddUnique(PlayerCharacter);
-				UE_LOG(LogTemp, Log, TEXT("%s Team Character Loaded : %s"), *TeamSideString, *PlayerCharacter->GetName());
-			}
-		}
-	}
-}
-
 void APWPlayerController::SS_ChangeTurn(bool bMyTurn)
 {
 	SelectCharacter(0);
@@ -221,14 +229,8 @@ void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableComma
 	CharacterInputHandler->SetInputEnabled(bEnableCharacter);
 }
 
-void APWPlayerController::CS_SelectCharacter_Implementation(int32 SelectNum)
+void APWPlayerController::SC_OnPossess_Implementation(bool bIsCommander)
 {
-	SelectCharacter(SelectNum);
-}
-
-void APWPlayerController::SC_SelectCharacter_Implementation(int32 SelectNum)
-{
-	bool bIsCommander = SelectNum == 0;
 	if (bIsCommander == true)
 	{
 		//TODO: Event 로 전환
@@ -239,7 +241,7 @@ void APWPlayerController::SC_SelectCharacter_Implementation(int32 SelectNum)
 
 		SetMouseInputToGameAndUI(true);
 	}
-	else if (PossessableCharacterList.Num() > SelectNum - 1)
+	else
 	{
 		if (IsValid(MasterWidget))
 		{
@@ -248,6 +250,17 @@ void APWPlayerController::SC_SelectCharacter_Implementation(int32 SelectNum)
 
 		SetMouseInputToGame();
 	}
+
+	UPWEventManager* PWEventMananger = UPWEventManager::Get(this);
+	if (IsValid(PWEventMananger) == true)
+	{
+		PWEventMananger->CharacterSelectedDelegate.Broadcast(bIsCommander);
+	}
+}
+
+void APWPlayerController::CS_SelectCharacter_Implementation(int32 SelectNum)
+{
+	SelectCharacter(SelectNum);
 }
 
 void APWPlayerController::TryCreateInputHandler()

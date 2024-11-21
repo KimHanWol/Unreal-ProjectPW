@@ -6,15 +6,15 @@
 #include "CoreMinimal.h"
 
 //Game
-#include "GameFramework/PlayerStart.h"
+#include "GameFramework/Actor.h"
 
 //Default
-#include "PWPlayerStart.generated.h"
+#include "PWCommanderPointActor.generated.h"
 
 enum class ETeamSide : uint8;
 
-UCLASS()
-class PROJECTPW_API APWPlayerStart : public APlayerStart
+UCLASS(Blueprintable)
+class PROJECTPW_API APWCommanderPointActor : public AActor
 {
 	GENERATED_BODY()
 	
