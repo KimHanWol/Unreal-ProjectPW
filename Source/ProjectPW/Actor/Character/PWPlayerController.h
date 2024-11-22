@@ -48,8 +48,6 @@ public:
 
 private:
 
-	void LP_OnPossess(bool bIsCommander);
-
 	void SS_ChangeTurn(bool bMyTurn);
 
 	UFUNCTION(Client, Reliable)
@@ -74,13 +72,15 @@ private:
 
 	void TryCreateInputHandler();
 
-public:
+	void UpdateTurnData();
 
-	DECLARE_MULTICAST_DELEGATE(FPlayerStateLoaded)
-	FPlayerStateLoaded PlayerStateLoadedDelegate;
+public:
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FTurnChanged, bool bIsMyTurn)
 	FTurnChanged TurnChangedDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FInitialPossessed, APWPlayerController* SelfPlayerController)
+	FInitialPossessed InitialPossessedDelegate;
 
 private:
 
@@ -103,8 +103,8 @@ private:
 	class UCharacterInputHandler* CharacterInputHandler;
 
 	UPROPERTY(transient)
-	class APawn* CommanderPawn;
+	bool bIsMyTurn = false;
 
 	UPROPERTY(transient)
-	bool IsMyTurn = false;
+	bool bTurnDataDirty = false;
 };

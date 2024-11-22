@@ -10,11 +10,8 @@
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
-#include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameSetting.h"
-#include "Data/PWGameEnum.h"
 #include "PWEventManager.h"
-#include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
 
 void APWPlayerState::BeginPlay()
 {
@@ -43,13 +40,18 @@ void APWPlayerState::SS_InitializePlayerState(ETeamSide InTeamSide)
 	SS_LoadCharacters();
 }
 
+void APWPlayerState::SetCommanderPawn(APawn* InCommanderPawn)
+{
+	CommanderPawn = InCommanderPawn;
+}
+
+APawn* APWPlayerState::GetCommanderPawn()
+{
+	return CommanderPawn;
+}
+
 void APWPlayerState::SS_LoadCharacters()
 {
-	if (TeamCharacterDataList.Num() > 0)
-	{
-		return;
-	}
-
 	TArray<FCharacterAliveData> InTeamCharacterDataList;
 	for (TActorIterator<APWPlayerCharacter> PlayerCharacter(GetWorld()); PlayerCharacter; ++PlayerCharacter)
 	{
@@ -99,13 +101,6 @@ void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
 	}
 
 	CurrentTurnActivePoint -= Distance;
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
-	}
-
 	if (CurrentTurnActivePoint <= 0.f)
 	{
 		CurrentTurnActivePoint = 0.f;
@@ -115,16 +110,12 @@ void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
 			OwningPlayerController->ChangeTurn(false);
 		}
 	}
-}
 
-bool APWPlayerState::IsCharacterAlive(int32 CharacterNum) const
-{
-	if (TeamCharacterDataList.Num() > CharacterNum - 1)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		return TeamCharacterDataList[CharacterNum - 1].bIsAlive;
+		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
 	}
-
-	return false;
 }
 
 const FCharacterAliveData APWPlayerState::GetTeamCharacterData(int32 CharacterNum) const

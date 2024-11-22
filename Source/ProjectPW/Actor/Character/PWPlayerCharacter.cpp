@@ -62,11 +62,6 @@ void APWPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (IsLocallyControlled() == false)
-	{
-		return;
-	}
-
 	if (PrevLocation == FVector::ZeroVector)
 	{
 		PrevLocation = GetActorLocation();
@@ -91,6 +86,11 @@ void APWPlayerCharacter::PossessedBy(class AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	SM_EnableCharacterAnimation(true);
+
+	if (IsLocallyControlled() == true)
+    {
+        SetActorTickEnabled(true);
+	}
 }
 
 void APWPlayerCharacter::UnPossessed()
@@ -98,6 +98,11 @@ void APWPlayerCharacter::UnPossessed()
 	PrevLocation = FVector::ZeroVector;
 
 	SM_EnableCharacterAnimation(false);
+
+	if (IsLocallyControlled() == true)
+    {
+        SetActorTickEnabled(false);
+	}
 
 	Super::UnPossessed();
 }
@@ -173,12 +178,14 @@ void APWPlayerCharacter::SM_EnableCharacterAnimation_Implementation(bool bEnable
 	}
 	else
 	{
+		//움직임 정지
 		if (IsValid(GetCharacterMovement()) == true)
 		{
 			GetCharacterMovement()->Velocity = FVector::ZeroVector;
 			GetCharacterMovement()->UpdateComponentVelocity();
 		}
 
+		// 캐릭터 포즈 그대로 즉시 행동 멈추게
 		CustomTimeDilation = 0.f;
 	}
 }
@@ -250,7 +257,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Cast<AActor>(Killer)->GetActorLocation());
 	SetActorRotation(LookRotator);
 
-	SM_PlayMontage(DeathAnimation.LoadSynchronous());
+	PlayMontage(DeathAnimation.LoadSynchronous());
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == true)

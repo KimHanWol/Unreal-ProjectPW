@@ -38,7 +38,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterDead, class APWPlayerCharacter* DeadCharacter);
 	FCharacterDead CharacterDeadDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_TwoParams(FTargetIsOnCrosshair, class APWPlayerCharacter* AimingCharacter, bool bIsOnCrosshair);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTargetIsOnCrosshair, bool bIsOnCrosshair);
 	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;
 
 	//System

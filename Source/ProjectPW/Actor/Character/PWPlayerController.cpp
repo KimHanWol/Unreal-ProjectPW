@@ -15,6 +15,8 @@
 #include "Core/InputHandler/CommanderInputHandler.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
+#include "Data/DataAsset/PWGameData.h"
+#include "Data/PWGameEnum.h"
 #include "UI/MasterWidget.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -23,17 +25,20 @@ APWPlayerController::APWPlayerController()
 	bShowMouseCursor = true;
 }
 
-
 void APWPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//TODO: Event 시스템 구현해서 이벤트로 날리기
+	//Show widget
 	if (IsLocalPlayerController() == true)
 	{
-		if (IsValid(MasterWidget))
+		const UPWGameData* PWGameData = UPWGameData::Get(this);
+		if (IsValid(PWGameData) == true)
 		{
-			MasterWidget->AddToViewport();
+			if (IsValid(MasterWidget) == true)
+			{
+				MasterWidget->AddToViewport();
+			}
 		}
 	}
 
@@ -53,22 +58,23 @@ void APWPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	//Game Start
-	if (IsValid(CommanderPawn) == false)
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
 	{
-		CommanderPawn = InPawn;
-
-		if (IsValid(InPawn) == true)
-		{
-			UPWEventManager* EventManager = UPWEventManager::Get(this);
-			if (IsValid(EventManager) == true)
-			{
-				EventManager->InitialPossessDelegate.Broadcast(this);
-			}
-		}
+		ensure(false);
+		return;
 	}
 
-	bool bIsCommander = CommanderPawn == InPawn;
+	//First possess
+	APawn* CommanderPawn = PWPlayerState->GetCommanderPawn();
+	if (IsValid(PWPlayerState->GetCommanderPawn()) == false && IsValid(InPawn) == true)
+	{
+		CommanderPawn = InPawn;
+		PWPlayerState->SetCommanderPawn(CommanderPawn);
+		InitialPossessedDelegate.Broadcast(this);
+	}
+
+	bool bIsCommander = IsValid(CommanderPawn) == true ? CommanderPawn == InPawn : false;
 	SC_OnPossess(bIsCommander);
 ;}
 
@@ -76,13 +82,7 @@ void APWPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
-	if (IsValid(PWPlayerState) == true)
-	{
-		PWPlayerState->SetIsMyTurn(IsMyTurn);
-	}
-
-	PlayerStateLoadedDelegate.Broadcast();
+	UpdateTurnData();
 }
 
 void APWPlayerController::ChangeTurn(bool bMyTurn)
@@ -91,6 +91,7 @@ void APWPlayerController::ChangeTurn(bool bMyTurn)
 	{
 		SC_ChangeTurn(bMyTurn);
 		SS_ChangeTurn(bMyTurn);
+
 		APWPlayerController* OtherPlayerController = UPWGameplayStatics::GetOtherPlayerController(this);
 		if (IsValid(OtherPlayerController) == true)
 		{
@@ -106,26 +107,22 @@ void APWPlayerController::ChangeTurn(bool bMyTurn)
 
 ETeamSide APWPlayerController::GetTeamSide() const
 {
+	ETeamSide TeamSide = ETeamSide::Red;
 	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
-	if (IsValid(PWPlayerState) == true)
+	if (ensure(IsValid(PWPlayerState) == true))
 	{
-		return PWPlayerState->GetTeamSide();
+		TeamSide = PWPlayerState->GetTeamSide();
 	}
 
-	return ETeamSide();
+	return TeamSide;
 }
 
 void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 {
-	IsMyTurn = bMyTurn;
+	bIsMyTurn = bMyTurn;
+	bTurnDataDirty = true;
 
-	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
-	if (IsValid(PWPlayerState) == true)
-	{
-		PWPlayerState->SetIsMyTurn(IsMyTurn);
-	}
-
-	TurnChangedDelegate.Broadcast(bMyTurn);
+	UpdateTurnData();
 }
 
 void APWPlayerController::CS_ChangeTurn_Implementation(bool bMyTurn)
@@ -168,7 +165,7 @@ void APWPlayerController::SelectCharacter(int32 SelectNum)
 		bool bIsCommander = SelectNum == 0;
 		if (bIsCommander == true)
 		{
-			Possess(CommanderPawn);
+			Possess(PWPlayerState->GetCommanderPawn());
 			SC_ChangeInputEnabled(true, false);
 		}
 		else
@@ -231,30 +228,25 @@ void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableComma
 
 void APWPlayerController::SC_OnPossess_Implementation(bool bIsCommander)
 {
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == false)
+	{
+		ensure(false);
+		return;
+	}
+
 	if (bIsCommander == true)
 	{
-		//TODO: Event 로 전환
-		if (IsValid(MasterWidget))
-		{
-			MasterWidget->EnableMainWidget(true);
-		}
-
 		SetMouseInputToGameAndUI(true);
 	}
 	else
 	{
-		if (IsValid(MasterWidget))
-		{
-			MasterWidget->EnableMainWidget(false);
-		}
-
 		SetMouseInputToGame();
 	}
 
-	UPWEventManager* PWEventMananger = UPWEventManager::Get(this);
-	if (IsValid(PWEventMananger) == true)
+	if (IsLocalPlayerController() == true)
 	{
-		PWEventMananger->CharacterSelectedDelegate.Broadcast(bIsCommander);
+		PWEventManager->PlayerPossessedDelegate.Broadcast(bIsCommander);
 	}
 }
 
@@ -286,5 +278,21 @@ void APWPlayerController::TryCreateInputHandler()
 			CharacterInputHandler->SetupKeyBindings(this, InputComponent);
 			CharacterInputHandler->SetInputEnabled(false);
 		}
+	}
+}
+
+void APWPlayerController::UpdateTurnData()
+{
+	if (bTurnDataDirty == false)
+	{
+		return;
+	}
+
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == true)
+	{
+		PWPlayerState->SetIsMyTurn(bIsMyTurn);
+		TurnChangedDelegate.Broadcast(bIsMyTurn);
+		bTurnDataDirty = false;
 	}
 }

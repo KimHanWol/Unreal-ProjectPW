@@ -40,10 +40,11 @@ protected:
 public:
 
 	void SS_InitializePlayerState(ETeamSide InTeamSide);
+	void SetCommanderPawn(APawn* InCommanderPawn);
+	APawn* GetCommanderPawn();
 	
 	void OnCharacterMoved(ETeamSide InTeamSide, float Distance);
 
-	bool IsCharacterAlive(int32 CharacterNum) const;
 	const FCharacterAliveData GetTeamCharacterData(int32 CharacterNum) const;
 	TArray<class APWPlayerCharacter*> GetAliveTeamCharacterList() const;
 	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
@@ -53,6 +54,7 @@ public:
 	bool IsMyTurn() const { return bIsMyTurn; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
+	//TODO: 개선
 	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
 
 private:
@@ -80,6 +82,10 @@ private:
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterDataList)
 	TArray<FCharacterAliveData> TeamCharacterDataList;
 
+	//서버만 유효
+	UPROPERTY(transient)
+	class APawn* CommanderPawn;
+
 	//턴 행동력
 	//로컬에서 계산
 	UPROPERTY(Transient)
@@ -90,5 +96,4 @@ private:
 
 	UPROPERTY(Transient)
 	class APWPlayerController* OwningPlayerController;
-
 };

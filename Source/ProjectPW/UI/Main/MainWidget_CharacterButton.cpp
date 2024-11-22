@@ -11,9 +11,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWEventManager.h"
-#include "Data/PWGameEnum.h"
 #include "Core/PWPlayerState.h"
-#include "Data/DataAsset/PWGameData.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -23,6 +21,7 @@ void UMainWidget_CharacterButton::InitializeCharacterButton(APWPlayerCharacter* 
 	InvalidateWidget();
 
 	//체력은 따로 바인딩해줘서 여기서 초기화
+	//TODO: 안해도 되는지 확인
 	if (IsValid(PBar_Health) == true)
 	{
 		PBar_Health->SetPercent(1.f);
@@ -31,27 +30,17 @@ void UMainWidget_CharacterButton::InitializeCharacterButton(APWPlayerCharacter* 
 
 FReply UMainWidget_CharacterButton::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	//TODO: 키보드 입력과 합칠 수 있으면 좋을 듯 (예: 이벤트시스템)
-	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
-	if (IsValid(LocalPlayerController) == false)
-	{
-		ensure(false);
-		return FReply::Unhandled();
-	}
-
-	const APWPlayerState* PWPlayerState = LocalPlayerController->GetPlayerState<APWPlayerState>();
-	if (IsValid(PWPlayerState) == false)
-	{
-		ensure(false);
-		return FReply::Unhandled();
-	}
-
+	const APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
 	if (PWPlayerState->IsMyTurn() == false)
 	{
 		return FReply::Unhandled();
 	}
 
-	LocalPlayerController->SelectCharacter(ButtonIndex + 1);
+	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(LocalPlayerController) == true)
+	{
+		LocalPlayerController->SelectCharacter(ButtonIndex + 1);
+	}
 
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }

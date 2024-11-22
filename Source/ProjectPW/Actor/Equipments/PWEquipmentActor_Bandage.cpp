@@ -12,7 +12,6 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Healable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Helper/PWGameplayStatics.h"
-#include "Interface/PWAttackableInterface.h"
 #include "Interface/PWDamageableInterface.h"
 #include "Interface/PWHealableInterface.h"
 
@@ -52,6 +51,7 @@ void APWEquipmentActor_Bandage::Execute_Main_Triggered()
 		OwnerCharacter->PlayMontage(Montage_Bandage.LoadSynchronous());
 	}
 
+	//TODO: Hit Test 하는 거 Interface로 빼기
 	//Hit Test
 	bool bHitSuccess = false;
 	FVector ViewPointLocation;

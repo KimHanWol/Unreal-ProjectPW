@@ -160,14 +160,13 @@ void UMainWidget::OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class A
 	}
 }
 
-void UMainWidget::OnTargetIsOnCrosshair(APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair)
+void UMainWidget::OnTargetIsOnCrosshair(bool bIsOnCrosshair)
 {
-	//TODO: 클라에서 안되는 이유 찾아보기
 	if (IsValid(Text_Crosshair) == false)
 	{
 		return;
 	}
-	
+
 	if (bIsOnCrosshair == true)
 	{
 		Text_Crosshair->SetColorAndOpacity(FSlateColor(FColor::Red));

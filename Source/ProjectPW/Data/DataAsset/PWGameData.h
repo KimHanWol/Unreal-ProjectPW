@@ -72,5 +72,4 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<TEnumAsByte<EDataTableType>, TSoftObjectPtr<class UDataTable>> DataTableMap;
-
 };

@@ -36,7 +36,7 @@ public:
 	void NextTurn();
 
 	int32 GetCurrentPlayerTurn() const { return CurrentPlayersTurn; }
-	int32 GetCurrentRoundIndex() const { return CurrentRoundIndex; }
+	int32 GetCurrentRoundIndex() const { return CurrentRoundIndex; } // TODO: MainWidget 에 데이터 추가하기
 
 private:
 

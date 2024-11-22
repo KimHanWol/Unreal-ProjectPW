@@ -46,11 +46,6 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Cast<APWPlayerCharacter>(GetOwner())->IsPlayerControlled() == false)
-	{
-		return;
-	}
-
 	FHitResult HitResult;
 	FRotator ViewPointRotation;
 	bool bHitSuccess = EqiupmentActorLineTrace(HitResult, ViewPointRotation);
@@ -66,7 +61,7 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
 		{
-			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);
+			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(bIsTargetOn);
 		}
 	}
 }

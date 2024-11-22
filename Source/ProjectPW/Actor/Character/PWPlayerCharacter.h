@@ -50,7 +50,6 @@ public:
 	void Execute_Sub_Completed();
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
-	const FName& GetCharacterKey() const { return CharacterKey; }
 
 	//IPWAttackableInterface
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
@@ -101,6 +100,7 @@ protected:
 
 private:
 
+	//Data
 	UPROPERTY(EditInstanceOnly)
 	ETeamSide TeamSide;
 
@@ -112,6 +112,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Animation")
 	TSoftObjectPtr<class UAnimMontage> DeathAnimation;
 
+	//Component
 	UPROPERTY(EditAnywhere)
 	class UPWEquipmentComponent* PWEquipmentComponent;
 
@@ -121,6 +122,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	class UPWCharacterHUDComponent* CharacterHUDComponent;
 
+	//AttributeSet
 	UPROPERTY(Transient)
 	class UPWAttributeSet_Attackable* PWAttributeSet_Attackable;
 
@@ -130,6 +132,7 @@ private:
 	UPROPERTY(Transient)
 	class UPWAttributeSet_Healable* PWAttributeSet_Healable;
 
+	//ETC
 	UPROPERTY(Transient)
 	FVector PrevLocation = FVector::ZeroVector;
 };

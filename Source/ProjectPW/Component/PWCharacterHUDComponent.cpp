@@ -10,13 +10,20 @@
 //Game
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/Character/PWPlayerCharacter.h"
-#include "Core/PWEventManager.h"
 #include "UI/HUD/CharacterInGameHUD.h"
 #include "Helper/PWGameplayStatics.h"
 
 void UPWCharacterHUDComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 로컬 컨트롤러 전용
+	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(LocalPlayerController) == false || LocalPlayerController->IsLocalController() == false)
+	{
+		SetComponentTickEnabled(false);
+		return;
+	}
 
 	UCharacterInGameHUD* InGameHUDWidget = Cast<UCharacterInGameHUD>(GetUserWidgetObject());
 	if (IsValid(InGameHUDWidget) == true)

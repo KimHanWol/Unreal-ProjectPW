@@ -4,7 +4,6 @@
 #include "PWGameMode.h"
 
 //Engine
-#include "EngineUtils.h"
 #include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -12,25 +11,14 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/PWCommanderPointActor.h"
-#include "Data/PWGameEnum.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWGameState.h"
 #include "PWPlayerState.h"
 #include "PWEventManager.h"
 
-//현재 차례인 플레이어 컨트롤러 반환
-#define GET_PLAYER_INTURN(InWorldContext, InCurrentPlayersTurn) \
-	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), InCurrentPlayersTurn)))
-
-//다음 차례인 플레이어 컨트롤러 반환
-#define GET_PLAYER_NOTTURN(InWorldContext, InCurrentPlayersTurn) \
-	(Cast<APWPlayerController>(UGameplayStatics::GetPlayerController(InWorldContext->GetWorld(), 1 - InCurrentPlayersTurn)))
-
-
-void APWGameMode::BeginPlay()
+void APWGameMode::StartPlay()
 {
-	Super::BeginPlay();
-
+	Super::StartPlay();
 	BindEvents();
 }
 
@@ -38,15 +26,10 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
 
-	//한번만 바인딩 하기 위해서 서버 로컬 컨트롤러에서만
-	if (NewPlayer->IsLocalPlayerController() == true)
+	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(NewPlayer);
+	if (IsValid(PWPlayerController) == true)
 	{
-		InitialPossessedCount = 0;
-		UPWEventManager* EventManager = UPWEventManager::Get(this);
-		if (IsValid(EventManager) == true)
-		{
-			EventManager->InitialPossessDelegate.AddUObject(this, &APWGameMode::OnInitialPossess);
-		}
+		PWPlayerController->InitialPossessedDelegate.AddUObject(this, &APWGameMode::OnInitialPossess);
 	}
 
 	if (GetNumPlayers() == 2)
@@ -72,19 +55,18 @@ void APWGameMode::OnCharcterDead(APWPlayerCharacter* DeadCharacter)
 	CheckGameOver();
 }
 
-void APWGameMode::OnInitialPossess(class APWPlayerController* PWPlayerController)
+void APWGameMode::OnInitialPossess(APWPlayerController* SelfPlayerController)
 {
+	if (ensure(IsValid(SelfPlayerController) == true))
+	{
+		SelfPlayerController->InitialPossessedDelegate.RemoveAll(this);
+	}
+
 	InitialPossessedCount++;
 
 	//둘 다 폰이 생겨 빙의되면 게임 시작
 	if (InitialPossessedCount >= 2)
 	{
-		UPWEventManager* EventManager = UPWEventManager::Get(this);
-		if (IsValid(EventManager) == true)
-		{
-			EventManager->InitialPossessDelegate.RemoveAll(this);
-		}
-
 		StartGame();
 	}
 }
@@ -159,24 +141,22 @@ void APWGameMode::ChooseTeamSide(AController* Player)
 		return;
 	}
 
-	if (Player->HasAuthority() == false)
-	{
-		return;
-	}
-
-	//서버에 있는 로컬 컨트롤러면 랜덤 배분
 	bool bIsRedTeam = false;
-	if (Player->IsLocalPlayerController() == true)
+	//처음 입장했으면 랜덤
+	if (IsValid(RedTeamPlayerController) == false && IsValid(BlueTeamPlayerController) == false)
 	{
 		bIsRedTeam = FMath::RandBool();
 	}
-	//서버에 있는 클라 컨트롤러면 서버 반대로
+	//다음 입장했으면 처음거 반대
 	else
 	{
-		APWPlayerController* ServerPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
-		if (IsValid(ServerPlayerController) == true)
+		if (IsValid(RedTeamPlayerController) == true)
 		{
-			bIsRedTeam = !(ServerPlayerController->GetTeamSide() == ETeamSide::Red);
+			bIsRedTeam = false;
+		}
+		else
+		{
+			bIsRedTeam = true;
 		}
 	}
 
@@ -231,14 +211,26 @@ void APWGameMode::TransformCommanderPawns()
 	}
 }
 
+int32 APWGameMode::GetCurrentPlayerTurn()
+{
+	int32 CurrentPlayerTurn = 0;
+	APWGameState* PWGameState = Cast<APWGameState>(UGameplayStatics::GetGameState(this));
+	if (ensure(IsValid(PWGameState) == true))
+	{
+		CurrentPlayerTurn = PWGameState->GetCurrentPlayerTurn();
+	}
+
+	return CurrentPlayerTurn;
+}
+
 void APWGameMode::ReadyToStart()
 {
-	//Set Team Side
+	//Set team side
 	int32 ControllerNum = UPWGameplayStatics::GetNumPlayerControllers(this);
 	for (int32 i = 0; i < ControllerNum; i++)
 	{
 		ChooseTeamSide(UPWGameplayStatics::GetPlayerController(this, i));
-	}	
+	}
 }
 
 void APWGameMode::StartGame()
@@ -246,8 +238,8 @@ void APWGameMode::StartGame()
 	//Move player to commander position
 	TransformCommanderPawns();
 
-	//Turn Setting
-	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, 0);
+	//Turn setting
+	APWPlayerController* PlayerControllerInTurn = Cast<APWPlayerController>(UPWGameplayStatics::GetPlayerController(this, GetCurrentPlayerTurn()));
 	if (IsValid(PlayerControllerInTurn) == true)
 	{
 		PlayerControllerInTurn->ChangeTurn(true);
@@ -257,19 +249,14 @@ void APWGameMode::StartGame()
 void APWGameMode::TextTurn()
 {
 	APWGameState* PWGameState = Cast<APWGameState>(UGameplayStatics::GetGameState(this));
-	if (IsValid(PWGameState) == false)
+	if (IsValid(PWGameState) == true)
 	{
-		ensure(false);
-		return;
+		PWGameState->NextTurn();
 	}
 
-	int32 CurrentPlayersTurn = PWGameState->GetCurrentPlayerTurn();
-
-	APWPlayerController* PlayerControllerInTurn = GET_PLAYER_INTURN(this, CurrentPlayersTurn);
+	APWPlayerController* PlayerControllerInTurn = Cast<APWPlayerController>(UPWGameplayStatics::GetPlayerController(this, GetCurrentPlayerTurn()));
 	if (IsValid(PlayerControllerInTurn) == true)
 	{
 		PlayerControllerInTurn->ChangeTurn(false);
 	}
-
-	PWGameState->NextTurn();
 }

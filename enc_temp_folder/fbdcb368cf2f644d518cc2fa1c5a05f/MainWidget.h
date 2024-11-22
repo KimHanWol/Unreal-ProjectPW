@@ -34,7 +34,7 @@ private:
 	void OnGameOver(bool bWon);
 	void OnTeamCharacterMoved(float CurrentTurnActivePoint);
 	void OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class APWPlayerCharacter*>& TeamCharcterList);
-	void OnTargetIsOnCrosshair(class APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair);
+	void OnTargetIsOnCrosshair(bool bIsOnCrosshair);
 	void OnPlayerPossessed(bool bIsCommander);
 
 	void TryInitializeCharacterData();

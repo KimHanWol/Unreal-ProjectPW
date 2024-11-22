@@ -23,22 +23,9 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-private:
-
-	void CloseAllWidget();
-
-public:
-
-	void EnableMainWidget(bool bEnabled);
-
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UMainWidget* MainWidget;
-
-private:
-
-	UPROPERTY(Transient)
-	TArray<class UPWUserWidget*> WidgetList;
 
 };

@@ -24,6 +24,8 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void SetOwner(AActor* NewOwner) override;
+
 public:
 
 	//Fire

@@ -20,20 +20,21 @@ class PROJECTPW_API UPWGameplayStatics : public UGameplayStatics
 
 public:
 
-	static class APWPlayerCharacter* GetLocalPlayerCharacter(const UObject* WorldContextObj);
 	static class APWPlayerController* GetLocalPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerController* GetOtherPlayerController(class APWPlayerController* CurrentPlayerController);
-	static class TArray<APWPlayerController*> GetAllPlayerController(const UObject* WorldContextObj);
+	static class TArray<class APWPlayerController*> GetAllPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
 	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);
 
+	//TODO: 로그 남길 때 쓰기
 	template <typename EnumType> 
 	static FORCEINLINE FString ConvertEnumToString(const UObject* WorldContextObj, const EnumType InValue)
 	{
 		return StaticEnum<EnumType>()->GetNameStringByValue(static_cast<int64>(InValue)); 
 	}
 
+	//TODO: AsyncLoadManager 추가
 	static void AsyncLoadAsset(const struct FSoftObjectPath& AsyncLoadAssetPathList);
 	static void AsyncLoadAsset(const TArray<struct FSoftObjectPath>& AsyncLoadAssetPathList);
 };

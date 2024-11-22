@@ -15,17 +15,6 @@
 #include "Core/PWPlayerState.h"
 #include "Data/PWGameEnum.h"
 
-APWPlayerCharacter* UPWGameplayStatics::GetLocalPlayerCharacter(const UObject* WorldContextObj)
-{
-	APWPlayerController* PWPlayerController = GetLocalPlayerController(WorldContextObj);
-	if (IsValid(PWPlayerController) == true)
-	{
-		 return Cast<APWPlayerCharacter>(PWPlayerController->GetCharacter());
-	}
-
-	return nullptr;
-}
-
 APWPlayerController* UPWGameplayStatics::GetLocalPlayerController(const UObject* WorldContextObj)
 {
 	UWorld* World = WorldContextObj->GetWorld();
@@ -47,6 +36,12 @@ APWPlayerController* UPWGameplayStatics::GetLocalPlayerController(const UObject*
 
 APWPlayerController* UPWGameplayStatics::GetOtherPlayerController(class APWPlayerController* CurrentPlayerController)
 {
+	//Server Only
+	if (IsValid(CurrentPlayerController) == false || CurrentPlayerController->HasAuthority() == false)
+	{
+		return nullptr;
+	}
+
 	if (IsValid(CurrentPlayerController) == false)
 	{
 		return nullptr;
