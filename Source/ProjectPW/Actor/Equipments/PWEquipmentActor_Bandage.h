@@ -21,10 +21,8 @@ public:
 
 	//Bandege
 	virtual void Execute_Main_Triggered() override;
-	virtual void Execute_Main_Completed() override;
 
-private:
+protected:
 
-	UPROPERTY(EditDefaultsOnly)
-	float MaxRange = 500.f;
+	virtual bool IsInteractableActor(AActor* TargetActor) override;
 };

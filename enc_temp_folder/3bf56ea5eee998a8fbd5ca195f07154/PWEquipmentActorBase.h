@@ -40,15 +40,8 @@ protected:
 	virtual bool IsInteractableActor(AActor* TargetActor) { return true; }
 
 private:
-	
-	void CheckTargetOnCrosshair();
+
 	void OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander);
-
-protected:
-
-	//Weather RMB is pressed
-	UPROPERTY(Transient)
-	bool bIsSubExecuting = false;
 
 private:
 

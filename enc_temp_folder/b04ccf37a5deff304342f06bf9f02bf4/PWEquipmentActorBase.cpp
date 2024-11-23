@@ -34,7 +34,26 @@ void APWEquipmentActorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	CheckTargetOnCrosshair();
+	if (Cast<APWPlayerCharacter>(GetOwner())->IsPlayerControlled() == false)
+	{
+		return;
+	}
+
+	FHitResult HitResult;
+	FRotator ViewPointRotation;
+	bool bHitSuccess = EquipmentActorHitTest(HitResult, ViewPointRotation);
+	bool bHitOnDemageableActor = bHitSuccess && IsInteractableActor(HitResult.GetActor());
+
+	if (bHitOnDemageableActor != bIsTargetOn)
+	{
+		bIsTargetOn = bHitOnDemageableActor;
+
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);
+		}
+	}
 }
 
 bool APWEquipmentActorBase::EquipmentActorHitTest(FHitResult& OutHitResult, FRotator& OutViewPointRotation)
@@ -69,25 +88,6 @@ bool APWEquipmentActorBase::EquipmentActorHitTest(FHitResult& OutHitResult, FRot
 	}
 
 	return bHitSuccess;
-}
-
-void APWEquipmentActorBase::CheckTargetOnCrosshair()
-{
-	FHitResult HitResult;
-	FRotator ViewPointRotation;
-	bool bHitSuccess = EquipmentActorHitTest(HitResult, ViewPointRotation);
-	bool bHitOnDemageableActor = bHitSuccess && IsInteractableActor(HitResult.GetActor());
-
-	if (bHitOnDemageableActor != bIsTargetOn)
-	{
-		bIsTargetOn = bHitOnDemageableActor;
-
-		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-		if (IsValid(PWEventManager) == true)
-		{
-			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);
-		}
-	}
 }
 
 void APWEquipmentActorBase::OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander)

@@ -44,4 +44,8 @@ private:
 
 	UPROPERTY(Transient)
 	bool bIsADSAnimPlaying = false;
+
+	//Weather RMB is pressed
+	UPROPERTY(Transient)
+	bool bIsSubExecuting = false;
 };

@@ -4,6 +4,7 @@
 #include "PWEquipmentActor_Bandage.h"
 
 //Engine
+#include "AbilitySystemComponent.h"
 #include "UObject/ScriptInterface.h"
 
 
@@ -11,6 +12,7 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Healable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
+#include "Helper/PWGameplayStatics.h"
 #include "Interface/PWDamageableInterface.h"
 #include "Interface/PWHealableInterface.h"
 

@@ -4,6 +4,7 @@
 #include "PWEquipmentActor_Gun.h"
 
 //Engine
+#include "Engine/StreamableManager.h"
 #include "GameFramework/Character.h"
 #include "Particles/ParticleSystem.h"
 #include "UObject/ScriptInterface.h" 
