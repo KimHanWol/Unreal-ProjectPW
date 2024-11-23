@@ -38,7 +38,7 @@ void UPWGameData::PostLoad()
 	Super::PostLoad();
 
 	TArray<FSoftObjectPath> ItemsToStream;
-	for (TTuple <TEnumAsByte<EGameplayEffectType>, TSoftObjectPtr<UDataTable>> DataTableData : DataTableMap)
+	for (TTuple <EDataTableType, TSoftObjectPtr<UDataTable>> DataTableData : DataTableMap)
 	{
 		if (DataTableData.Value.IsNull() == false)
 		{

@@ -13,6 +13,7 @@
 UENUM(BlueprintType)
 enum class ETeamSide : uint8
 {
+	None,
 	Red,
 	Blue,
 };

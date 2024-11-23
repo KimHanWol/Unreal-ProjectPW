@@ -19,6 +19,8 @@ enum class EGameplayEffectType : uint8
 	AddHealth,
 };
 
+
+//TODO: Enum 전부 uint8로 변경
 UENUM()
 enum class EDataTableType : uint8
 {
