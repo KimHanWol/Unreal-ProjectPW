@@ -35,7 +35,6 @@ private:
 
 private:
 
-	//TODO: Particle Table 같은 곳으로 이전
 	UPROPERTY(EditDefaultsOnly, Category = "Effect")
 	TSoftObjectPtr<class UParticleSystem> MuzzleEffect;
 
