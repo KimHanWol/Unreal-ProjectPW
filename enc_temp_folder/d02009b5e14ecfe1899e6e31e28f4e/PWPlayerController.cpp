@@ -245,6 +245,11 @@ void APWPlayerController::SC_OnPossess_Implementation(APawn* PossessedPawn, bool
 	}
 
 	PWEventManager->PlayerPossessedDelegate.Broadcast(PossessedPawn, bIsCommander);
+
+	//if (IsLocalPlayerController() == true)
+	//{
+	//	PWEventManager->PlayerPossessedDelegate.Broadcast(PossessedCharacter, bIsCommander);
+	//}
 }
 
 void APWPlayerController::CS_SelectCharacter_Implementation(int32 SelectNum)

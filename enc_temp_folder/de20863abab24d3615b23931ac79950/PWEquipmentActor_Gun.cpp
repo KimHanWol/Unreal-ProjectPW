@@ -40,11 +40,22 @@ void APWEquipmentActor_Gun::BeginPlay()
 	// 가변인자 받을 수 있게 수정해서 더 간편하게 호출하기
 	// AssetLoadManager 같은거 만들어서 SoftObjectPath로 Map 만들고 캐시한 데이터 가져올 수 있게 해보자.
 	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->PlayerPossessedDelegate.AddUObject(this, &APWEquipmentActor_Gun::OnPlayerPossesssed);
+	}
 }
 
 void APWEquipmentActor_Gun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (Cast<APWPlayerCharacter>(GetOwner())->IsPlayerControlled() == false)
+	{
+		return;
+	}
 
 	FHitResult HitResult;
 	FRotator ViewPointRotation;
@@ -54,14 +65,18 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 	//TODO: 이것도 조준 가능한 인터페이스로 만들기
 	// 어빌리티로 만들어야 하나?
 	bool bHitOnDemageableActor = bHitSuccess && (Cast<IPWDamageableInterface>(HitResult.GetActor()) != nullptr);
-	if (bHitOnDemageableActor != bIsTargetOn)
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), GetOwner()->HasAuthority() ? *FString("Server") : * FString("Client"));
+	UE_LOG(LogTemp, Warning, TEXT("%s"), bHitOnDemageableActor ? *FString("True") : * FString("False"));
+
+	//if (bHitOnDemageableActor != bIsTargetOn)
 	{
 		bIsTargetOn = bHitOnDemageableActor;
 
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
 		{
-			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(bIsTargetOn);
+			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);
 		}
 	}
 }
@@ -70,14 +85,38 @@ void APWEquipmentActor_Gun::SetOwner(AActor* NewOwner)
 {
 	Super::SetOwner(NewOwner);
 
-	ACharacter* OwnerCharacter = Cast<ACharacter>(NewOwner);
-	if (IsValid(OwnerCharacter) == true && OwnerCharacter->IsLocallyControlled() == true)
+	SetActorTickEnabled(false);
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(NewOwner);
+	if (IsValid(OwnerCharacter) == true)
 	{
-		SetActorTickEnabled(true);
-	}
-	else
-	{
-		SetActorTickEnabled(false);
+		if (OwnerCharacter->HasAuthority() == true)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Server"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Client"));
+		}
+
+		//if (UPWGameplayStatics::GetLocalPlayerTeamSide(this) == OwnerCharacter->GetTeamSide())
+		{
+			//서버 쪽에서 NetConnection이 없는 서버 주체 캐릭터만
+			if (OwnerCharacter->HasAuthority() == true)
+			{
+				if (IsValid(OwnerCharacter->GetNetConnection()) == false)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("ss"));
+					SetActorTickEnabled(true);
+				}
+			}
+			//클라 쪽에서 LocallyControlled 되고 있는 클라 주체 캐릭터만
+			else 
+			//if(OwnerCharacter->IsLocallyControlled() == true)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ss"));
+				SetActorTickEnabled(true);
+			}
+		}
 	}
 }
 
@@ -220,4 +259,29 @@ bool APWEquipmentActor_Gun::EqiupmentActorLineTrace(FHitResult& OutHitResult, FR
 	bHitSuccess &= bHitOnDamageableActor;
 
 	return bHitSuccess;
+}
+
+void APWEquipmentActor_Gun::OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander)
+{
+	if (IsValid(PossessedPawn) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
+	if (IsValid(OwnerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (PossessedPawn == OwnerCharacter)
+	{
+		SetActorTickEnabled(true);
+	}
+	else
+	{
+		SetActorTickEnabled(false);
+	}
 }

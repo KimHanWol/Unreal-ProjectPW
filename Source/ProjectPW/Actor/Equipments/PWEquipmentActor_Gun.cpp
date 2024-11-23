@@ -22,6 +22,7 @@ APWEquipmentActor_Gun::APWEquipmentActor_Gun(const FObjectInitializer& ObjectIni
 : Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
 void APWEquipmentActor_Gun::BeginPlay()
@@ -40,6 +41,12 @@ void APWEquipmentActor_Gun::BeginPlay()
 	// 가변인자 받을 수 있게 수정해서 더 간편하게 호출하기
 	// AssetLoadManager 같은거 만들어서 SoftObjectPath로 Map 만들고 캐시한 데이터 가져올 수 있게 해보자.
 	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->PlayerPossessedDelegate.AddUObject(this, &APWEquipmentActor_Gun::OnPlayerPossesssed);
+	}
 }
 
 void APWEquipmentActor_Gun::Tick(float DeltaTime)
@@ -59,6 +66,7 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 	//TODO: 이것도 조준 가능한 인터페이스로 만들기
 	// 어빌리티로 만들어야 하나?
 	bool bHitOnDemageableActor = bHitSuccess && (Cast<IPWDamageableInterface>(HitResult.GetActor()) != nullptr);
+
 	if (bHitOnDemageableActor != bIsTargetOn)
 	{
 		bIsTargetOn = bHitOnDemageableActor;
@@ -68,21 +76,6 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 		{
 			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);
 		}
-	}
-}
-
-void APWEquipmentActor_Gun::SetOwner(AActor* NewOwner)
-{
-	Super::SetOwner(NewOwner);
-
-	ACharacter* OwnerCharacter = Cast<ACharacter>(NewOwner);
-	if (IsValid(OwnerCharacter) == true && OwnerCharacter->IsLocallyControlled() == true)
-	{
-		SetActorTickEnabled(true);
-	}
-	else
-	{
-		SetActorTickEnabled(false);
 	}
 }
 
@@ -225,4 +218,29 @@ bool APWEquipmentActor_Gun::EqiupmentActorLineTrace(FHitResult& OutHitResult, FR
 	bHitSuccess &= bHitOnDamageableActor;
 
 	return bHitSuccess;
+}
+
+void APWEquipmentActor_Gun::OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander)
+{
+	if (IsValid(PossessedPawn) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
+	if (IsValid(OwnerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (PossessedPawn == OwnerCharacter)
+	{
+		SetActorTickEnabled(true);
+	}
+	else
+	{
+		SetActorTickEnabled(false);
+	}
 }

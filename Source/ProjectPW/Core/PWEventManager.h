@@ -32,7 +32,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMoved, float CurrentTurnActivePoint);
 	FCharacterMoved TeamCharacterMovedDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FPlayerPossessed, bool bIsCommander);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerPossessed, APawn* PossessedPawn, bool bIsCommander);
 	FPlayerPossessed PlayerPossessedDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterDead, class APWPlayerCharacter* DeadCharacter);

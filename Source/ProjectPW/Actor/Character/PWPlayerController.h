@@ -63,8 +63,8 @@ private:
 	void SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter);
 
 	UFUNCTION(Client, Reliable)
-	void SC_OnPossess(bool bIsCommander);
-	void SC_OnPossess_Implementation(bool bIsCommander);
+	void SC_OnPossess(APawn* PossessedPawn, bool bIsCommander);
+	void SC_OnPossess_Implementation(APawn* PossessedPawn, bool bIsCommander);
 
 	UFUNCTION(Server, Reliable)
 	void CS_SelectCharacter(int32 SelectNum);

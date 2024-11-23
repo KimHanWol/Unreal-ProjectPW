@@ -21,7 +21,7 @@ void UMainWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	OnPlayerPossessed(true);
+	OnPlayerPossessed(nullptr, true);
 
 	if (IsValid(MainWidget_CharacterButton_1) == true)
 	{
@@ -160,13 +160,16 @@ void UMainWidget::OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class A
 	}
 }
 
-void UMainWidget::OnTargetIsOnCrosshair(bool bIsOnCrosshair)
+void UMainWidget::OnTargetIsOnCrosshair(APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair)
 {
+	//TODO: 클라에서 안되는 이유 찾아보기
 	if (IsValid(Text_Crosshair) == false)
 	{
 		return;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("%s"), bIsOnCrosshair ? *FString("Red") : *FString("White"));
+	
 	if (bIsOnCrosshair == true)
 	{
 		Text_Crosshair->SetColorAndOpacity(FSlateColor(FColor::Red));
@@ -177,7 +180,7 @@ void UMainWidget::OnTargetIsOnCrosshair(bool bIsOnCrosshair)
 	}
 }
 
-void UMainWidget::OnPlayerPossessed(bool bIsCommander)
+void UMainWidget::OnPlayerPossessed(APawn* PossessedPawn, bool bIsCommander)
 {
 	if (IsValid(Overlay_Commander) == false)
 	{
