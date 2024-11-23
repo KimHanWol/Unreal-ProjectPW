@@ -213,7 +213,7 @@ void UMainWidget::TryInitializeCharacterData()
 	}
 
 	APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
-	if (IsValid(PWPlayerState) == true && PWPlayerState->IsTeamCharacterInitialized()) //완전히 초기화 되지 않은 상태의 접근 방지
+	if (IsValid(PWPlayerState) == true && PWPlayerState->IsTeamCharacterInitialized() == true) //완전히 초기화 되지 않은 상태의 접근 방지
 	{
 		OnTeamCharacterLoaded(UPWGameplayStatics::GetLocalPlayerTeamSide(this), PWPlayerState->GetTeamCharacterList());
 		bIsCharacterDataInitialized = true;

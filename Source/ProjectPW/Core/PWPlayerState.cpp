@@ -179,16 +179,5 @@ void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
 
 void APWPlayerState::OnRep_TeamCharacterDataList()
 {
-	if (IsValid(GetOwningController()) == false || GetOwningController()->IsLocalPlayerController() == false)
-	{
-		return;
-	}
-
-	UPWEventManager* PWEventManger = UPWEventManager::Get(this);
-	if (IsValid(PWEventManger) == true)
-	{
-		PWEventManger->TeamCharcterLoadedDelegate.Broadcast(TeamSide, GetTeamCharacterList());
-	}
-
 	bIsTeamCharacterInitialized = true;
 }
