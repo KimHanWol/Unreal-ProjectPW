@@ -83,7 +83,7 @@ private:
 	class UMasterWidget* MasterWidget;
 
 	//Component
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(transient)
 	class UPWPlayerInputComponent* PlayerInputComponent;
 
 	UPROPERTY(transient)

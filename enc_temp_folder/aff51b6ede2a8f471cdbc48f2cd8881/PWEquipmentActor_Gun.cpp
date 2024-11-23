@@ -233,7 +233,6 @@ void APWEquipmentActor_Gun::OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCom
 	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
 	{
-		ensure(false);
 		return;
 	}
 

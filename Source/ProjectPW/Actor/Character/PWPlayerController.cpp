@@ -5,14 +5,11 @@
 
 //Engine
 #include "EngineUtils.h"
-#include "EnhancedInput/Public/EnhancedInputSubsystems.h"
-#include "EnhancedInput/Public/InputMappingContext.h"
 #include "Net/UnrealNetwork.h"
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
-#include "Core/InputHandler/CharacterInputHandler.h"
-#include "Core/InputHandler/CommanderInputHandler.h"
+#include "Component/PWPlayerInputComponent.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
 #include "Data/DataAsset/PWGameData.h"
@@ -23,6 +20,8 @@
 APWPlayerController::APWPlayerController()
 {
 	bShowMouseCursor = true;
+
+	PlayerInputComponent = CreateDefaultSubobject<UPWPlayerInputComponent>(TEXT("PlayerInputComponent"));
 }
 
 void APWPlayerController::BeginPlay()
@@ -42,15 +41,9 @@ void APWPlayerController::BeginPlay()
 		}
 	}
 
-	//TODO: PlayerInputComponent 구현해서 넣기?
-	TryCreateInputHandler();
-	if (IsValid(DefaultContext))
+	if (IsValid(PlayerInputComponent) == true)
 	{
-		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
-		if (IsValid(EnhancedInputSubsys) == true)
-		{
-			EnhancedInputSubsys->AddMappingContext(DefaultContext, 0);
-		}
+		PlayerInputComponent->InitMappingContext();
 	}
 }
 
@@ -184,24 +177,6 @@ void APWPlayerController::SelectCharacter(int32 SelectNum)
 	}
 }
 
-void APWPlayerController::SetMouseInputToGameAndUI(bool bInShowWithCursor)
-{
-	bShowMouseCursor = bInShowWithCursor;
-
-	FlushPressedKeys();
-
-	FInputModeGameAndUI InputMode;
-	SetInputMode(InputMode);
-}
-
-void APWPlayerController::SetMouseInputToGame()
-{
-	bShowMouseCursor = false;
-
-	FInputModeGameOnly InputMode;
-	SetInputMode(InputMode);
-}
-
 void APWPlayerController::SS_ChangeTurn(bool bMyTurn)
 {
 	SelectCharacter(0);
@@ -213,69 +188,24 @@ void APWPlayerController::SS_ChangeTurn(bool bMyTurn)
 
 void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter)
 {
-	TryCreateInputHandler();
-
-	if (IsValid(CommanderInputHandler) == false ||
-		IsValid(CharacterInputHandler) == false)
+	if (IsValid(PlayerInputComponent) == true)
 	{
-		ensure(false);
-		return;
+		PlayerInputComponent->SetInputEnabled(bEnableCommander, bEnableCharacter);
 	}
-
-	CommanderInputHandler->SetInputEnabled(bEnableCommander);
-	CharacterInputHandler->SetInputEnabled(bEnableCharacter);
 }
 
 void APWPlayerController::SC_OnPossess_Implementation(APawn* PossessedPawn, bool bIsCommander)
 {
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == false)
+	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		ensure(false);
-		return;
+		PWEventManager->PlayerPossessedDelegate.Broadcast(PossessedPawn, bIsCommander);
 	}
-
-	if (bIsCommander == true)
-	{
-		SetMouseInputToGameAndUI(true);
-	}
-	else
-	{
-		SetMouseInputToGame();
-	}
-
-	PWEventManager->PlayerPossessedDelegate.Broadcast(PossessedPawn, bIsCommander);
 }
 
 void APWPlayerController::CS_SelectCharacter_Implementation(int32 SelectNum)
 {
 	SelectCharacter(SelectNum);
-}
-
-void APWPlayerController::TryCreateInputHandler()
-{
-	if (IsValid(CommanderInputHandler) == true &&
-		IsValid(CharacterInputHandler) == true)
-	{
-		return;
-	}
-
-	if (IsValid(InputComponent) == true)
-	{
-		if (IsValid(CommanderInputHandlerClass) == true)
-		{
-			CommanderInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
-			CommanderInputHandler->SetupKeyBindings(this, InputComponent);
-			CommanderInputHandler->SetInputEnabled(false);
-		}
-
-		if (IsValid(CharacterInputHandlerClass) == true)
-		{
-			CharacterInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
-			CharacterInputHandler->SetupKeyBindings(this, InputComponent);
-			CharacterInputHandler->SetInputEnabled(false);
-		}
-	}
 }
 
 void APWPlayerController::UpdateTurnData()
