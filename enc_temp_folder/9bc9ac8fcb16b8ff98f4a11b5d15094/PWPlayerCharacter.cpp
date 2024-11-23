@@ -53,8 +53,10 @@ void APWPlayerCharacter::LifeSpanExpired()
 {
 	if (HasAuthority() == true)
 	{
-		SM_OnLifeSpanExpired();
+		//SM_OnLifeSpanExpired();
 	}
+
+	PWEquipmentComponent->OnDeath();
 
 	Super::LifeSpanExpired();
 }

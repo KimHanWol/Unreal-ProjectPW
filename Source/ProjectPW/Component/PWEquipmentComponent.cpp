@@ -72,7 +72,6 @@ void UPWEquipmentComponent::Execute_Sub_Completed()
 
 void UPWEquipmentComponent::OnDeath()
 {
-	//TODO: 클라에서 무기 안사라지는 지 확인
 	SpawnedEquipmentActor->Destroy();
 	SpawnedEquipmentActor = nullptr;
 }

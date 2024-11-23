@@ -68,6 +68,10 @@ public:
 	void CS_GiveDamage(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
 	void CS_GiveDamage_Implementation(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_OnLifeSpanExpired();
+	void SM_OnLifeSpanExpired_Implementation();
+
 private:
 
 	void LoadCharacterDefaultStats();
