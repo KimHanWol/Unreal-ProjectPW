@@ -17,10 +17,6 @@ class PROJECTPW_API APWEquipmentActor_Bandage : public APWEquipmentActorBase
 {
 	GENERATED_BODY()
 
-protected:
-		
-	virtual void BeginPlay() override;
-
 public:
 
 	//Bandege
@@ -28,10 +24,6 @@ public:
 	virtual void Execute_Main_Completed() override;
 
 private:
-
-	//TODO: Character AnimSet 같은 곳으로 이전
-	UPROPERTY(EditDefaultsOnly, Category = "Anim")
-	TSoftObjectPtr<class UAnimMontage> Montage_Bandage;
 
 	UPROPERTY(EditDefaultsOnly)
 	float MaxRange = 500.f;

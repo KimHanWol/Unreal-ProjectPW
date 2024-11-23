@@ -13,6 +13,7 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWEventManager.h"
+#include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Helper/PWGameplayStatics.h"
 #include "Interface/PWAttackableInterface.h"
 #include "Interface/PWDamageableInterface.h"
@@ -22,24 +23,25 @@ APWEquipmentActor_Gun::APWEquipmentActor_Gun(const FObjectInitializer& ObjectIni
 : Super(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
 void APWEquipmentActor_Gun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<FSoftObjectPath> ItemsToStream;
-	if (MuzzleEffect.IsNull() == false && ImpactEffect.IsNull() == false && Montage_ADS.IsNull() == false)
-	{
-		ItemsToStream.AddUnique(MuzzleEffect.ToSoftObjectPath());
-		ItemsToStream.AddUnique(ImpactEffect.ToSoftObjectPath());
-		ItemsToStream.AddUnique(Montage_ADS.ToSoftObjectPath());
-	}
+	//TArray<FSoftObjectPath> ItemsToStream;
+	//if (MuzzleEffect.IsNull() == false && ImpactEffect.IsNull() == false && Montage_ADS.IsNull() == false)
+	//{
+	//	ItemsToStream.AddUnique(MuzzleEffect.ToSoftObjectPath());
+	//	ItemsToStream.AddUnique(ImpactEffect.ToSoftObjectPath());
+	//	ItemsToStream.AddUnique(Montage_ADS.ToSoftObjectPath());
+	//}
 
 	// TODO: void AddSoftObjectReferences(std::initializer_list<TSoftObjectPtr<AActor>> References);
 	// 가변인자 받을 수 있게 수정해서 더 간편하게 호출하기
 	// AssetLoadManager 같은거 만들어서 SoftObjectPath로 Map 만들고 캐시한 데이터 가져올 수 있게 해보자.
-	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
+	//UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
 
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
@@ -66,10 +68,7 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 	// 어빌리티로 만들어야 하나?
 	bool bHitOnDemageableActor = bHitSuccess && (Cast<IPWDamageableInterface>(HitResult.GetActor()) != nullptr);
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), GetOwner()->HasAuthority() ? *FString("Server") : * FString("Client"));
-	UE_LOG(LogTemp, Warning, TEXT("%s"), bHitOnDemageableActor ? *FString("True") : * FString("False"));
-
-	//if (bHitOnDemageableActor != bIsTargetOn)
+	if (bHitOnDemageableActor != bIsTargetOn)
 	{
 		bIsTargetOn = bHitOnDemageableActor;
 
@@ -77,45 +76,6 @@ void APWEquipmentActor_Gun::Tick(float DeltaTime)
 		if (IsValid(PWEventManager) == true)
 		{
 			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);
-		}
-	}
-}
-
-void APWEquipmentActor_Gun::SetOwner(AActor* NewOwner)
-{
-	Super::SetOwner(NewOwner);
-
-	SetActorTickEnabled(false);
-	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(NewOwner);
-	if (IsValid(OwnerCharacter) == true)
-	{
-		if (OwnerCharacter->HasAuthority() == true)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Server"));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Client"));
-		}
-
-		//if (UPWGameplayStatics::GetLocalPlayerTeamSide(this) == OwnerCharacter->GetTeamSide())
-		{
-			//서버 쪽에서 NetConnection이 없는 서버 주체 캐릭터만
-			if (OwnerCharacter->HasAuthority() == true)
-			{
-				if (IsValid(OwnerCharacter->GetNetConnection()) == false)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("ss"));
-					SetActorTickEnabled(true);
-				}
-			}
-			//클라 쪽에서 LocallyControlled 되고 있는 클라 주체 캐릭터만
-			else 
-			//if(OwnerCharacter->IsLocallyControlled() == true)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("ss"));
-				SetActorTickEnabled(true);
-			}
 		}
 	}
 }
@@ -210,6 +170,7 @@ void APWEquipmentActor_Gun::EnableADS(bool bEnabled)
 		return;
 	}
 
+	TSoftObjectPtr<UAnimMontage> Montage_ADS = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::ADS);
 	if (Montage_ADS.IsNull() == false)
 	{
 		if (bEnabled == true)

@@ -34,6 +34,9 @@ public:
 	static class UPWGameSetting* GetGameSetting(const UObject* WorldContextObj);
 	class UPWGameSetting* GetGameSetting();
 
+	static class UPWAnimDataAsset* GetAnimDataAsset(const UObject* WorldContextObj);
+	class UPWAnimDataAsset* GetAnimDataAsset();
+
 	static class UPWEventManager* GetEventManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWEventManager* GetEventManager() const { return PWEventManager; }
 	//TODO: Get 함수들 FORCEINLINE 고려해보기
@@ -46,13 +49,10 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSoftObjectPtr<class UPWGameSetting> PWGameSettingPtr;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	TSoftObjectPtr<class UPWAnimDataAsset> PWAnimDataAssetPtr;
+
 private:
-
-	UPROPERTY(Transient)
-	class UPWGameData* PWGameData;
-
-	UPROPERTY(Transient)
-	class UPWGameSetting* PWGameSetting;
 
 	UPROPERTY(Transient)
 	class UPWEventManager* PWEventManager;

@@ -11,22 +11,10 @@
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Healable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
+#include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Helper/PWGameplayStatics.h"
 #include "Interface/PWDamageableInterface.h"
 #include "Interface/PWHealableInterface.h"
-
-void APWEquipmentActor_Bandage::BeginPlay()
-{
-	Super::BeginPlay();
-
-	TArray<FSoftObjectPath> ItemsToStream;
-	if (Montage_Bandage.IsNull() == false)
-	{
-		ItemsToStream.AddUnique(Montage_Bandage.ToSoftObjectPath());
-	}
-
-	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
-}
 
 void APWEquipmentActor_Bandage::Execute_Main_Triggered()
 {
@@ -46,6 +34,7 @@ void APWEquipmentActor_Bandage::Execute_Main_Triggered()
 		return;
 	}
 
+	TSoftObjectPtr<UAnimMontage> Montage_Bandage = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::Bandage);
 	if (Montage_Bandage.IsNull() == false)
 	{
 		OwnerCharacter->PlayMontage(Montage_Bandage.LoadSynchronous());

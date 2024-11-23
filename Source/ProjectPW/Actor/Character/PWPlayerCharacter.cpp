@@ -18,6 +18,7 @@
 #include "Component/PWEquipmentComponent.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
+#include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
@@ -257,7 +258,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Cast<AActor>(Killer)->GetActorLocation());
 	SetActorRotation(LookRotator);
 
-	PlayMontage(DeathAnimation.LoadSynchronous());
+	PlayMontage(UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::Death));
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == true)

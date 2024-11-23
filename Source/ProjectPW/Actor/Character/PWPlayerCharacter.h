@@ -108,10 +108,6 @@ private:
 	UPROPERTY(EditInstanceOnly)
 	FName CharacterKey;
 
-	//TODO: 애니메이션이 많아지면 AnimSet 으로 이전
-	UPROPERTY(EditAnywhere, Category = "Animation")
-	TSoftObjectPtr<class UAnimMontage> DeathAnimation;
-
 	//Component
 	UPROPERTY(EditAnywhere)
 	class UPWEquipmentComponent* PWEquipmentComponent;

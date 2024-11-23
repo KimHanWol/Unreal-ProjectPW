@@ -6,6 +6,7 @@
 //Engine
 
 //Game
+#include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
@@ -78,6 +79,23 @@ UPWGameSetting* UPWGameInstance::GetGameSetting()
 
 	return nullptr;
 }
+
+
+UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset(const UObject* WorldContextObj)
+{
+	return UPWGameInstance::Get(WorldContextObj)->GetAnimDataAsset();
+}
+
+UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset()
+{
+	if (PWAnimDataAssetPtr.IsNull() == false)
+	{
+		return PWAnimDataAssetPtr.LoadSynchronous();
+	}
+
+	return nullptr;
+}
+
 
 UPWEventManager* UPWGameInstance::GetEventManager(const UObject* WorldContextObj)
 {

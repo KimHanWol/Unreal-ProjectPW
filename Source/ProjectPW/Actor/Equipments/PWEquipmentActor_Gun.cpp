@@ -13,6 +13,7 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWEventManager.h"
+#include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Helper/PWGameplayStatics.h"
 #include "Interface/PWAttackableInterface.h"
 #include "Interface/PWDamageableInterface.h"
@@ -29,18 +30,18 @@ void APWEquipmentActor_Gun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TArray<FSoftObjectPath> ItemsToStream;
-	if (MuzzleEffect.IsNull() == false && ImpactEffect.IsNull() == false && Montage_ADS.IsNull() == false)
-	{
-		ItemsToStream.AddUnique(MuzzleEffect.ToSoftObjectPath());
-		ItemsToStream.AddUnique(ImpactEffect.ToSoftObjectPath());
-		ItemsToStream.AddUnique(Montage_ADS.ToSoftObjectPath());
-	}
+	//TArray<FSoftObjectPath> ItemsToStream;
+	//if (MuzzleEffect.IsNull() == false && ImpactEffect.IsNull() == false && Montage_ADS.IsNull() == false)
+	//{
+	//	ItemsToStream.AddUnique(MuzzleEffect.ToSoftObjectPath());
+	//	ItemsToStream.AddUnique(ImpactEffect.ToSoftObjectPath());
+	//	ItemsToStream.AddUnique(Montage_ADS.ToSoftObjectPath());
+	//}
 
 	// TODO: void AddSoftObjectReferences(std::initializer_list<TSoftObjectPtr<AActor>> References);
 	// 가변인자 받을 수 있게 수정해서 더 간편하게 호출하기
 	// AssetLoadManager 같은거 만들어서 SoftObjectPath로 Map 만들고 캐시한 데이터 가져올 수 있게 해보자.
-	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
+	//UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
 
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
@@ -169,6 +170,7 @@ void APWEquipmentActor_Gun::EnableADS(bool bEnabled)
 		return;
 	}
 
+	TSoftObjectPtr<UAnimMontage> Montage_ADS = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::ADS);
 	if (Montage_ADS.IsNull() == false)
 	{
 		if (bEnabled == true)
@@ -231,7 +233,6 @@ void APWEquipmentActor_Gun::OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCom
 	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
 	{
-		ensure(false);
 		return;
 	}
 

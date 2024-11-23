@@ -51,10 +51,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Effect")
 	TSoftObjectPtr<class UParticleSystem> ImpactEffect;
 
-	//TODO: Character AnimSet 같은 곳으로 이전
-	UPROPERTY(EditDefaultsOnly, Category = "Anim")
-	TSoftObjectPtr<class UAnimMontage> Montage_ADS;
-
 	UPROPERTY(EditDefaultsOnly)
 	float MaxRange = 1000.f;
 
