@@ -33,8 +33,4 @@ public:
 	{
 		return StaticEnum<EnumType>()->GetNameStringByValue(static_cast<int64>(InValue)); 
 	}
-
-	//TODO: AsyncLoadManager 추가
-	static void AsyncLoadAsset(const struct FSoftObjectPath& AsyncLoadAssetPathList);
-	static void AsyncLoadAsset(const TArray<struct FSoftObjectPath>& AsyncLoadAssetPathList);
 };

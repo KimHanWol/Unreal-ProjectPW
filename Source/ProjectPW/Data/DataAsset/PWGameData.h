@@ -35,6 +35,8 @@ public:
 
 	static const UPWGameData* Get(const UObject* WorldContextObj);
 
+	void Initialize();
+
 	static TSubclassOf<class UGameplayEffect> GetGameplayEffect(const UObject* WorldContextObj, EGameplayEffectType GameplayEffectType);
 
 	template <typename TRowType>
@@ -62,8 +64,6 @@ public:
 
 		return TargetDataTable->FindRow<TRowType>(KeyName, TEXT("Find Table"));
 	}
-
-	virtual void PostLoad() override;
 
 protected:
 

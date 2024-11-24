@@ -24,6 +24,9 @@ void UPWGameInstance::Init()
 	PWAssetLoadManager = NewObject<UPWAssetLoadManager>(this, UPWAssetLoadManager::StaticClass());
 	PWAssetLoadManager->AddToRoot();
 
+	//UPWAssetLoadManager::AsyncLoad(this, PWGameDataPtr, PWGameSettingPtr, PWAnimDataAssetPtr );
+	UPWAssetLoadManager::AsyncLoad(this, PWGameSettingPtr);
+
 	if (ensure(IsValid(PWGameData) == true))
 	{
 		PWGameData->Initialize();
@@ -70,6 +73,7 @@ UPWGameData* UPWGameInstance::GetGameData(const UObject* WorldContextObj)
 
 UPWGameData* UPWGameInstance::GetGameData()
 {
+	//return 	UPWAssetLoadManager::GetLoadedAsset<UPWGameData>(this, PWGameDataPtr);
 	return 	PWGameData;
 }
 
@@ -80,8 +84,9 @@ UPWGameSetting* UPWGameInstance::GetGameSetting(const UObject* WorldContextObj)
 
 UPWGameSetting* UPWGameInstance::GetGameSetting()
 {
-	return PWGameSetting;
+	return 	UPWAssetLoadManager::GetLoadedAsset<UPWGameSetting>(this, PWGameSettingPtr);
 }
+
 
 UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset(const UObject* WorldContextObj)
 {
@@ -90,8 +95,10 @@ UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset(const UObject* WorldContextO
 
 UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset()
 {
+	//return 	UPWAssetLoadManager::GetLoadedAsset<UPWAnimDataAsset>(this, PWAnimDataAssetPtr);
 	return PWAnimDataAsset;
 }
+
 
 UPWEventManager* UPWGameInstance::GetEventManager(const UObject* WorldContextObj)
 {

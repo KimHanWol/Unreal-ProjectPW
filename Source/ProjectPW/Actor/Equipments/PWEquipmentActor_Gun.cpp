@@ -11,24 +11,20 @@
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
+#include "Core/PWAssetLoadManager.h"
 #include "Core/PWEventManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Helper/PWGameplayStatics.h"
 #include "Interface/PWAttackableInterface.h"
 #include "Interface/PWDamageableInterface.h"
 
-//TArray<FSoftObjectPath> ItemsToStream;
-//if (MuzzleEffect.IsNull() == false && ImpactEffect.IsNull() == false && Montage_ADS.IsNull() == false)
-//{
-//	ItemsToStream.AddUnique(MuzzleEffect.ToSoftObjectPath());
-//	ItemsToStream.AddUnique(ImpactEffect.ToSoftObjectPath());
-//	ItemsToStream.AddUnique(Montage_ADS.ToSoftObjectPath());
-//}
+void APWEquipmentActor_Gun::BeginPlay()
+{
+	Super::BeginPlay();
 
-// TODO: void AddSoftObjectReferences(std::initializer_list<TSoftObjectPtr<AActor>> References);
-// 가변인자 받을 수 있게 수정해서 더 간편하게 호출하기
-// AssetLoadManager 같은거 만들어서 SoftObjectPath로 Map 만들고 캐시한 데이터 가져올 수 있게 해보자.
-//UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
+	Montage_ADS = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::ADS);
+	UPWAssetLoadManager::AsyncLoad(this, MuzzleEffect, ImpactEffect, Montage_ADS);
+}
 
 void APWEquipmentActor_Gun::Execute_Main_Triggered()
 {
@@ -42,14 +38,11 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 	}
 
 	//Muzzle Effect
-	if (MuzzleEffect.IsNull() == false)
-	{
-		UPWGameplayStatics::SpawnEmitterAttached(
-			MuzzleEffect.LoadSynchronous(),
-			GetMesh(),
-			TEXT("MuzzleFlashSocket")
-		);
-	}
+	UPWGameplayStatics::SpawnEmitterAttached(
+		UPWAssetLoadManager::GetLoadedAsset<UParticleSystem>(this, MuzzleEffect),
+		GetMesh(),
+		TEXT("MuzzleFlashSocket")
+	);
 
 	EnableADS(true);
 
@@ -62,10 +55,12 @@ void APWEquipmentActor_Gun::Execute_Main_Triggered()
 	if (bHitSuccess == true)
 	{
 		const FVector& ShotDirection = -ViewPointRotation.Vector();
-		if (ImpactEffect.IsNull() == false)
-		{
-			UPWGameplayStatics::SpawnEmitterAtLocation(this, ImpactEffect.LoadSynchronous() ,HitResult.Location, ShotDirection.Rotation());
-		}
+		UPWGameplayStatics::SpawnEmitterAtLocation(
+			this, 
+			UPWAssetLoadManager::GetLoadedAsset<UParticleSystem>(this, MuzzleEffect),
+			HitResult.Location, 
+			ShotDirection.Rotation()
+		);
 
 		if (IsInteractableActor(HitResult.GetActor()) == true)
 		{
@@ -116,19 +111,15 @@ void APWEquipmentActor_Gun::EnableADS(bool bEnabled)
 		return;
 	}
 
-	TSoftObjectPtr<UAnimMontage> Montage_ADS = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::ADS);
-	if (Montage_ADS.IsNull() == false)
+	if (bEnabled == true)
 	{
-		if (bEnabled == true)
-		{
-			OwnerCharacter->PlayMontage(Montage_ADS);
-			bIsADSAnimPlaying = true;
-		}
-		else
-		{
-			OwnerCharacter->StopMontage(Montage_ADS);
-			bIsADSAnimPlaying = false;
-		}
+		OwnerCharacter->PlayMontage(UPWAssetLoadManager::GetLoadedAsset<UAnimMontage>(this, Montage_ADS));
+		bIsADSAnimPlaying = true;
+	}
+	else
+	{
+		OwnerCharacter->StopMontage(UPWAssetLoadManager::GetLoadedAsset<UAnimMontage>(this, Montage_ADS));
+		bIsADSAnimPlaying = false;
 	}
 }
 

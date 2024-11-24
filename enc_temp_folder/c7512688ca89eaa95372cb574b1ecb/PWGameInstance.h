@@ -46,10 +46,14 @@ public:
 
 protected:
 
-	//내부에서 또 비동기 로딩을 해야 하고 Init 시점에 초기화 하기 때문에
-	//여기서 참조하는 에셋들은 하드 레퍼런스로 가지기.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class UPWGameSetting* PWGameSetting;
+	TSoftObjectPtr<class UPWGameSetting> PWGameSettingPtr;
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	//TSoftObjectPtr<class UPWGameData> PWGameDataPtr;
+
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	//TSoftObjectPtr<class UPWAnimDataAsset> PWAnimDataAssetPtr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UPWGameData* PWGameData;

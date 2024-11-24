@@ -6,7 +6,19 @@
 //Engine
 
 //Game
+#include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
+
+void UPWAnimDataAsset::Initialize()
+{
+	TArray<TSoftObjectPtr<class UAnimMontage>> SoftObjectList;
+	AnimationMap.GenerateValueArray(SoftObjectList);
+
+	for (TSoftObjectPtr<class UAnimMontage> SoftObject : SoftObjectList)
+	{
+		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
+	}
+}
 
 const UPWAnimDataAsset* UPWAnimDataAsset::Get(const UObject* WorldContextObj)
 {

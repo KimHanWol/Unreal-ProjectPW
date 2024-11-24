@@ -17,6 +17,10 @@ class PROJECTPW_API APWEquipmentActor_Bandage : public APWEquipmentActorBase
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+
 public:
 
 	//Bandege
@@ -25,4 +29,9 @@ public:
 protected:
 
 	virtual bool IsInteractableActor(AActor* TargetActor) override;
+
+private:
+
+	UPROPERTY(Transient)
+	TSoftObjectPtr<UAnimMontage> Montage_Bandage;
 };

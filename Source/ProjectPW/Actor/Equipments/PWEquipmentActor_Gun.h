@@ -17,6 +17,10 @@ class PROJECTPW_API APWEquipmentActor_Gun: public APWEquipmentActorBase
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+
 public:
 
 	//Fire
@@ -40,6 +44,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effect")
 	TSoftObjectPtr<class UParticleSystem> ImpactEffect;
+
+	UPROPERTY(Transient)
+	TSoftObjectPtr<UAnimMontage> Montage_ADS;
 
 	UPROPERTY(Transient)
 	bool bIsADSAnimPlaying = false;

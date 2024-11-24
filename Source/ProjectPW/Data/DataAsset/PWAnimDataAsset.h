@@ -31,6 +31,8 @@ public:
 
 	static TSoftObjectPtr<UAnimMontage> GetAnimMontage(const UObject* WorldContextObj, EAnimMontageType AnimMontageType);
 
+	void Initialize();
+
 protected:
 
 	static UPWAnimDataAsset* Instance;

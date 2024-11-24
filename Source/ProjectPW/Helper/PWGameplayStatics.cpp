@@ -111,19 +111,3 @@ ETeamSide UPWGameplayStatics::GetLocalPlayerTeamSide(const UObject* WorldContext
 	ensure(false);
 	return ETeamSide::Red;
 }
-
-void UPWGameplayStatics::AsyncLoadAsset(const FSoftObjectPath& AsyncLoadAssetPath)
-{
-	TArray<FSoftObjectPath> AsnycLoadAssetPathList;
-	AsnycLoadAssetPathList.Add(AsyncLoadAssetPath);
-	AsyncLoadAsset(AsnycLoadAssetPathList);
-}
-
-void UPWGameplayStatics::AsyncLoadAsset(const TArray<FSoftObjectPath>& AsyncLoadAssetPathList)
-{
-    FStreamableManager& Streamable = UAssetManager::GetStreamableManager();
-
-	TArray<FSoftObjectPath> ItemsToStream;
-	ItemsToStream.Append(AsyncLoadAssetPathList);
-    Streamable.RequestAsyncLoad(ItemsToStream);
-}

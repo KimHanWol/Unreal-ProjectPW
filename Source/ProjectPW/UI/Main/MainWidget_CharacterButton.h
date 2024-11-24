@@ -18,6 +18,10 @@ class PROJECTPW_API UMainWidget_CharacterButton : public UPWUserWidget
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void NativeConstruct() override;
+
 public:
 
 	void InitializeCharacterButton(class APWPlayerCharacter* InOwnedPlayerCharacter);

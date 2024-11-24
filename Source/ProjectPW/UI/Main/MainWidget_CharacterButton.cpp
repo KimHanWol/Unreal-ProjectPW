@@ -10,10 +10,25 @@
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWAssetLoadManager.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
+
+void UMainWidget_CharacterButton::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	if (IsValid(OwnedPlayerCharacter) == true)
+	{
+		const FPWCharacterDataTableRow* CharacterDataTableRow = OwnedPlayerCharacter->GetCharacterData();
+		if (CharacterDataTableRow != nullptr)
+		{
+			UPWAssetLoadManager::AsyncLoad(this, CharacterDataTableRow->Portrait);
+		}
+	}
+}
 
 void UMainWidget_CharacterButton::InitializeCharacterButton(APWPlayerCharacter* InOwnedPlayerCharacter)
 {

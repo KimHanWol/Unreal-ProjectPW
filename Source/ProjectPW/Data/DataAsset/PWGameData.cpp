@@ -6,6 +6,7 @@
 //Engine
 
 //Game
+#include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -22,6 +23,17 @@ const UPWGameData* UPWGameData::Get(const UObject* WorldContextObj)
 	return nullptr;
 }
 
+void UPWGameData::Initialize()
+{
+	TArray<TSoftObjectPtr<UDataTable>> SoftObjectList;
+	DataTableMap.GenerateValueArray(SoftObjectList);
+
+	for (TSoftObjectPtr<UDataTable> SoftObject : SoftObjectList)
+	{
+		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
+	}
+}
+
 TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* WorldContextObj, EGameplayEffectType GameplayEffectType)
 {
 	if (UPWGameData::Get(WorldContextObj)->GameplayEffectMap.Contains(GameplayEffectType) == false)
@@ -31,20 +43,4 @@ TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* World
 	}
 
 	return UPWGameData::Get(WorldContextObj)->GameplayEffectMap[GameplayEffectType];
-}
-
-void UPWGameData::PostLoad()
-{
-	Super::PostLoad();
-
-	TArray<FSoftObjectPath> ItemsToStream;
-	for (TTuple <EDataTableType, TSoftObjectPtr<UDataTable>> DataTableData : DataTableMap)
-	{
-		if (DataTableData.Value.IsNull() == false)
-		{
-			ItemsToStream.AddUnique(DataTableData.Value.ToSoftObjectPath());
-		}
-	}
-
-	UPWGameplayStatics::AsyncLoadAsset(ItemsToStream);
 }
