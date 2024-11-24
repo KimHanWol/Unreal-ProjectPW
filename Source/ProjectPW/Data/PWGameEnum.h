@@ -18,4 +18,10 @@ enum class ETeamSide : uint8
 	Blue,
 };
 
-//TODO: 캐릭터 클래스 추가
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	None,
+	Soldier,
+	Doctor,
+};

@@ -15,6 +15,7 @@
 #include "PWPlayerCharacter.generated.h"
 
  enum class ETeamSide : uint8;
+ enum class ECharacterType : uint8;
 
 UCLASS()
 class PROJECTPW_API APWPlayerCharacter : public ACharacter, public IPWAttackableInterface, 
@@ -110,7 +111,7 @@ private:
 
 	//Character Table Key
 	UPROPERTY(EditInstanceOnly)
-	FName CharacterKey;
+	ECharacterType CharacterType;
 
 	//Component
 	UPROPERTY(EditAnywhere)

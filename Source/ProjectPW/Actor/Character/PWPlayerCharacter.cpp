@@ -281,7 +281,16 @@ const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 		return nullptr;
 	}
 
-	return PWGameData->FindTableRow<FPWCharacterDataTableRow>(EDataTableType::Character, CharacterKey);
+	TArray<FPWCharacterDataTableRow*> PWCharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
+	for (FPWCharacterDataTableRow* PWCharacterData : PWCharacterDataList)
+	{
+		if (PWCharacterData->CharacterType == CharacterType)
+		{
+			return PWCharacterData;
+		}
+	}
+
+	return nullptr;
 }
 
 void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPWDamageableInterface>& Victim, float Damage)
@@ -311,7 +320,7 @@ void APWPlayerCharacter::LoadCharacterDefaultStats()
 	{
 		FString LogString;
 
-		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *CharacterKey.ToString()));
+		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *UPWGameplayStatics::ConvertEnumToString(this, CharacterType)));
 		if (IsValid(PWAttributeSet_Damageable) == true)
 		{
 			float Health = PWCharacterDataTableRow->Health;

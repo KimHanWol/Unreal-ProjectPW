@@ -65,6 +65,34 @@ public:
 		return TargetDataTable->FindRow<TRowType>(KeyName, TEXT("Find Table"));
 	}
 
+	template <typename TRowType>
+	const TArray<TRowType*> GetAllTableRow(EDataTableType DataTableType) const
+	{
+		TArray<TRowType*> RowArray;
+		if (DataTableMap.Contains(DataTableType) == false)
+		{
+			ensureMsgf(false, TEXT("There's no data table. You may have forgotten to registor it with DataTableMap."));
+			return RowArray;
+		}
+
+		TSoftObjectPtr<UDataTable> TargetDataTablePtr = DataTableMap[DataTableType];
+		if (TargetDataTablePtr.IsNull() == true)
+		{
+			ensureMsgf(false, TEXT("Data Table is not valid."));
+			return RowArray;
+		}
+
+		UDataTable* TargetDataTable = TargetDataTablePtr.LoadSynchronous();
+		if (IsValid(TargetDataTable) == false)
+		{
+			ensure(false);
+			return RowArray;
+		}
+
+		TargetDataTable->GetAllRows<TRowType>(TEXT("GetAllTableRow"), RowArray);
+		return RowArray;
+	}
+
 protected:
 
 	static UPWGameData* Instance;

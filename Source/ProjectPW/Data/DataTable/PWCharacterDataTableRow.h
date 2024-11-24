@@ -11,6 +11,7 @@
 //Default
 #include "PWCharacterDataTableRow.generated.h"
 
+enum class ECharacterType : uint8;
 
 USTRUCT(BlueprintType)
 struct PROJECTPW_API FPWCharacterDataTableRow: public FTableRowBase
@@ -21,6 +22,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName DisplayName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ECharacterType CharacterType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<class UTexture2D> Portrait;
