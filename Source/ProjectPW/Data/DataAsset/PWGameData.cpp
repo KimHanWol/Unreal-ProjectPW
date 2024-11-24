@@ -14,7 +14,7 @@ UPWGameData* UPWGameData::Instance = nullptr;
 
 const UPWGameData* UPWGameData::Get(const UObject* WorldContextObj)
 {
-	UPWGameInstance* PWGameInst = UPWGameInstance::Get(WorldContextObj);
+	const UPWGameInstance* PWGameInst = UPWGameInstance::Get(WorldContextObj);
 	if (ensure(IsValid(PWGameInst) == true))
 	{
 		return PWGameInst->GetGameData();

@@ -68,7 +68,7 @@ UPWGameData* UPWGameInstance::GetGameData(const UObject* WorldContextObj)
 	return UPWGameInstance::Get(WorldContextObj)->GetGameData();
 }
 
-UPWGameData* UPWGameInstance::GetGameData()
+UPWGameData* UPWGameInstance::GetGameData() const
 {
 	return 	PWGameData;
 }
@@ -78,7 +78,7 @@ UPWGameSetting* UPWGameInstance::GetGameSetting(const UObject* WorldContextObj)
 	return UPWGameInstance::Get(WorldContextObj)->GetGameSetting();
 }
 
-UPWGameSetting* UPWGameInstance::GetGameSetting()
+UPWGameSetting* UPWGameInstance::GetGameSetting() const
 {
 	return PWGameSetting;
 }
@@ -88,7 +88,7 @@ UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset(const UObject* WorldContextO
 	return UPWGameInstance::Get(WorldContextObj)->GetAnimDataAsset();
 }
 
-UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset()
+UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset() const
 {
 	return PWAnimDataAsset;
 }

@@ -19,7 +19,7 @@ void UPWAttributeSet_Damageable::GetLifetimeReplicatedProps(TArray<class FLifeti
 
 void UPWAttributeSet_Damageable::OnRep_Health()
 {
-	UPWEventManager* EventManager = UPWEventManager::Get(this);
+	const UPWEventManager* EventManager = UPWEventManager::Get(this);
 	if (IsValid(EventManager) == false)
 	{
 		ensure(false);
@@ -31,7 +31,7 @@ void UPWAttributeSet_Damageable::OnRep_Health()
 
 void UPWAttributeSet_Damageable::OnRep_MaxHealth()
 {
-	UPWEventManager* EventManager = UPWEventManager::Get(this);
+	const UPWEventManager* EventManager = UPWEventManager::Get(this);
 	if (IsValid(EventManager) == false)
 	{
 		ensure(false);

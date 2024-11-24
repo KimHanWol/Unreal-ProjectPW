@@ -36,7 +36,7 @@ public:
 				continue;
 			}
 	
-			UPWGameInstance* PWGameInstance = UPWGameInstance::Get(WorldContextObject);
+			const  UPWGameInstance* PWGameInstance = UPWGameInstance::Get(WorldContextObject);
 			if (IsValid(PWGameInstance) == true)
 			{
 				UPWAssetLoadManager* PWAssetLoadManager	= PWGameInstance->GetAssetLoadManager();

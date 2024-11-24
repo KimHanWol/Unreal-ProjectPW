@@ -248,7 +248,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 
 	SM_EnableCharacterAnimation(true);
 
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->CharacterDeadDelegate.Broadcast(this);

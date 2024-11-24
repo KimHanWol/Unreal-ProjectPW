@@ -125,7 +125,7 @@ void APWPlayerController::CS_ChangeTurn_Implementation(bool bMyTurn)
 
 void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 {
-	UPWEventManager* EventManager = UPWEventManager::Get(this);
+	const UPWEventManager* EventManager = UPWEventManager::Get(this);
 	if (IsValid(EventManager) == true)
 	{
 		EventManager->GameOverDelegate.Broadcast(bWon);
@@ -134,14 +134,11 @@ void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 
 void APWPlayerController::SM_OnHealthChanged_Implementation(AActor* TargetActor, float MaxHealth, float CurrentHealth)
 {
-	UPWEventManager* EventManager = UPWEventManager::Get(this);
-	if (IsValid(EventManager) == false)
+	const UPWEventManager* EventManager = UPWEventManager::Get(this);
+	if (IsValid(EventManager) == true)
 	{
-		ensure(false);
-		return;
+		EventManager->HealthChangedDelegate.Broadcast(TargetActor, MaxHealth, CurrentHealth);
 	}
-
-	EventManager->HealthChangedDelegate.Broadcast(TargetActor, MaxHealth, CurrentHealth);
 }
 
 void APWPlayerController::SelectCharacter(int32 SelectNum)

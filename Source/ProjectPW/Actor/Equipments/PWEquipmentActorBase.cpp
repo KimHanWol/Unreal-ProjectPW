@@ -82,7 +82,7 @@ void APWEquipmentActorBase::CheckTargetOnCrosshair()
 	{
 		bIsTargetOn = bHitOnDemageableActor;
 
-		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
 		{
 			PWEventManager->TargetIsOnCrosshairDelegate.Broadcast(Cast<APWPlayerCharacter>(GetOwner()), bIsTargetOn);

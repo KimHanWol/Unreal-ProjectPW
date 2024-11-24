@@ -29,13 +29,13 @@ public:
 	static UPWGameInstance* Get(const UObject* WorldContextObj);
 
 	static class UPWGameData* GetGameData(const UObject* WorldContextObj);
-	class UPWGameData* GetGameData();
+	class UPWGameData* GetGameData() const;
 
 	static class UPWGameSetting* GetGameSetting(const UObject* WorldContextObj);
-	class UPWGameSetting* GetGameSetting();
+	class UPWGameSetting* GetGameSetting() const;
 
 	static class UPWAnimDataAsset* GetAnimDataAsset(const UObject* WorldContextObj);
-	class UPWAnimDataAsset* GetAnimDataAsset();
+	class UPWAnimDataAsset* GetAnimDataAsset() const;
 
 	static class UPWEventManager* GetEventManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWEventManager* GetEventManager() const { return PWEventManager; }
