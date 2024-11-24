@@ -39,7 +39,6 @@ public:
 
 	static class UPWEventManager* GetEventManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWEventManager* GetEventManager() const { return PWEventManager; }
-	//TODO: Get 함수들 FORCEINLINE 고려해보기
 
 	static class UPWAssetLoadManager* GetAssetLoadManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWAssetLoadManager* GetAssetLoadManager() const { return PWAssetLoadManager; }
