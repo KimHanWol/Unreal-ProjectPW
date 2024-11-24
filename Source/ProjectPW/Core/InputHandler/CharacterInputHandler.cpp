@@ -10,6 +10,7 @@
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWEventManager.h"
 
 void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController, UInputComponent* InputComponent)
 {
@@ -189,5 +190,9 @@ void UCharacterInputHandler::Select_ESC(const FInputActionValue& Value)
 		return;
 	}
 
-	PWPlayerController->SelectCharacter(0);
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->CharacterSelectedDelegate.Broadcast(0);
+	}
 }

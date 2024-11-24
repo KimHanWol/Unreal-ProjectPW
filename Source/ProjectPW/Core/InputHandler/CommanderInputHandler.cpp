@@ -8,6 +8,7 @@
 
 //Game
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWEventManager.h"
 
 void UCommanderInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController, UInputComponent* InputComponent)
 {
@@ -40,13 +41,11 @@ void UCommanderInputHandler::Select_1(const FInputActionValue& Value)
 		return;
 	}
 
-	if (IsValid(PWPlayerController) == false)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		ensure(false);
-		return;
+		PWEventManager->CharacterSelectedDelegate.Broadcast(1);
 	}
-
-	PWPlayerController->SelectCharacter(1);
 }
 
 void UCommanderInputHandler::Select_2(const FInputActionValue& Value)
@@ -56,13 +55,11 @@ void UCommanderInputHandler::Select_2(const FInputActionValue& Value)
 		return;
 	}
 
-	if (IsValid(PWPlayerController) == false)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		ensure(false);
-		return;
+		PWEventManager->CharacterSelectedDelegate.Broadcast(2);
 	}
-
-	PWPlayerController->SelectCharacter(2);
 }
 
 void UCommanderInputHandler::Select_3(const FInputActionValue& Value)
@@ -72,13 +69,11 @@ void UCommanderInputHandler::Select_3(const FInputActionValue& Value)
 		return;
 	}
 
-	if (IsValid(PWPlayerController) == false)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		ensure(false);
-		return;
+		PWEventManager->CharacterSelectedDelegate.Broadcast(3);
 	}
-
-	PWPlayerController->SelectCharacter(3);
 }
 
 void UCommanderInputHandler::Select_4(const FInputActionValue& Value)
@@ -88,13 +83,11 @@ void UCommanderInputHandler::Select_4(const FInputActionValue& Value)
 		return;
 	}
 
-	if (IsValid(PWPlayerController) == false)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		ensure(false);
-		return;
+		PWEventManager->CharacterSelectedDelegate.Broadcast(4);
 	}
-
-	PWPlayerController->SelectCharacter(4);
 }
 
 void UCommanderInputHandler::Select_5(const FInputActionValue& Value)
@@ -104,11 +97,9 @@ void UCommanderInputHandler::Select_5(const FInputActionValue& Value)
 		return;
 	}
 
-	if (IsValid(PWPlayerController) == false)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		ensure(false);
-		return;
+		PWEventManager->CharacterSelectedDelegate.Broadcast(5);
 	}
-
-	PWPlayerController->SelectCharacter(5);
 }

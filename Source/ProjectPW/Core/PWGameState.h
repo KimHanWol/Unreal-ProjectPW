@@ -33,6 +33,7 @@ class PROJECTPW_API APWGameState : public AGameStateBase
 
 public:
 
+	void OnStartGame(int32 InMaxPlayerCount);
 	void NextTurn();
 
 	int32 GetCurrentPlayerTurn() const { return CurrentPlayersTurn; }
@@ -47,4 +48,8 @@ private:
 	// 0 ~ (0, 1 차례가 지나고 매 턴 마다 1씩 쌓임)
 	UPROPERTY(Transient)
 	int32 CurrentRoundIndex = 0;
+
+	//플레이어 수
+	UPROPERTY(Transient)
+	int32 MaxPlayerCount = 0;
 };

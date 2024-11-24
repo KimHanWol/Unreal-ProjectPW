@@ -11,6 +11,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/PWCommanderPointActor.h"
+#include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWGameState.h"
 #include "PWPlayerState.h"
@@ -238,25 +239,11 @@ void APWGameMode::StartGame()
 	//Move player to commander position
 	TransformCommanderPawns();
 
-	//Turn setting
-	APWPlayerController* PlayerControllerInTurn = Cast<APWPlayerController>(UPWGameplayStatics::GetPlayerController(this, GetCurrentPlayerTurn()));
-	if (IsValid(PlayerControllerInTurn) == true)
+	//서버만 운용
+	UPWTurnManageSubsystem* PWTurnManageSubsystem = UPWTurnManageSubsystem::Get(this);
+	if (IsValid(PWTurnManageSubsystem) == true)
 	{
-		PlayerControllerInTurn->ChangeTurn(true);
-	}
-}
-
-void APWGameMode::TextTurn()
-{
-	APWGameState* PWGameState = Cast<APWGameState>(UGameplayStatics::GetGameState(this));
-	if (IsValid(PWGameState) == true)
-	{
-		PWGameState->NextTurn();
-	}
-
-	APWPlayerController* PlayerControllerInTurn = Cast<APWPlayerController>(UPWGameplayStatics::GetPlayerController(this, GetCurrentPlayerTurn()));
-	if (IsValid(PlayerControllerInTurn) == true)
-	{
-		PlayerControllerInTurn->ChangeTurn(false);
+		TArray<APWPlayerController*> PlayercontorllerList = UPWGameplayStatics::GetAllPlayerController(this);
+		PWTurnManageSubsystem->StartGame(PlayercontorllerList);
 	}
 }

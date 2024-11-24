@@ -30,12 +30,12 @@ protected:
 
 private:
 	
+	void OnTurnChanged(bool bIsMyTurn);
 	void OnGameOver(bool bWon);
 	void OnTeamCharacterMoved(float CurrentTurnActivePoint);
 	void OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class APWPlayerCharacter*>& TeamCharcterList);
 	void OnTargetIsOnCrosshair(class APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair);
 	void OnPlayerPossessed(APawn* PossessedPawn, bool bIsCommander);
-	void OnTurnChanged();
 
 	void TryInitializeCharacterData();
 

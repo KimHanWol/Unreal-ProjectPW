@@ -43,6 +43,8 @@ public:
 	static class UPWAssetLoadManager* GetAssetLoadManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWAssetLoadManager* GetAssetLoadManager() const { return PWAssetLoadManager; }
 
+	class UPWTurnManageSubsystem* GetPWTurnManageSubsystem() const;
+
 protected:
 
 	//내부에서 또 비동기 로딩을 해야 하고 Init 시점에 초기화 하기 때문에

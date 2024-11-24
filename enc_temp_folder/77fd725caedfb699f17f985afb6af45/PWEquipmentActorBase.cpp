@@ -42,12 +42,14 @@ bool APWEquipmentActorBase::EquipmentActorHitTest(FHitResult& OutHitResult, FRot
 	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
 	{
+		ensure(false);
 		return false;
 	}
 		
 	AController* OwnerController = OwnerCharacter->GetController();
 	if (IsValid(OwnerController) == false)
 	{
+		ensure(false);
 		return false;
 	}
 

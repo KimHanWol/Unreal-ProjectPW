@@ -7,6 +7,7 @@
 //Engine
 
 //Game
+#include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataAsset/PWGameSetting.h"
@@ -101,4 +102,9 @@ UPWEventManager* UPWGameInstance::GetEventManager(const UObject* WorldContextObj
 UPWAssetLoadManager* UPWGameInstance::GetAssetLoadManager(const UObject* WorldContextObj)
 {
 	return UPWGameInstance::Get(WorldContextObj)->GetAssetLoadManager();
+}
+
+UPWTurnManageSubsystem* UPWGameInstance::GetPWTurnManageSubsystem() const
+{
+	return GetSubsystem<UPWTurnManageSubsystem>();
 }

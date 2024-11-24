@@ -27,7 +27,6 @@ private:
 
 	void ReadyToStart();
 	void StartGame();
-	void TextTurn();
 
 	void BindEvents();
 	void CheckGameOver();

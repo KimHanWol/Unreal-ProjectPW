@@ -7,11 +7,18 @@
 
 //Game
 
+void APWGameState::OnStartGame(int32 InMaxPlayerCount)
+{
+	CurrentPlayersTurn = 0;
+	CurrentRoundIndex = 0;
+	MaxPlayerCount = InMaxPlayerCount;
+}
+
 void APWGameState::NextTurn()
 {
 	++CurrentPlayersTurn;
 
-	if (CurrentPlayersTurn > 1)
+	if (CurrentPlayersTurn >= MaxPlayerCount)
 	{
 		CurrentPlayersTurn = 0;
 		++CurrentRoundIndex;

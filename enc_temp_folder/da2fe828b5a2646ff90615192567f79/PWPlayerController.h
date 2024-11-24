@@ -29,19 +29,16 @@ protected:
 
 public:
 
-	ETeamSide GetTeamSide() const;
-
-	//턴 변경됨
 	UFUNCTION(Client, Reliable)
 	void SC_ChangeTurn(bool bMyTurn);
 	void SC_ChangeTurn_Implementation(bool bMyTurn);
 
-	//행동력 모두 소진
 	UFUNCTION(Server, Reliable)
 	void CS_NextTurn();
 	void CS_NextTurn_Implementation();
 
-	//게임 오버
+	ETeamSide GetTeamSide() const;
+
 	UFUNCTION(Client, Reliable)
 	void SC_GameOver(bool bWon);
 	void SC_GameOver_Implementation(bool bWon);
@@ -54,10 +51,15 @@ public:
 
 private:
 
+
+
 	UFUNCTION(Server, Reliable)
 	void CS_Possess(APawn* PossessablePawn);
 	void CS_Possess_Implementation(APawn* PossessablePawn);
 
+	UFUNCTION(Client, Reliable)
+	void SC_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
+	void SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter);
 	void LP_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
 
 	void UpdateTurnData();

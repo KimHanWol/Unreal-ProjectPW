@@ -81,8 +81,7 @@ private:
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterDataList)
 	TArray<FCharacterAliveData> TeamCharacterDataList;
 
-	//서버만 유효
-	UPROPERTY(transient)
+	UPROPERTY(transient, Replicated)
 	class APawn* CommanderPawn;
 
 	//턴 행동력
@@ -95,4 +94,7 @@ private:
 
 	UPROPERTY(Transient)
 	class APWPlayerController* OwningPlayerController;
+
+	UPROPERTY(transient)
+	bool bIsReadyToMove = false;
 };

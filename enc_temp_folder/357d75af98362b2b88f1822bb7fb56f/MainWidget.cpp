@@ -57,7 +57,12 @@ void UMainWidget::NativeConstruct()
 void UMainWidget::InvalidateWidget()
 {
 	Super::InvalidateWidget();
-	OnTurnChanged();
+
+	const APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
+	if (IsValid(PWPlayerState) == true)
+	{
+		OnTurnChanged(PWPlayerState->IsMyTurn());
+	}
 }
 
 void UMainWidget::BindEvents()
@@ -71,7 +76,8 @@ void UMainWidget::BindEvents()
 		PWEventManager->TeamCharacterMovedDelegate.AddUObject(this, &UMainWidget::OnTeamCharacterMoved);
 		PWEventManager->TargetIsOnCrosshairDelegate.AddUObject(this, &UMainWidget::OnTargetIsOnCrosshair);
 		PWEventManager->PlayerPossessedDelegate.AddUObject(this, &UMainWidget::OnPlayerPossessed);
-		PWEventManager->TurnChangedDelegate.AddUObject(this, &UMainWidget::OnTurnChanged);
+		//PWEventManager->TurnChanged.
+		//LocalPlayerController->TurnChangedDelegate.AddUObject(this, &UMainWidget::OnTurnChanged);
 	}
 }
 
@@ -86,6 +92,14 @@ void UMainWidget::UnbindEvents()
 		PWEventManager->TeamCharacterMovedDelegate.RemoveAll(this);
 		PWEventManager->TargetIsOnCrosshairDelegate.RemoveAll(this);
 		PWEventManager->PlayerPossessedDelegate.RemoveAll(this);
+	}
+}
+
+void UMainWidget::OnTurnChanged(bool bIsMyTurn)
+{
+	if (IsValid(Text_Turn) == true) 
+	{
+		Text_Turn->SetText(bIsMyTurn ? FText::FromString(TEXT("My Turn")) : FText::FromString(TEXT("Waiting")));
 	}
 }
 
@@ -176,28 +190,6 @@ void UMainWidget::OnPlayerPossessed(APawn* PossessedPawn, bool bIsCommander)
 	{
 		Overlay_Commander->SetVisibility(ESlateVisibility::Collapsed);
 		Overlay_Character->SetVisibility(ESlateVisibility::Visible);
-	}
-}
-
-void UMainWidget::OnTurnChanged()
-{
-	bool bMyTurn = false;
-	const APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
-	if (IsValid(PWPlayerState) == true)
-	{
-		bMyTurn = PWPlayerState->IsMyTurn();		
-	}
-
-	if (IsValid(Text_Turn) == true) 
-	{
-		if (bMyTurn == true)
-		{
-			Text_Turn->SetText(FText::FromString(TEXT("My Turn")));
-		}
-		else
-		{
-			Text_Turn->SetText(FText::FromString(TEXT("Waiting")));
-		}
 	}
 }
 

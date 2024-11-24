@@ -44,10 +44,10 @@ FReply UMainWidget_CharacterButton::NativeOnMouseButtonDown(const FGeometry& InG
 		return FReply::Unhandled();
 	}
 
-	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
-	if (IsValid(LocalPlayerController) == true)
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		LocalPlayerController->SelectCharacter(ButtonIndex + 1);
+		PWEventManager->CharacterSelectedDelegate.Broadcast(ButtonIndex + 1);
 	}
 
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);

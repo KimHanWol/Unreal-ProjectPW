@@ -105,12 +105,11 @@ ETeamSide APWPlayerController::GetTeamSide() const
 
 void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 {
-	LP_SelectCharacter(0);
-
 	bIsMyTurn = bMyTurn;
 	bTurnDataDirty = true; //초기화 시점 문제로 PlayerState 에 반영이 안되는 것 방지
 	UpdateTurnData();
 
+	LP_SelectCharacter(0);
 	if (bMyTurn == false)
 	{
 		LP_ChangeInputEnabled(false, false);
@@ -187,6 +186,11 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum)
 	}
 }
 
+void APWPlayerController::SC_ChangeInputEnabled_Implementation(bool bEnableCommander, bool bEnableCharacter)
+{
+	LP_ChangeInputEnabled(bEnableCommander, bEnableCharacter);
+}
+
 void APWPlayerController::LP_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter)
 {
 	if (IsValid(PlayerInputComponent) == true)
@@ -207,11 +211,5 @@ void APWPlayerController::UpdateTurnData()
 	{
 		PWPlayerState->SetIsMyTurn(bIsMyTurn);
 		bTurnDataDirty = false;
-	}
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-	    PWEventManager->TurnChangedDelegate.Broadcast();
 	}
 }

@@ -47,9 +47,6 @@ public:
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTargetIsOnCrosshair, class APWPlayerCharacter* AimingCharacter, bool bIsOnCrosshair);
 	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;
 
-	DECLARE_MULTICAST_DELEGATE(FTurnChanged);
-	FTurnChanged TurnChangedDelegate;
-
 	//System
 	DECLARE_MULTICAST_DELEGATE_OneParam(FGameOver, bool bWon);
 	FGameOver GameOverDelegate;
