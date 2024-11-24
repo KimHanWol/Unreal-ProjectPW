@@ -14,11 +14,3 @@ UPWAssetLoadManager* UPWAssetLoadManager::Get(const UObject* WorldContextObject)
 {
 	return UPWGameInstance::GetAssetLoadManager(WorldContextObject);
 }
-
-void UPWAssetLoadManager::Initialize()
-{
-	UPWGameInstance* PWGameInstance = UPWGameInstance::Get(this);
-	if (ensure(IsValid(PWGameInstance) == true))
-	{
-	}
-}

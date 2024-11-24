@@ -80,8 +80,6 @@ public:
 		return Cast<T>(TargetSoftPtr.LoadSynchronous());
 	}
 
-	void Initialize();
-
 public:
 
 	TArray<TSharedPtr<FStreamableHandle>> StreamableHandleList;
