@@ -33,6 +33,7 @@ const UPWAnimDataAsset* UPWAnimDataAsset::Get(const UObject* WorldContextObj)
 
 TSoftObjectPtr<UAnimMontage> UPWAnimDataAsset::GetAnimMontage(const UObject* WorldContextObj, EAnimMontageType AnimMontageType)
 {
+	//TODO: const 전부 확인하기
 	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj);
 	if (IsValid(PWAnimDataAsset) == false)
 	{

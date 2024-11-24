@@ -34,6 +34,13 @@ void UMainWidget_CharacterButton::InitializeCharacterButton(APWPlayerCharacter* 
 {
 	OwnedPlayerCharacter = InOwnedPlayerCharacter;
 	InvalidateWidget();
+
+	//체력은 따로 바인딩해줘서 여기서 초기화
+	//TODO: 안해도 되는지 확인
+	if (IsValid(PBar_Health) == true)
+	{
+		PBar_Health->SetPercent(1.f);
+	}
 }
 
 FReply UMainWidget_CharacterButton::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)

@@ -54,6 +54,7 @@ public:
 	bool IsMyTurn() const { return bIsMyTurn; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
+	//TODO: 개선
 	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
 
 private:

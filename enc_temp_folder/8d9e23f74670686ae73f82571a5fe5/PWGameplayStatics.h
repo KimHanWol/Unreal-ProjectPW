@@ -27,6 +27,7 @@ public:
 
 	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);
 
+	//TODO: 로그 남길 때 쓰기
 	template <typename EnumType> 
 	static FORCEINLINE FString ConvertEnumToString(const UObject* WorldContextObj, const EnumType InValue)
 	{
