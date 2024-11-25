@@ -70,10 +70,15 @@ void UPWEquipmentComponent::Execute_Sub_Completed()
 	SpawnedEquipmentActor->Execute_Sub_Completed();
 }
 
-void UPWEquipmentComponent::OnDeath()
+void UPWEquipmentComponent::OnAliveStateChanged(bool bAlive)
 {
-	SpawnedEquipmentActor->Destroy();
-	SpawnedEquipmentActor = nullptr;
+	if (IsValid(SpawnedEquipmentActor) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	SpawnedEquipmentActor->SetActorHiddenInGame(bAlive);
 }
 
 void UPWEquipmentComponent::SpawnEquipmentActor()

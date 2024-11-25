@@ -29,7 +29,7 @@ class PROJECTPW_API APWPlayerCharacter : public ACharacter, public IPWAttackable
 protected:
 
 	virtual void BeginPlay() override;
-	virtual void LifeSpanExpired() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void Tick(float DeltaTime) override;
 
@@ -60,6 +60,8 @@ public:
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const override;
 	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) override;
 
+	void OnPlayerRevived();
+
 	//IPWHealableInterface
 	virtual class UPWAttributeSet_Healable* GetPWAttributeSet_Healable() const override;
 
@@ -70,12 +72,10 @@ public:
 	void CS_GiveDamage_Implementation(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void SM_OnLifeSpanExpired();
-	void SM_OnLifeSpanExpired_Implementation();
-
-	UFUNCTION(NetMulticast, Reliable)
 	void SM_ApplySnapshotTransform(const FTransform& NewTransform);
 	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);
+
+	bool IsDead() { return bIsDead; }
 
 private:
 
@@ -147,4 +147,9 @@ private:
 
 	UPROPERTY(Transient)
 	bool bIgnoreMoveRecordForNextTick = false;
+
+	UPROPERTY(Transient)
+	FRotator LastRotationBeforeDeath = FRotator::ZeroRotator;
+
+	FTimerHandle DeathLifeSpanWaitTimerHandle;
 };

@@ -139,6 +139,8 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 			LogString += TEXT("Health : ") + FString::FromInt(SnapshotCharacterData.CharacterHealth) + TEXT("\n");
 		}
 
+		SnapshotCharacterData.bIsDead = PlayerCharacter->IsDead();
+
 		SnapshotData.CharacterDataList.Add(SnapshotCharacterData);
 	}
 
@@ -199,6 +201,11 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 			{
 				PlayerAttribute_Damageable->SetHealth(SnapshotCharacterData.CharacterHealth);
 				LogString += TEXT("Health : ") + FString::FromInt(SnapshotCharacterData.CharacterHealth) + TEXT("\n");
+			}
+
+			if (TargetCharacter->IsDead() != SnapshotCharacterData.bIsDead)
+			{
+				TargetCharacter->OnPlayerRevived();
 			}
 		}
 	}

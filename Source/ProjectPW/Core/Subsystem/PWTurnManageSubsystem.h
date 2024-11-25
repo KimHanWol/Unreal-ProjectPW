@@ -28,6 +28,9 @@ public:
 
 	UPROPERTY(Transient)
 	float CharacterHealth;
+
+	UPROPERTY(Transient)
+	bool bIsDead;
 };
 
 USTRUCT()

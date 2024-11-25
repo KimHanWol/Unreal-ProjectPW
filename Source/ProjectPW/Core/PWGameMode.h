@@ -31,7 +31,7 @@ private:
 	void BindEvents();
 	void CheckGameOver();
 
-	void OnCharcterDead(class APWPlayerCharacter* DeadCharacter);
+	void OnCharcterAliveStateChanged(class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);
 	void OnGameOver();
 

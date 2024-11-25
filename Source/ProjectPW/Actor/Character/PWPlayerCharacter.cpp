@@ -50,14 +50,12 @@ void APWPlayerCharacter::BeginPlay()
 	ApplyAttributeData();
 }
 
-void APWPlayerCharacter::LifeSpanExpired()
+void APWPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (HasAuthority() == true)
-	{
-		SM_OnLifeSpanExpired();
-	}
+	Super::EndPlay(EndPlayReason);
 
-	Super::LifeSpanExpired();
+	//Set attribute
+	WithdrawAttributeData();
 }
 
 void APWPlayerCharacter::Tick(float DeltaTime)
@@ -261,34 +259,73 @@ UPWAttributeSet_Damageable* APWPlayerCharacter::GetPWAttributeSet_Damageable() c
 
 void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 {
+	//On character death
 	if (bIsDead == true)
 	{
 		return;
 	}
 	bIsDead = true;
 
-	//Withdraw attribute
-	WithdrawAttributeData();
-
 	SM_EnableCharacterAnimation(true);
 
-	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->CharacterDeadDelegate.Broadcast(this);
-	}
-
 	//LookAt
+	LastRotationBeforeDeath = GetActorRotation();
 	const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Cast<AActor>(Killer)->GetActorLocation());
 	SetActorRotation(LookRotator);
+
+	SetActorEnableCollision(false);
 
 	PlayMontage(UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::Death));
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == true)
 	{
-		 SetLifeSpan(PWGameSetting->DeathLifeSpan);
+		GetWorldTimerManager().SetTimer(DeathLifeSpanWaitTimerHandle, FTimerDelegate::CreateLambda([WeakThis = TWeakObjectPtr<APWPlayerCharacter>(this)](){
+			if (WeakThis.IsValid())
+			{
+				APWPlayerCharacter* StrongThis = Cast<APWPlayerCharacter>(WeakThis.Get());
+				if (IsValid(StrongThis) == true)
+				{
+					StrongThis->SetActorHiddenInGame(true);
+					if (IsValid(StrongThis->PWEquipmentComponent) == true)
+					{
+						StrongThis->PWEquipmentComponent->OnAliveStateChanged(true);
+					}
+				}
+			}
+		}), PWGameSetting->DeathLifeSpan, false);
 	}
+
+	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->CharacterAliveStateChangedDelegate.Broadcast(this, false);
+	}
+}
+
+void APWPlayerCharacter::OnPlayerRevived()
+{
+	//On character revive
+	bIsDead = false;
+
+	SM_EnableCharacterAnimation(false);
+	SetActorRotation(LastRotationBeforeDeath);
+	SetActorHiddenInGame(false);
+
+	GetWorldTimerManager().ClearTimer(DeathLifeSpanWaitTimerHandle);
+
+	SetActorEnableCollision(true);
+	if (IsValid(PWEquipmentComponent) == true)
+	{
+		PWEquipmentComponent->OnAliveStateChanged(false);
+	}
+
+	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->CharacterAliveStateChangedDelegate.Broadcast(this, true);
+	}
+
 }
 
 UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const
@@ -328,14 +365,6 @@ void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPW
 
 	//Apply Damage
 	VictimCharacter->ApplyDamage(this, Damage);
-}
-
-void APWPlayerCharacter::SM_OnLifeSpanExpired_Implementation()
-{
-	if (IsValid(PWEquipmentComponent) == true)
-	{
-		PWEquipmentComponent->OnDeath();
-	}
 }
 
 void APWPlayerCharacter::LoadCharacterDefaultStats()

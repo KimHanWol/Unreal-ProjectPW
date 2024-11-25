@@ -48,12 +48,15 @@ void APWGameMode::BindEvents()
 		return;
 	}
 
-	PWEventManager->CharacterDeadDelegate.AddUObject(this, &APWGameMode::OnCharcterDead);
+	PWEventManager->CharacterAliveStateChangedDelegate.AddUObject(this, &APWGameMode::OnCharcterAliveStateChanged);
 }
 
-void APWGameMode::OnCharcterDead(APWPlayerCharacter* DeadCharacter)
+void APWGameMode::OnCharcterAliveStateChanged(class APWPlayerCharacter* TargetCharacter, bool bIsAlive)
 {
-	CheckGameOver();
+	if (bIsAlive == false)
+	{
+		CheckGameOver();
+	}
 }
 
 void APWGameMode::OnInitialPossess(APWPlayerController* SelfPlayerController)

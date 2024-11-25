@@ -29,7 +29,7 @@ public:
 	void Execute_Sub_Triggered();
 	void Execute_Sub_Completed();
 
-	void OnDeath();
+	void OnAliveStateChanged(bool bAlive);
 
 private:
 

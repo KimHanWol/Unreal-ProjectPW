@@ -41,8 +41,8 @@ public:
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerPossessed, APawn* PossessedPawn, bool bIsCommander);
 	FPlayerPossessed PlayerPossessedDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterDead, class APWPlayerCharacter* DeadCharacter);
-	FCharacterDead CharacterDeadDelegate;
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FCharacterAliveStateChanged, class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
+	FCharacterAliveStateChanged CharacterAliveStateChangedDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTargetIsOnCrosshair, class APWPlayerCharacter* AimingCharacter, bool bIsOnCrosshair);
 	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;

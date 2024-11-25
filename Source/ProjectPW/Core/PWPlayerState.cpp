@@ -23,7 +23,7 @@ void APWPlayerState::BeginPlay()
 	UPWEventManager* PWEventManger = UPWEventManager::Get(this);
 	if (IsValid(PWEventManger) == true)
 	{
-		PWEventManger->CharacterDeadDelegate.AddUObject(this, &APWPlayerState::OnCharacterDead);
+		PWEventManger->CharacterAliveStateChangedDelegate.AddUObject(this, &APWPlayerState::OnCharacterAliveStateChanged);
 	}
 }
 
@@ -86,15 +86,15 @@ void APWPlayerState::SS_LoadCharacters()
 	OnRep_TeamCharacterDataList();
 }
 
-void APWPlayerState::OnCharacterDead(APWPlayerCharacter* DeadCharacter)
+void APWPlayerState::OnCharacterAliveStateChanged(APWPlayerCharacter* TargetCharacter, bool bIsAlive)
 {
-	if (IsValid(DeadCharacter) == true)
+	if (IsValid(TargetCharacter) == true)
 	{
 		for (FCharacterAliveData& CharcterData : TeamCharacterDataList)
 		{
-			if (CharcterData.PlayerCharacter == DeadCharacter)
+			if (CharcterData.PlayerCharacter == TargetCharacter)
 			{
-				CharcterData.bIsAlive = false;
+				CharcterData.bIsAlive = bIsAlive;
 				break;
 			}
 		}

@@ -61,7 +61,7 @@ public:
 
 	void SS_LoadCharacters();
 
-	void OnCharacterDead(class APWPlayerCharacter* DeadCharacter);
+	void OnCharacterAliveStateChanged(class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
 
 	UFUNCTION()
 	void OnRep_TeamCharacterDataList();
