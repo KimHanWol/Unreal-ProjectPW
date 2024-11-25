@@ -82,15 +82,6 @@ void APWPlayerController::OnRep_PlayerState()
 	UpdateTurnData();
 }
 
-void APWPlayerController::CS_NextTurn_Implementation()
-{
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->NextTurnDelegate.Broadcast();
-	}
-}
-
 ETeamSide APWPlayerController::GetTeamSide() const
 {
 	ETeamSide TeamSide = ETeamSide::Red;
@@ -117,9 +108,25 @@ void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
 	}
 }
 
-void APWPlayerController::CS_Possess_Implementation(APawn* PossessablePawn)
+void APWPlayerController::CS_Possess_Implementation(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot)
 {
 	Possess(PossessablePawn);
+
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	//커맨더로 돌아가는 건 무시
+	if (PossessablePawn != PWPlayerState->GetCommanderPawn())
+	{
+		UPWTurnManageSubsystem* PWTurnManageSubsystem = UPWTurnManageSubsystem::Get(this);
+		if (IsValid(PWTurnManageSubsystem) == true)
+		{
+			PWTurnManageSubsystem->UploadSnapshotDataDelegate.Broadcast(PossessablePawn, CurrentTurnActivePointForSnapshot);
+		}
+	}
 }
 
 void APWPlayerController::SC_GameOver_Implementation(bool bWon)
@@ -131,12 +138,32 @@ void APWPlayerController::SC_GameOver_Implementation(bool bWon)
 	}
 }
 
-void APWPlayerController::SM_OnHealthChanged_Implementation(AActor* TargetActor, float MaxHealth, float CurrentHealth)
+void APWPlayerController::CS_LoadPrevSnapshot_Implementation()
 {
-	const UPWEventManager* EventManager = UPWEventManager::Get(this);
-	if (IsValid(EventManager) == true)
+	UPWTurnManageSubsystem* PWTurnManageSubsystem = UPWTurnManageSubsystem::Get(this);
+	if (IsValid(PWTurnManageSubsystem) == true)
 	{
-		EventManager->HealthChangedDelegate.Broadcast(TargetActor, MaxHealth, CurrentHealth);
+		PWTurnManageSubsystem->ApplyPrevSnapshot(this);
+	}
+}
+
+void APWPlayerController::SM_ApplyTurnActivePoint_Implementation(float InTurnActivePoint)
+{
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	PWPlayerState->SetCurrentTurnActivePoint(InTurnActivePoint);
+}
+
+void APWPlayerController::CS_NextTurn_Implementation()
+{
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->NextTurnDelegate.Broadcast();
 	}
 }
 
@@ -178,7 +205,7 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum)
 		}
 	}
 
-	CS_Possess(PossessablePawn);
+	CS_Possess(PossessablePawn, PWPlayerState->GetCurrentTurnActivePoint());
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)

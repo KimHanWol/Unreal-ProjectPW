@@ -12,6 +12,7 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "PWEventManager.h"
+#include "Helper/PWGameplayStatics.h"
 
 void APWPlayerState::BeginPlay()
 {
@@ -49,6 +50,17 @@ void APWPlayerState::SetCommanderPawn(APawn* InCommanderPawn)
 APawn* APWPlayerState::GetCommanderPawn()
 {
 	return CommanderPawn;
+}
+
+void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint)
+{
+	CurrentTurnActivePoint = InCurrentTurnActivePoint;
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
+	}
+
 }
 
 void APWPlayerState::SS_LoadCharacters()
@@ -89,14 +101,10 @@ void APWPlayerState::OnCharacterDead(APWPlayerCharacter* DeadCharacter)
 	}
 }
 
-void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
+void APWPlayerState::OnCharacterMoved(float Distance)
 {	
-	if (IsValid(GetOwningController()) == false || GetOwningController()->IsLocalPlayerController() == false)
-	{
-		return;
-	}
-
-	if (InTeamSide != TeamSide)
+	//로컬
+	if (IsValid(GetPlayerController()) == false || GetPlayerController()->IsLocalPlayerController() == false)
 	{
 		return;
 	}
@@ -106,10 +114,11 @@ void APWPlayerState::OnCharacterMoved(ETeamSide InTeamSide, float Distance)
 	{
 		CurrentTurnActivePoint = 0.f;
 		bIsReadyToMove = false;
-		APWPlayerController* PWPlayerController = Cast<APWPlayerController>(GetOwningController());
-		if (IsValid(PWPlayerController) == true)
+
+		APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+		if (IsValid(LocalPlayerController) == true)
 		{
-			PWPlayerController->CS_NextTurn();
+			LocalPlayerController->CS_NextTurn();
 		}
 	}
 

@@ -73,9 +73,15 @@ public:
 	void SM_OnLifeSpanExpired();
 	void SM_OnLifeSpanExpired_Implementation();
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_ApplySnapshotTransform(const FTransform& NewTransform);
+	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);
+
 private:
 
 	void LoadCharacterDefaultStats();
+	void ApplyAttributeData();
+	void WithdrawAttributeData();
 
 	UFUNCTION(Server, Reliable)
 	void CS_PlayMontage(class UAnimMontage* AnimMontage);
@@ -93,10 +99,12 @@ private:
 	void SM_StopMontage(class UAnimMontage* AnimMontage);
 	void SM_StopMontage_Implementation(class UAnimMontage* AnimMontage);
 
-	//기본적인 움직임이 아닌 캐릭터의 모션을 완전히 멈춤
 	UFUNCTION(NetMulticast, Reliable)
-	void SM_EnableCharacterAnimation(bool bEnabled);
-	void SM_EnableCharacterAnimation_Implementation(bool bEnabled);
+	void SM_EnableCharacterAnimation(bool bPossessed);
+	void SM_EnableCharacterAnimation_Implementation(bool bPossessed);
+
+	//기본적인 움직임이 아닌 캐릭터의 모션을 완전히 멈춤
+	void EnableCharacterAnimation(bool bEnabled);
 
 protected:
 
@@ -136,4 +144,7 @@ private:
 	//ETC
 	UPROPERTY(Transient)
 	FVector PrevLocation = FVector::ZeroVector;
+
+	UPROPERTY(Transient)
+	bool bIgnoreMoveRecordForNextTick = false;
 };

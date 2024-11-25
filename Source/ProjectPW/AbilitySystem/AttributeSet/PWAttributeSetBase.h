@@ -23,4 +23,9 @@ UCLASS()
 class PROJECTPW_API UPWAttributeSetBase: public UAttributeSet
 {
 	GENERATED_BODY()
+
+protected:
+
+	virtual void BindAttributeChanged() {};
+	virtual void UnbindAttributeChanged() {};
 };

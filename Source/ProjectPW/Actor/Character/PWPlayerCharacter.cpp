@@ -46,7 +46,8 @@ void APWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	LoadCharacterDefaultStats();
+	//Set attribute
+	ApplyAttributeData();
 }
 
 void APWPlayerCharacter::LifeSpanExpired()
@@ -69,17 +70,25 @@ void APWPlayerCharacter::Tick(float DeltaTime)
 		return;
 	}
 
-    FVector CurrentLocation = GetActorLocation();
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	const FVector& CurrentLocation = GetActorLocation();
     float DistanceMoved = FVector::Dist(CurrentLocation, PrevLocation);
     PrevLocation = CurrentLocation;
 
 	if (DistanceMoved > 0.f)
 	{
-		APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
-		if (IsValid(PWPlayerState) == true)
+		//스냅샷 적용중이면 무시
+		if (bIgnoreMoveRecordForNextTick == true)
 		{
-			PWPlayerState->OnCharacterMoved(GetTeamSide(), DistanceMoved / 100.f);
+			bIgnoreMoveRecordForNextTick = false;
+			return;
 		}
+		PWPlayerState->OnCharacterMoved(DistanceMoved / 100.f);
 	}
 }
 
@@ -87,22 +96,21 @@ void APWPlayerCharacter::PossessedBy(class AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	SM_EnableCharacterAnimation(true);
-
+	//로컬에서만 틱 확인
 	if (IsLocallyControlled() == true)
-    {
-        SetActorTickEnabled(true);
+	{
+		SetActorTickEnabled(true);
 	}
 }
 
 void APWPlayerCharacter::UnPossessed()
 {
 	PrevLocation = FVector::ZeroVector;
-
 	SM_EnableCharacterAnimation(false);
-
+	//로컬에서만 틱 확인
 	if (IsLocallyControlled() == true)
-    {
-        SetActorTickEnabled(false);
+	{
+		SetActorTickEnabled(false);
 	}
 
 	Super::UnPossessed();
@@ -171,7 +179,20 @@ void APWPlayerCharacter::SM_StopMontage_Implementation(UAnimMontage* AnimMontage
 	StopAnimMontage(AnimMontage);
 }
 
-void APWPlayerCharacter::SM_EnableCharacterAnimation_Implementation(bool bEnabled)
+void APWPlayerCharacter::SM_EnableCharacterAnimation_Implementation(bool bPossessed)
+{
+	EnableCharacterAnimation(bPossessed);
+}
+
+void APWPlayerCharacter::SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform)
+{
+	//클라에서 움직임 딜레이가 생겨서 스냅샷 적용 이동이 행동력을 써버림
+	//딜레이 생기지 않도록 직접 이동시켜줌
+	bIgnoreMoveRecordForNextTick = true;
+	SetActorTransform(NewTransform);
+}
+
+void APWPlayerCharacter::EnableCharacterAnimation(bool bEnabled)
 {
 	if (bEnabled == true)
 	{
@@ -245,6 +266,9 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 		return;
 	}
 	bIsDead = true;
+
+	//Withdraw attribute
+	WithdrawAttributeData();
 
 	SM_EnableCharacterAnimation(true);
 
@@ -345,5 +369,23 @@ void APWPlayerCharacter::LoadCharacterDefaultStats()
 	else
 	{
 		ensureMsgf(false, TEXT("There's no character data on CharacterDataTable. Check character name on PWPlayerCharacter."));
+	}
+}
+
+void APWPlayerCharacter::ApplyAttributeData()
+{
+	if (IsValid(PWAttributeSet_Damageable) == true)
+	{
+		PWAttributeSet_Damageable->BindAttributeChanged();
+	}
+
+	LoadCharacterDefaultStats();
+}
+
+void APWPlayerCharacter::WithdrawAttributeData()
+{
+	if (IsValid(PWAttributeSet_Damageable) == true)
+	{
+		PWAttributeSet_Damageable->UnbindAttributeChanged();
 	}
 }

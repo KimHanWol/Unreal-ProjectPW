@@ -9,7 +9,7 @@
 
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
-#include "Actor/Character/PWPlayerController.h"
+#include "Actor/Character/PWPlayerCharacter.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "PWAttackableInterface.h"
 #include "PWHealableInterface.h"
@@ -65,12 +65,6 @@ void IPWDamageableInterface::ApplyDamage(class IPWAttackableInterface* Attacker,
 		float ClampHealth = FMath::Clamp(GetPWAttributeSet_Damageable()->GetHealth(), 0.f, GetPWAttributeSet_Damageable()->GetMaxHealth());
 		GetPWAttributeSet_Damageable()->SetHealth(ClampHealth);
 		UE_LOG(LogTemp, Warning, TEXT("%s Damaged \nCurrent Health : %f"), *Instigator->GetName(), GetPWAttributeSet_Damageable()->GetHealth());
-
-		APWPlayerController* PWPlayerController = Cast<APWPlayerController>(Instigator->GetInstigatorController());
-		if (IsValid(PWPlayerController) == true)
-		{
-			PWPlayerController->SM_OnHealthChanged(ThisActor, GetPWAttributeSet_Damageable()->GetMaxHealth(), GetPWAttributeSet_Damageable()->GetHealth());
-		}
 	}
 
 	PostApplyDamage(Attacker);

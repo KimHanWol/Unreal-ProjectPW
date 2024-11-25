@@ -17,26 +17,54 @@ void UPWAttributeSet_Damageable::GetLifetimeReplicatedProps(TArray<class FLifeti
 	DOREPLIFETIME_CONDITION_NOTIFY(UPWAttributeSet_Damageable, MaxHealth, COND_None, REPNOTIFY_Always);
 }
 
+void UPWAttributeSet_Damageable::BindAttributeChanged()
+{
+	UAbilitySystemComponent* AbilitySystemComponent = GetOwningAbilitySystemComponent();
+	if (IsValid(AbilitySystemComponent))
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetHealthAttribute()).AddUObject(this, &UPWAttributeSet_Damageable::OnHealthValueChanged);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetMaxHealthAttribute()).AddUObject(this, &UPWAttributeSet_Damageable::OnHealthValueChanged);
+	}
+}
+
+void UPWAttributeSet_Damageable::UnbindAttributeChanged()
+{
+	UAbilitySystemComponent* AbilitySystemComponent = GetOwningAbilitySystemComponent();
+	if (IsValid(AbilitySystemComponent))
+	{
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetHealthAttribute()).RemoveAll(this);
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GetMaxHealthAttribute()).RemoveAll(this);
+	}
+}
+
 void UPWAttributeSet_Damageable::OnRep_Health()
 {
-	const UPWEventManager* EventManager = UPWEventManager::Get(this);
-	if (IsValid(EventManager) == false)
-	{
-		ensure(false);
-		return;
-	}
+	//Client
+	FOnAttributeChangeData OnAttributeChangeData;
+	OnAttributeChangeData.OldValue = GetHealth();
+	OnAttributeChangeData.NewValue = GetHealth();
+	OnAttributeChangeData.Attribute = GetHealthAttribute();
 
-	EventManager->HealthChangedDelegate.Broadcast(GetOwningActor(), GetMaxHealth(), GetHealth());
+	OnHealthValueChanged(OnAttributeChangeData);
 }
 
 void UPWAttributeSet_Damageable::OnRep_MaxHealth()
 {
-	const UPWEventManager* EventManager = UPWEventManager::Get(this);
-	if (IsValid(EventManager) == false)
-	{
-		ensure(false);
-		return;
-	}
+	//Client
+	FOnAttributeChangeData OnAttributeChangeData;
+	OnAttributeChangeData.OldValue = GetMaxHealth();
+	OnAttributeChangeData.NewValue = GetMaxHealth();
+	OnAttributeChangeData.Attribute = GetMaxHealthAttribute();
 
-	EventManager->HealthChangedDelegate.Broadcast(GetOwningActor(), GetMaxHealth(), GetHealth());
+	OnHealthValueChanged(OnAttributeChangeData);
 }
+
+void UPWAttributeSet_Damageable::OnHealthValueChanged(const FOnAttributeChangeData& ChangeData)
+{
+	const UPWEventManager* EventManager = UPWEventManager::Get(this);
+	if (IsValid(EventManager) == true)
+	{
+		EventManager->HealthChangedDelegate.Broadcast(GetOwningActor(), GetMaxHealth(), GetHealth());
+	}
+}
+

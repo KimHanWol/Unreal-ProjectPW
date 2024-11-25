@@ -11,6 +11,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWEventManager.h"
+#include "Helper/PWGameplayStatics.h"
 
 void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController, UInputComponent* InputComponent)
 {
@@ -27,6 +28,7 @@ void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerCon
 	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Move);
 	EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Jump);
 	EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Look);
+	EnhancedInputComponent->BindAction(LoadAction, ETriggerEvent::Triggered, this, &UCharacterInputHandler::LoadPrevState);
 	EnhancedInputComponent->BindAction(ExecuteAction_Main, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Execute_Main_Triggered);
 	EnhancedInputComponent->BindAction(ExecuteAction_Main, ETriggerEvent::Completed, this, &UCharacterInputHandler::Execute_Main_Completed);
 	EnhancedInputComponent->BindAction(ExecuteAction_Sub, ETriggerEvent::Triggered, this, &UCharacterInputHandler::Execute_Sub_Triggered);
@@ -111,6 +113,15 @@ void UCharacterInputHandler::Look(const FInputActionValue& Value)
 
 	PWPlayerCharacter->AddControllerYawInput(Value.Get<FVector2D>().X);
 	PWPlayerCharacter->AddControllerPitchInput(Value.Get<FVector2D>().Y);
+}
+
+void UCharacterInputHandler::LoadPrevState(const FInputActionValue& Value)
+{
+	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(LocalPlayerController) == true)
+	{
+		LocalPlayerController->CS_LoadPrevSnapshot();
+	}
 }
 
 void UCharacterInputHandler::Execute_Main_Triggered(const FInputActionValue& Value)

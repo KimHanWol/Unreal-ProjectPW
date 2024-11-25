@@ -53,7 +53,4 @@ public:
 	//System
 	DECLARE_MULTICAST_DELEGATE_OneParam(FGameOver, bool bWon);
 	FGameOver GameOverDelegate;
-
-	DECLARE_MULTICAST_DELEGATE_TwoParams(FAllCharacterLoadComplete, const TArray<APWPlayerCharacter*>& RedTeamCharacterList, const TArray<APWPlayerCharacter*>& BlueTeamCharacterList);
-	FAllCharacterLoadComplete AllCharacterLoadComplete;
 };

@@ -13,6 +13,42 @@
 
 enum class ETeamSide : uint8;
 
+USTRUCT()
+struct FSnapshotCharacterData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(Transient)
+	class APWPlayerCharacter* TargetPlayerCharacter;
+
+	UPROPERTY(Transient)
+	FTransform CharacterTransform;
+
+	UPROPERTY(Transient)
+	float CharacterHealth;
+};
+
+USTRUCT()
+struct FSnapshotData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(Transient)
+	TArray<FSnapshotCharacterData> CharacterDataList;
+
+	UPROPERTY(Transient)
+	float TurnActivePoint;
+
+	UPROPERTY(Transient)
+	class APWPlayerCharacter* PossessedCharacter;
+};
+
+
+
 UCLASS()
 class PROJECTPW_API UPWTurnManageSubsystem : public UGameInstanceSubsystem
 {
@@ -23,6 +59,7 @@ public:
 	static UPWTurnManageSubsystem* Get(const UObject* WorldContextObj);
 
 	void StartGame(const TArray<class APWPlayerController*>& InGamePlayerControllerList);
+	void ApplyPrevSnapshot(class APWPlayerController* PlayerControllerInTurn);
 
 protected:
 	
@@ -34,7 +71,14 @@ private:
 	void UnbindEvents();
 
 	void NextTurn();
-	void OnPossessed(APawn* PossessedPawn, bool bIsCommander);
+	void LoadCharacterData();
+
+	void Snapshot(APawn* PossessedPawn, float CurrentTurnActivePoint);
+
+public:
+
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FUploadSnapshotData, APawn* PossessedPawn, float TurnActivePoint)
+	FUploadSnapshotData UploadSnapshotDataDelegate;
 
 private:
 
@@ -46,5 +90,11 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<APWPlayerController*> GamePlayerControllerList;
+
+	UPROPERTY(Transient)
+	TArray<class APWPlayerCharacter*> PlayerCharacterList;
+
+	UPROPERTY(Transient)
+	TArray<FSnapshotData> SnapshotList;
 };
 

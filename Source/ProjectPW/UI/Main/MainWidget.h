@@ -77,8 +77,5 @@ protected:
 	UPROPERTY(Transient)
 	TArray<class UMainWidget_CharacterButton*> CharacterButtonList;
 
-	UPROPERTY(Transient)
-	bool bIsCharacterDataInitialized = false;
-
 	FTimerHandle WaitCharacterDataInitTimerHandle;
 };

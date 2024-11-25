@@ -21,10 +21,17 @@ protected:
 
 	virtual void GetLifetimeReplicatedProps( TArray<class FLifetimeProperty> & OutLifetimeProps) const override;
 
+public:
+
+	virtual void BindAttributeChanged() override;
+	virtual void UnbindAttributeChanged() override;
+
 private:
 
 	UFUNCTION() void OnRep_Health();
 	UFUNCTION() void OnRep_MaxHealth();
+
+	void OnHealthValueChanged(const struct FOnAttributeChangeData& ChangeData);
 
 public:
 

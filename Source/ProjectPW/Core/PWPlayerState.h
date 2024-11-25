@@ -43,7 +43,7 @@ public:
 	void SetCommanderPawn(APawn* InCommanderPawn);
 	APawn* GetCommanderPawn();
 	
-	void OnCharacterMoved(ETeamSide InTeamSide, float Distance);
+	void OnCharacterMoved(float Distance);
 
 	const FCharacterAliveData GetTeamCharacterData(int32 CharacterNum) const;
 	TArray<class APWPlayerCharacter*> GetAliveTeamCharacterList() const;
@@ -56,7 +56,8 @@ public:
 
 	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
 
-private:
+	float GetCurrentTurnActivePoint() const { return CurrentTurnActivePoint; }
+	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint);
 
 	void SS_LoadCharacters();
 
@@ -86,6 +87,7 @@ private:
 
 	//턴 행동력
 	//로컬에서 계산
+	//비용 생각해서 Replicate 하지 않고 필요할 때 마다 RPC로 확인
 	UPROPERTY(Transient)
 	float CurrentTurnActivePoint = 0.f;
 

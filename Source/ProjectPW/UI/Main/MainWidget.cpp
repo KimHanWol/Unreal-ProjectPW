@@ -205,17 +205,10 @@ void UMainWidget::TryInitializeCharacterData()
 {
 	//TODO: 폴링 방식 말고 이벤트 기반 방식으로 개선
 	//데이터 초기화 브로드캐스트 이후 위젯이 바인딩해서 문제가 발생.
-	if (bIsCharacterDataInitialized == true)
-	{
-		return;
-	}
-
 	APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
 	if (IsValid(PWPlayerState) == true && PWPlayerState->IsTeamCharacterInitialized() == true) //완전히 초기화 되지 않은 상태의 접근 방지
 	{
 		OnTeamCharacterLoaded(UPWGameplayStatics::GetLocalPlayerTeamSide(this), PWPlayerState->GetTeamCharacterList());
-		bIsCharacterDataInitialized = true;
-
 		GetWorld()->GetTimerManager().ClearTimer(WaitCharacterDataInitTimerHandle);
 	}
 }

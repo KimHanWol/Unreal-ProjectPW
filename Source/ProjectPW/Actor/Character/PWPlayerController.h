@@ -36,27 +36,30 @@ public:
 	void SC_ChangeTurn(bool bMyTurn);
 	void SC_ChangeTurn_Implementation(bool bMyTurn);
 
-	//행동력 모두 소진
-	UFUNCTION(Server, Reliable)
-	void CS_NextTurn();
-	void CS_NextTurn_Implementation();
-
 	//게임 오버
 	UFUNCTION(Client, Reliable)
 	void SC_GameOver(bool bWon);
 	void SC_GameOver_Implementation(bool bWon);
 
+	UFUNCTION(Server, Reliable)
+	void CS_LoadPrevSnapshot();
+	void CS_LoadPrevSnapshot_Implementation();
+
 	UFUNCTION(NetMulticast, Reliable)
-	void SM_OnHealthChanged(AActor* TargetActor, float MaxHealth, float CurrentHealth);
-	void SM_OnHealthChanged_Implementation(AActor* TargetActor, float MaxHealth, float CurrentHealth);
+	void SM_ApplyTurnActivePoint(float InTurnActivePoint);
+	void SM_ApplyTurnActivePoint_Implementation(float InTurnActivePoint);
+
+	UFUNCTION(Server, Reliable)
+	void CS_NextTurn();
+	void CS_NextTurn_Implementation();
 
 	void LP_SelectCharacter(int32 SelectNum);
 
 private:
 
 	UFUNCTION(Server, Reliable)
-	void CS_Possess(APawn* PossessablePawn);
-	void CS_Possess_Implementation(APawn* PossessablePawn);
+	void CS_Possess(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot);
+	void CS_Possess_Implementation(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot);
 
 	void LP_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
 
