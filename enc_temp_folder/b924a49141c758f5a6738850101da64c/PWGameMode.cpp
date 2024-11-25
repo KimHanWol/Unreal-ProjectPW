@@ -63,6 +63,7 @@ void APWGameMode::OnInitialPossess(APWPlayerController* SelfPlayerController)
 	//모두 다 폰이 생겨 빙의되면 게임 시작
 	if (InitialPossessedCount >= PWGameSetting->PlayerCount)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%d"), InitialPossessedCount);
 		StartGame();
 	}
 }

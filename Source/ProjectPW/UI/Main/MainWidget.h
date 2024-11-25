@@ -30,7 +30,7 @@ protected:
 
 private:
 	
-	void OnGameOver(bool bWon);
+	void OnGameOver(class APWPlayerController* PlayerController, bool bLose);
 	void OnTeamCharacterMoved(float CurrentTurnActivePoint);
 	void OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class APWPlayerCharacter*>& TeamCharcterList);
 	void OnTargetIsOnCrosshair(class APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair);

@@ -75,7 +75,7 @@ public:
 	void SM_ApplySnapshotTransform(const FTransform& NewTransform);
 	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);
 
-	bool IsDead() { return bIsDead; }
+	bool IsDead() const { return bIsDead; }
 
 private:
 

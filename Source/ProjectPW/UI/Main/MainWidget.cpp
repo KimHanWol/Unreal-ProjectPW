@@ -89,12 +89,17 @@ void UMainWidget::UnbindEvents()
 	}
 }
 
-void UMainWidget::OnGameOver(bool bWon)
+void UMainWidget::OnGameOver(APWPlayerController* PlayerController, bool bLose)
 {
+	if (PlayerController->IsLocalPlayerController() == false)
+	{
+		return;
+	}
+
 	if (IsValid(Text_Result) == true)
 	{
 		Text_Result->SetVisibility(ESlateVisibility::Visible);
-		Text_Result->SetText(bWon ? FText::FromString(TEXT("You Win")) : FText::FromString(TEXT("You Lose")));
+		Text_Result->SetText(bLose ? FText::FromString(TEXT("You Lose")) : FText::FromString(TEXT("You Win")));
 	}
 }
 

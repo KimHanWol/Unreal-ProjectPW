@@ -32,4 +32,8 @@ public:
 	//턴 마다 주어지는 행동력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float TurnActivePoint = 100.f;
+
+	//총 플레이어 수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	int32 PlayerCount = 3;
 };

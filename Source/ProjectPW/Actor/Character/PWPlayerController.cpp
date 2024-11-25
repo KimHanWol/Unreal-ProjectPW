@@ -129,12 +129,17 @@ void APWPlayerController::CS_Possess_Implementation(APawn* PossessablePawn, floa
 	}
 }
 
-void APWPlayerController::SC_GameOver_Implementation(bool bWon)
+void APWPlayerController::SM_GameOver_Implementation(APWPlayerController* TargetPlayerController, bool bLose)
 {
 	const UPWEventManager* EventManager = UPWEventManager::Get(this);
 	if (IsValid(EventManager) == true)
 	{
-		EventManager->GameOverDelegate.Broadcast(bWon);
+		EventManager->GameOverDelegate.Broadcast(TargetPlayerController, bLose);
+	}
+
+	if (IsLocalPlayerController() == true)
+	{
+		LP_SelectCharacter(0);
 	}
 }
 
@@ -198,10 +203,10 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum)
 	}
 	else
 	{
-		const FCharacterAliveData& CharacterData = PWPlayerState->GetTeamCharacterData(SelectNum);
-		if (CharacterData.bIsAlive == true)
+		APWPlayerCharacter* TeamPlayerCharacter = PWPlayerState->GetTeamCharacter(SelectNum);
+		if (IsValid(TeamPlayerCharacter) == true && TeamPlayerCharacter->IsDead() == false)
 		{
-			PossessablePawn = CharacterData.PlayerCharacter;
+			PossessablePawn = TeamPlayerCharacter;
 		}
 	}
 

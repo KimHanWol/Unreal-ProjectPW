@@ -19,12 +19,6 @@ void APWPlayerState::BeginPlay()
 	Super::BeginPlay();
 
 	OwningPlayerController = Cast<APWPlayerController>(GetOwningController());
-
-	UPWEventManager* PWEventManger = UPWEventManager::Get(this);
-	if (IsValid(PWEventManger) == true)
-	{
-		PWEventManger->CharacterAliveStateChangedDelegate.AddUObject(this, &APWPlayerState::OnCharacterAliveStateChanged);
-	}
 }
 
 void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -32,7 +26,7 @@ void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(APWPlayerState, TeamSide);
-	DOREPLIFETIME(APWPlayerState, TeamCharacterDataList);
+	DOREPLIFETIME(APWPlayerState, TeamCharacterList);
 	DOREPLIFETIME(APWPlayerState, CommanderPawn);
 }
 
@@ -65,7 +59,6 @@ void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint)
 
 void APWPlayerState::SS_LoadCharacters()
 {
-	TArray<FCharacterAliveData> InTeamCharacterDataList;
 	for (TActorIterator<APWPlayerCharacter> PlayerCharacter(GetWorld()); PlayerCharacter; ++PlayerCharacter)
 	{
 		if (IsValid(*PlayerCharacter) == false)
@@ -75,30 +68,10 @@ void APWPlayerState::SS_LoadCharacters()
 
 		if (PlayerCharacter->GetTeamSide() == TeamSide)
 		{
-			FCharacterAliveData CharacterData;
-			CharacterData.PlayerCharacter = *PlayerCharacter;
-			CharacterData.bIsAlive = true;
-			InTeamCharacterDataList.Add(CharacterData);
+			TeamCharacterList.Add(*PlayerCharacter);
 		}
 	}
-
-	TeamCharacterDataList = InTeamCharacterDataList;
-	OnRep_TeamCharacterDataList();
-}
-
-void APWPlayerState::OnCharacterAliveStateChanged(APWPlayerCharacter* TargetCharacter, bool bIsAlive)
-{
-	if (IsValid(TargetCharacter) == true)
-	{
-		for (FCharacterAliveData& CharcterData : TeamCharacterDataList)
-		{
-			if (CharcterData.PlayerCharacter == TargetCharacter)
-			{
-				CharcterData.bIsAlive = bIsAlive;
-				break;
-			}
-		}
-	}
+	OnRep_TeamCharacterList();
 }
 
 void APWPlayerState::OnCharacterMoved(float Distance)
@@ -129,24 +102,24 @@ void APWPlayerState::OnCharacterMoved(float Distance)
 	}
 }
 
-const FCharacterAliveData APWPlayerState::GetTeamCharacterData(int32 CharacterNum) const
+APWPlayerCharacter* APWPlayerState::GetTeamCharacter(int32 CharacterNum) const
 {
-	if (TeamCharacterDataList.Num() > CharacterNum - 1)
+	if (TeamCharacterList.Num() > CharacterNum - 1)
 	{
-		return TeamCharacterDataList[CharacterNum - 1];
+		return TeamCharacterList[CharacterNum - 1];
 	}
 
-	return FCharacterAliveData();
+	return nullptr;
 }
 
 TArray<APWPlayerCharacter*> APWPlayerState::GetAliveTeamCharacterList() const
 {
 	TArray<APWPlayerCharacter*> AliveTeamCharacterList;
-	for (const FCharacterAliveData& CharcterData : TeamCharacterDataList)
+	for (APWPlayerCharacter* TeamCharcter : TeamCharacterList)
 	{
-		if (CharcterData.bIsAlive == true)
+		if (TeamCharcter->IsDead() == false)
 		{
-			AliveTeamCharacterList.Add(CharcterData.PlayerCharacter);
+			AliveTeamCharacterList.Add(TeamCharcter);
 		}
 	}
 
@@ -155,11 +128,6 @@ TArray<APWPlayerCharacter*> APWPlayerState::GetAliveTeamCharacterList() const
 
 TArray<class APWPlayerCharacter*> APWPlayerState::GetTeamCharacterList() const
 {
-	TArray<APWPlayerCharacter*> TeamCharacterList;
-	for (const FCharacterAliveData& CharcterData : TeamCharacterDataList)
-	{
-		TeamCharacterList.Add(CharcterData.PlayerCharacter);
-	}
 	return TeamCharacterList;
 }
 
@@ -190,7 +158,7 @@ void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
 	}
 }
 
-void APWPlayerState::OnRep_TeamCharacterDataList()
+void APWPlayerState::OnRep_TeamCharacterList()
 {
 	bIsTeamCharacterInitialized = true;
 }

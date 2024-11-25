@@ -39,17 +39,33 @@ public:
 	int32 GetCurrentPlayerTurn() const { return CurrentPlayersTurn; }
 	int32 GetCurrentRoundIndex() const { return CurrentRoundIndex; } // TODO: MainWidget 에 데이터 추가하기
 
+	void OnGameOver(class APWPlayerController* PlayerController, bool bLose);
+	void OnCharacterAliveStateChanged(class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
+
+public:
+
+	DECLARE_MULTICAST_DELEGATE(FGameStateCharacterAliveStateChanged)
+	FGameStateCharacterAliveStateChanged GameStateCharacterAliveStateChangedDelegate;
+
 private:
 
-	// 0 or 1
+	// 플레이어 차례
 	UPROPERTY(Transient)
 	int32 CurrentPlayersTurn = 0;
 
-	// 0 ~ (0, 1 차례가 지나고 매 턴 마다 1씩 쌓임)
+	// 게임 라운드 0 ~ (0, 1 차례가 지나고 매 턴 마다 1씩 쌓임)
 	UPROPERTY(Transient)
 	int32 CurrentRoundIndex = 0;
 
 	//플레이어 수
 	UPROPERTY(Transient)
 	int32 MaxPlayerCount = 0;
+
+	//Controller, IsGameOver
+	UPROPERTY(Transient)
+	TMap<class APWPlayerController*, bool> PlayerControllerGameStateMap;
+
+	//Character, IsAlive
+	UPROPERTY(Transient)
+	TMap<class APWPlayerCharacter*, bool> PlayerCharacterAliveDataMap;
 };

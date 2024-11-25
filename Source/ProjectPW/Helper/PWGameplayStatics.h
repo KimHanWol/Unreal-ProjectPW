@@ -23,6 +23,7 @@ public:
 	static class APWPlayerController* GetLocalPlayerController(const UObject* WorldContextObj);
 	static class APWPlayerController* GetOtherPlayerController(class APWPlayerController* CurrentPlayerController);
 	static class TArray<class APWPlayerController*> GetAllPlayerController(const UObject* WorldContextObj);
+	static class TArray<class APWPlayerCharacter*> GetAllPlayerCharacter(const UObject* WorldContextObj);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
 	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);

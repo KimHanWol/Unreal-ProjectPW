@@ -16,6 +16,7 @@ enum class ETeamSide : uint8
 	None,
 	Red,
 	Blue,
+	Green,
 };
 
 UENUM(BlueprintType)

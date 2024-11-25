@@ -51,6 +51,6 @@ public:
 	FTurnChanged TurnChangedDelegate;
 
 	//System
-	DECLARE_MULTICAST_DELEGATE_OneParam(FGameOver, bool bWon);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FGameOver, class APWPlayerController* PlayerController, bool bWon);
 	FGameOver GameOverDelegate;
 };

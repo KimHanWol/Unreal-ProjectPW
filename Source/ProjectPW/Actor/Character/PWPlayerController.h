@@ -37,9 +37,9 @@ public:
 	void SC_ChangeTurn_Implementation(bool bMyTurn);
 
 	//게임 오버
-	UFUNCTION(Client, Reliable)
-	void SC_GameOver(bool bWon);
-	void SC_GameOver_Implementation(bool bWon);
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_GameOver(class APWPlayerController* TargetPlayerController, bool bLose);
+	void SM_GameOver_Implementation(class APWPlayerController* TargetPlayerController, bool bLose);
 
 	UFUNCTION(Server, Reliable)
 	void CS_LoadPrevSnapshot();

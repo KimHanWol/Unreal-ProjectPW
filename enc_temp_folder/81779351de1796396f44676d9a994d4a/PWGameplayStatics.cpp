@@ -101,7 +101,7 @@ TArray<class APWPlayerCharacter*> UPWGameplayStatics::GetAllPlayerCharacter(cons
 		}
 	}
 	
-	return PlayerCharacterList;
+	return TArray<class APWPlayerCharacter*>();
 }
 
 APWPlayerState* UPWGameplayStatics::GetLocalPlayerState(const UObject* WorldContextObj)

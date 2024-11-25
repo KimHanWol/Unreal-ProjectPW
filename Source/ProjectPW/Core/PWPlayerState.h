@@ -13,20 +13,6 @@
 
 enum class ETeamSide : uint8;
 
-USTRUCT()
-struct FCharacterAliveData
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-
-	UPROPERTY(Transient)
-	class APWPlayerCharacter* PlayerCharacter;
-
-	UPROPERTY(Transient)
-	bool bIsAlive = true;
-};
-
 UCLASS()
 class PROJECTPW_API APWPlayerState : public APlayerState
 {
@@ -45,7 +31,7 @@ public:
 	
 	void OnCharacterMoved(float Distance);
 
-	const FCharacterAliveData GetTeamCharacterData(int32 CharacterNum) const;
+	class APWPlayerCharacter* GetTeamCharacter(int32 CharacterNum) const;
 	TArray<class APWPlayerCharacter*> GetAliveTeamCharacterList() const;
 	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
 	int32 GetAliveTeamCharacterNum() const;
@@ -61,10 +47,11 @@ public:
 
 	void SS_LoadCharacters();
 
-	void OnCharacterAliveStateChanged(class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
-
 	UFUNCTION()
-	void OnRep_TeamCharacterDataList();
+	void OnRep_TeamCharacterList();
+
+	void GameOver() { bGameOver = true; }
+	bool IsGameOver() const { return bGameOver; }
 
 public:
 
@@ -79,8 +66,8 @@ private:
 	UPROPERTY(Transient, Replicated)
 	ETeamSide TeamSide;
 
-	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterDataList)
-	TArray<FCharacterAliveData> TeamCharacterDataList;
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterList)
+	TArray<class APWPlayerCharacter*> TeamCharacterList;
 
 	UPROPERTY(transient, Replicated)
 	class APawn* CommanderPawn;
@@ -99,4 +86,8 @@ private:
 
 	UPROPERTY(transient)
 	bool bIsReadyToMove = false;
+
+	//Server only
+	UPROPERTY(Transient)
+	bool bGameOver;
 };
