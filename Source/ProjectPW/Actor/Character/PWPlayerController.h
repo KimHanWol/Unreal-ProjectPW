@@ -55,8 +55,13 @@ public:
 	void SM_ApplyTurnActivePoint(float InTurnActivePoint);
 	void SM_ApplyTurnActivePoint_Implementation(float InTurnActivePoint);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_PossessBySnapshot(APawn* PossessablePawn);
+	void SM_PossessBySnapshot_Implementation(APawn* PossessablePawn);
+
 	void OnCharacterSelected(int32 SelectNum);
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);
+	void LP_OnPossess(APawn* PossessedPawn);
 
 private:
 

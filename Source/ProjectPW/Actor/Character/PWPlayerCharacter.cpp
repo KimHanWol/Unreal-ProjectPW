@@ -83,7 +83,7 @@ void APWPlayerCharacter::Tick(float DeltaTime)
 		return;
 	}
 
-	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
 	if (IsValid(PWPlayerState) == false)
 	{
 		return;
@@ -321,7 +321,7 @@ void APWPlayerCharacter::OnPlayerRevived()
 	GetWorldTimerManager().ClearTimer(DeathLifeSpanWaitTimerHandle);
 
 	SetActorRotation(LastRotationBeforeDeath);
-	SetActorEnableCollision(false);
+	SetActorEnableCollision(true);
 
 	SM_EnableCharacterAnimation(false);
 	SM_HideActorByAliveState(false);
@@ -426,6 +426,11 @@ void APWPlayerCharacter::WithdrawAttributeData()
 
 void APWPlayerCharacter::OnLocalCharacterPossessed(APawn* PossessedPawn, bool bIsCommander)
 {
+	if (bIsCommander == true)
+	{
+		return;
+	}
+
 	if (PossessedPawn == this)
 	{
 		SetActorTickEnabled(true);

@@ -170,6 +170,7 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 		LogString += TEXT("TurnActivePoint : ") + FString::FromInt(SnapshotData.TurnActivePoint) + TEXT("\n");
 
 		LocalPlayerController->Possess(SnapshotData.PossessedCharacter);
+		LocalPlayerController->SM_PossessBySnapshot(SnapshotData.PossessedCharacter);
 		LogString += TEXT("Possessed Character : ") + SnapshotData.PossessedCharacter->GetName() + TEXT("\n");
 	}
 

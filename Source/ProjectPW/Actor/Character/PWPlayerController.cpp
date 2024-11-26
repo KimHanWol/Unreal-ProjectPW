@@ -84,7 +84,7 @@ void APWPlayerController::OnPossess(APawn* InPawn)
 		PWPlayerState->SetCommanderPawn(CommanderPawn);
 		InitialPossessedDelegate.Broadcast(this);
 	}
-;}
+}
 
 void APWPlayerController::OnRep_PlayerState()
 {
@@ -183,6 +183,14 @@ void APWPlayerController::CS_RequestNextTurn_Implementation()
 	}
 }
 
+void APWPlayerController::SM_PossessBySnapshot_Implementation(APawn* PossessablePawn)
+{
+	if (IsLocalController() == true)
+	{
+		LP_OnPossess(PossessablePawn);
+	}
+}
+
 void APWPlayerController::OnCharacterSelected(int32 SelectNum)
 {
 	LP_SelectCharacter(SelectNum, false);
@@ -195,16 +203,6 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum, bool bIsForReset)
 		return;
 	}
 
-	bool bIsCommander = SelectNum == 0;
-	if (bIsCommander == true)
-	{
-		LP_ChangeInputEnabled(true, false);
-	}
-	else
-	{
-		LP_ChangeInputEnabled(false, true);
-	}
-
 	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
 	if (IsValid(PWPlayerState) == false)
 	{
@@ -213,6 +211,7 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum, bool bIsForReset)
 
 	//Possess
 	APawn* PossessablePawn = nullptr;
+	bool bIsCommander = SelectNum == 0;
 	if (bIsCommander == true)
 	{
 		PossessablePawn = PWPlayerState->GetCommanderPawn();
@@ -227,11 +226,31 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum, bool bIsForReset)
 	}
 
 	CS_Possess(PossessablePawn, PWPlayerState->GetCurrentTurnActivePoint());
+	LP_OnPossess(PossessablePawn);
+}
+
+void APWPlayerController::LP_OnPossess(APawn* PossessedPawn)
+{
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	bool bIsCommander = PWPlayerState->GetCommanderPawn() == PossessedPawn;
+	if (bIsCommander == true)
+	{
+		LP_ChangeInputEnabled(true, false);
+	}
+	else
+	{
+		LP_ChangeInputEnabled(false, true);
+	}
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
-		PWEventManager->PlayerPossessedDelegate.Broadcast(PossessablePawn, bIsCommander);
+		PWEventManager->PlayerPossessedDelegate.Broadcast(PossessedPawn, bIsCommander);
 	}
 }
 
