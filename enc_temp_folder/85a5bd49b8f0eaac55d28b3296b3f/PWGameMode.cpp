@@ -142,8 +142,7 @@ void APWGameMode::TransformCommanderPawns()
 		APawn* CommanderPawn = PlayerController->GetPawn();
 		if (IsValid(CommanderPointActor) == true && IsValid(CommanderPawn) == true)
 		{
-			CommanderPawn->SetReplicates(true);
-			CommanderPawn->SetActorTransform(CommanderPointActor->GetActorTransform());
+			CommanderPawn->SetActorTransform(CommanderPointActor->GetActorTransform());	
 		}
 	}
 }
