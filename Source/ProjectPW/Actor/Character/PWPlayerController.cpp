@@ -50,7 +50,7 @@ void APWPlayerController::BeginPlay()
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
-		PWEventManager->CharacterSelectedDelegate.AddUObject(this, &APWPlayerController::LP_SelectCharacter);
+		PWEventManager->CharacterSelectedDelegate.AddUObject(this, &APWPlayerController::OnCharacterSelected);
 	}
 }
 
@@ -107,7 +107,7 @@ ETeamSide APWPlayerController::GetTeamSide() const
 
 void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
 {
-	LP_SelectCharacter(0);
+	LP_SelectCharacter(0, true);
 
 	bIsMyTurn = bMyTurn;
 	bTurnDataDirty = true; //초기화 시점 문제로 PlayerState 에 반영이 안되는 것 방지
@@ -150,7 +150,7 @@ void APWPlayerController::SM_GameOver_Implementation(APWPlayerController* Target
 
 	if (IsLocalPlayerController() == true)
 	{
-		LP_SelectCharacter(0);
+		LP_SelectCharacter(0, true);
 	}
 }
 
@@ -183,9 +183,14 @@ void APWPlayerController::CS_RequestNextTurn_Implementation()
 	}
 }
 
-void APWPlayerController::LP_SelectCharacter(int32 SelectNum)
+void APWPlayerController::OnCharacterSelected(int32 SelectNum)
 {
-	if (bIsMyTurn == false)
+	LP_SelectCharacter(SelectNum, false);
+}
+
+void APWPlayerController::LP_SelectCharacter(int32 SelectNum, bool bIsForReset)
+{
+	if (bIsMyTurn == false && bIsForReset == false)
 	{
 		return;
 	}
