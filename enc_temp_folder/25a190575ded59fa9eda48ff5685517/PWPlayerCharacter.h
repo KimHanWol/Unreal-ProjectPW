@@ -106,8 +106,8 @@ private:
 	void SM_EnableCharacterAnimation_Implementation(bool bPossessed);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void SM_HideActorByAliveState(bool bHide);
-	void SM_HideActorByAliveState_Implementation(bool bHide);
+	void SM_ActorHideStateChanged(bool bHide);
+	void SM_ActorHideStateChanged_Implementation(bool bHide);
 
 	//기본적인 움직임이 아닌 캐릭터의 모션을 완전히 멈춤
 	void EnableCharacterAnimation(bool bEnabled);

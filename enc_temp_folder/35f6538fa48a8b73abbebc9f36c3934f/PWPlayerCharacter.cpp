@@ -24,8 +24,6 @@
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 
-#include "PWPlayerController.h"
-
 APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
@@ -192,6 +190,15 @@ void APWPlayerCharacter::SM_ApplySnapshotTransform_Implementation(const FTransfo
 	SetActorTransform(NewTransform);
 }
 
+void APWPlayerCharacter::SM_ActorHideStateChanged_Implementation(bool bHide)
+{
+	SetActorEnableCollision(bHide);
+	if (IsValid(PWEquipmentComponent) == true)
+	{
+		PWEquipmentComponent->OnAliveStateChanged(bHide);
+	}
+}
+
 void APWPlayerCharacter::EnableCharacterAnimation(bool bEnabled)
 {
 	if (bEnabled == true)
@@ -288,17 +295,13 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 				APWPlayerCharacter* StrongThis = Cast<APWPlayerCharacter>(WeakThis.Get());
 				if (IsValid(StrongThis) == true)
 				{
-					StrongThis->SetActorHiddenInGame(true);
-					if (IsValid(StrongThis->PWEquipmentComponent) == true)
-					{
-						StrongThis->PWEquipmentComponent->OnAliveStateChanged(true);
-					}
+					StrongThis->SM_ActorHideStateChanged(true);
 				}
 			}
 		}), PWGameSetting->DeathLifeSpan, false);
 	}
 
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->CharacterAliveStateChangedDelegate.Broadcast(this, false);
@@ -316,17 +319,14 @@ void APWPlayerCharacter::OnPlayerRevived()
 
 	GetWorldTimerManager().ClearTimer(DeathLifeSpanWaitTimerHandle);
 
-	SetActorEnableCollision(true);
-	if (IsValid(PWEquipmentComponent) == true)
-	{
-		PWEquipmentComponent->OnAliveStateChanged(false);
-	}
+	SM_ActorHideStateChanged(false);
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->CharacterAliveStateChangedDelegate.Broadcast(this, true);
 	}
+
 }
 
 UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const

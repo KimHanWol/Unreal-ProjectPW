@@ -190,6 +190,19 @@ void APWPlayerCharacter::SM_ApplySnapshotTransform_Implementation(const FTransfo
 	SetActorTransform(NewTransform);
 }
 
+void APWPlayerCharacter::SM_HideActorByAliveState_Implementation(bool bHide)
+{
+	if (HasAuthority() == true)
+	{
+		SetActorHiddenInGame(bHide);
+	}
+
+	if (IsValid(PWEquipmentComponent) == true)
+	{
+		PWEquipmentComponent->OnAliveStateChanged(bHide);
+	}
+}
+
 void APWPlayerCharacter::EnableCharacterAnimation(bool bEnabled)
 {
 	if (bEnabled == true)
@@ -283,15 +296,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 		GetWorldTimerManager().SetTimer(DeathLifeSpanWaitTimerHandle, FTimerDelegate::CreateLambda([WeakThis = TWeakObjectPtr<APWPlayerCharacter>(this)](){
 			if (WeakThis.IsValid())
 			{
-				APWPlayerCharacter* StrongThis = Cast<APWPlayerCharacter>(WeakThis.Get());
-				if (IsValid(StrongThis) == true)
-				{
-					StrongThis->SetActorHiddenInGame(true);
-					if (IsValid(StrongThis->PWEquipmentComponent) == true)
-					{
-						StrongThis->PWEquipmentComponent->OnAliveStateChanged(true);
-					}
-				}
+				WeakThis->SM_HideActorByAliveState(true);
 			}
 		}), PWGameSetting->DeathLifeSpan, false);
 	}
@@ -307,25 +312,19 @@ void APWPlayerCharacter::OnPlayerRevived()
 {
 	//On character revive
 	bIsDead = false;
-
-	SM_EnableCharacterAnimation(false);
-	SetActorRotation(LastRotationBeforeDeath);
-	SetActorHiddenInGame(false);
-
 	GetWorldTimerManager().ClearTimer(DeathLifeSpanWaitTimerHandle);
 
-	SetActorEnableCollision(true);
-	if (IsValid(PWEquipmentComponent) == true)
-	{
-		PWEquipmentComponent->OnAliveStateChanged(false);
-	}
+	SetActorRotation(LastRotationBeforeDeath);
+	SetActorEnableCollision(false);
+
+	SM_EnableCharacterAnimation(false);
+	SM_HideActorByAliveState(false);
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->CharacterAliveStateChangedDelegate.Broadcast(this, true);
 	}
-
 }
 
 UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const
