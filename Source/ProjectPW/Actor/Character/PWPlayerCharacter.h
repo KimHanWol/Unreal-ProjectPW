@@ -75,8 +75,6 @@ public:
 	void SM_ApplySnapshotTransform(const FTransform& NewTransform);
 	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);
 
-
-
 	bool IsDead() const { return bIsDead; }
 
 private:
@@ -85,6 +83,7 @@ private:
 	void ApplyAttributeData();
 	void WithdrawAttributeData();
 
+	//Montage
 	UFUNCTION(Server, Reliable)
 	void CS_PlayMontage(class UAnimMontage* AnimMontage);
 	void CS_PlayMontage_Implementation(class UAnimMontage* AnimMontage);

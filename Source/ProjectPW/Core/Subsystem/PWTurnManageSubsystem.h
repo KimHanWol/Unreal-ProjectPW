@@ -61,7 +61,7 @@ public:
 	
 	static UPWTurnManageSubsystem* Get(const UObject* WorldContextObj);
 
-	void StartGame(const TArray<class APWPlayerController*>& InGamePlayerControllerList);
+	void StartGame(const TArray<class APWPlayerController*>& GamePlayerControllerList);
 	void ApplyPrevSnapshot(class APWPlayerController* PlayerControllerInTurn);
 
 protected:
@@ -74,7 +74,7 @@ private:
 	void UnbindEvents();
 
 	void NextTurn();
-	void LoadCharacterData();
+	void ValidateTurnData();
 
 	void Snapshot(APawn* PossessedPawn, float CurrentTurnActivePoint);
 
@@ -84,18 +84,6 @@ public:
 	FUploadSnapshotData UploadSnapshotDataDelegate;
 
 private:
-
-	UPROPERTY(Transient)
-	int32 CurrentTurnIndex = 0;
-
-	UPROPERTY(Transient)
-	class APWGameState* PWGameState;
-
-	UPROPERTY(Transient)
-	TArray<APWPlayerController*> GamePlayerControllerList;
-
-	UPROPERTY(Transient)
-	TArray<class APWPlayerCharacter*> PlayerCharacterList;
 
 	UPROPERTY(Transient)
 	TArray<FSnapshotData> SnapshotList;

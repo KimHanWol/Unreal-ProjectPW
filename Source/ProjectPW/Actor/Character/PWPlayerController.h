@@ -31,16 +31,21 @@ public:
 
 	ETeamSide GetTeamSide() const;
 
-	//턴 변경됨
+	//Turn changed
 	UFUNCTION(Client, Reliable)
-	void SC_ChangeTurn(bool bMyTurn);
-	void SC_ChangeTurn_Implementation(bool bMyTurn);
+	void SC_TurnChanged(bool bMyTurn);
+	void SC_TurnChanged_Implementation(bool bMyTurn);
 
-	//게임 오버
+	UFUNCTION(Server, Reliable)
+	void CS_RequestNextTurn();
+	void CS_RequestNextTurn_Implementation();
+
+	//Game over
 	UFUNCTION(NetMulticast, Reliable)
 	void SM_GameOver(class APWPlayerController* TargetPlayerController, bool bLose);
 	void SM_GameOver_Implementation(class APWPlayerController* TargetPlayerController, bool bLose);
 
+	//Snapshot
 	UFUNCTION(Server, Reliable)
 	void CS_LoadPrevSnapshot();
 	void CS_LoadPrevSnapshot_Implementation();
@@ -48,10 +53,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void SM_ApplyTurnActivePoint(float InTurnActivePoint);
 	void SM_ApplyTurnActivePoint_Implementation(float InTurnActivePoint);
-
-	UFUNCTION(Server, Reliable)
-	void CS_NextTurn();
-	void CS_NextTurn_Implementation();
 
 	void LP_SelectCharacter(int32 SelectNum);
 

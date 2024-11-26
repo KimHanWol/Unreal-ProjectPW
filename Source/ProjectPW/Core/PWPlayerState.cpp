@@ -91,7 +91,7 @@ void APWPlayerState::OnCharacterMoved(float Distance)
 		APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
 		if (IsValid(LocalPlayerController) == true)
 		{
-			LocalPlayerController->CS_NextTurn();
+			LocalPlayerController->CS_RequestNextTurn();
 		}
 	}
 

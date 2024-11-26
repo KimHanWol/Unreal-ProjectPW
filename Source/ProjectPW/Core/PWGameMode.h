@@ -26,18 +26,17 @@ private:
 
 	void ReadyToStart();
 	void StartGame();
-
 	void CheckGameOver();
+
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);
 
 	AActor* GetCommanderPointActor(ETeamSide TeamSide) const;
 
 	void TransformCommanderPawns();
 
-	int32 GetCurrentPlayerTurn();
-
 private:
 
+	//처음 폰에 빙의된 클라이언트 수
 	UPROPERTY(Transient)
 	int32 InitialPossessedCount = 0;
 

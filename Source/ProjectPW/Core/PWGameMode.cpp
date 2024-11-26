@@ -31,16 +31,13 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 	}
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
-	if (IsValid(PWGameSetting) == false)
+	if (ensure(IsValid(PWGameSetting) == true))
 	{
-		ensure(false);
-		return;
-	}
-	
-	if (GetNumPlayers() == PWGameSetting->PlayerCount)
-	{
-		ReadyToStart();
-		TotalPlayerCount = PWGameSetting->PlayerCount;
+		if (GetNumPlayers() == PWGameSetting->PlayerCount)
+		{
+			ReadyToStart();
+			TotalPlayerCount = PWGameSetting->PlayerCount;
+		}
 	}
 }
 
@@ -52,18 +49,14 @@ void APWGameMode::OnInitialPossess(APWPlayerController* SelfPlayerController)
 	}
 
 	InitialPossessedCount++;
-
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
-	if (IsValid(PWGameSetting) == false)
+	if (ensure(IsValid(PWGameSetting) == true))
 	{
-		ensure(false);
-		return;
-	}
-
-	//모두 다 폰이 생겨 빙의되면 게임 시작
-	if (InitialPossessedCount >= PWGameSetting->PlayerCount)
-	{
-		StartGame();
+		//모두 다 폰이 생겨 빙의되면 게임 시작
+		if (InitialPossessedCount >= PWGameSetting->PlayerCount)
+		{
+			StartGame();
+		}
 	}
 }
 
@@ -75,7 +68,7 @@ void APWGameMode::CheckGameOver()
 	FString LogString;
 	LogString += TEXT("=====CHECK GAME OVER=====\n");
 
-	APWPlayerController* WinCandidatePlayerController = PlayerControllerList[0];
+	APWPlayerController* CandidateWinnerPlayerController = PlayerControllerList[0];
 	for (APWPlayerController* PWPlayerController : PlayerControllerList)
 	{
 		if (IsValid(PWPlayerController) == false)
@@ -91,12 +84,12 @@ void APWGameMode::CheckGameOver()
 			if (PWPlayerState->GetAliveTeamCharacterNum() == 0)
 			{
 				PWPlayerController->SM_GameOver(PWPlayerController, true);
-				LosePlayerCount++;
 				PWPlayerState->GameOver();
+				LosePlayerCount++;
 			}
 			else
 			{
-				WinCandidatePlayerController = PWPlayerController;
+				CandidateWinnerPlayerController = PWPlayerController;
 			}
 			LogString += UPWGameplayStatics::ConvertEnumToString(this, PWPlayerState->GetTeamSide()) + TEXT(" ") + FString::FromInt(PWPlayerState->GetAliveTeamCharacterNum()) + TEXT(" ") + TEXT("Alived \n");
 		}
@@ -105,8 +98,8 @@ void APWGameMode::CheckGameOver()
 	//Win
 	if (LosePlayerCount == PlayerControllerList.Num() - 1)
 	{
-		WinCandidatePlayerController->SM_GameOver(WinCandidatePlayerController, false);
-		LogString += WinCandidatePlayerController->GetName() + TEXT(" Win\n");
+		CandidateWinnerPlayerController->SM_GameOver(CandidateWinnerPlayerController, false);
+		LogString += CandidateWinnerPlayerController->GetName() + TEXT(" Win\n");
 	}
 	UE_LOG(LogTemp, Log, TEXT("%s"), *LogString);
 }
@@ -143,18 +136,6 @@ void APWGameMode::TransformCommanderPawns()
 			CommanderPawn->SetActorTransform(CommanderPointActor->GetActorTransform());	
 		}
 	}
-}
-
-int32 APWGameMode::GetCurrentPlayerTurn()
-{
-	int32 CurrentPlayerTurn = 0;
-	APWGameState* PWGameState = Cast<APWGameState>(UGameplayStatics::GetGameState(this));
-	if (ensure(IsValid(PWGameState) == true))
-	{
-		CurrentPlayerTurn = PWGameState->GetCurrentPlayerTurn();
-	}
-
-	return CurrentPlayerTurn;
 }
 
 void APWGameMode::ReadyToStart()

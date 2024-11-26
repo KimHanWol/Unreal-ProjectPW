@@ -26,26 +26,29 @@ protected:
 public:
 
 	void SS_InitializePlayerState(ETeamSide InTeamSide);
-	void SetCommanderPawn(APawn* InCommanderPawn);
-	APawn* GetCommanderPawn();
-	
-	void OnCharacterMoved(float Distance);
+	void SS_LoadCharacters();
 
+	//Setter
+	void SetCommanderPawn(APawn* InCommanderPawn);
+	void SetIsMyTurn(bool bInIsMyTurn);
+	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint);
+
+
+	//Getter
+	APawn* GetCommanderPawn();
 	class APWPlayerCharacter* GetTeamCharacter(int32 CharacterNum) const;
 	TArray<class APWPlayerCharacter*> GetAliveTeamCharacterList() const;
 	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
 	int32 GetAliveTeamCharacterNum() const;
 
-	void SetIsMyTurn(bool bInIsMyTurn);
-	bool IsMyTurn() const { return bIsMyTurn; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
+	bool IsMyTurn() const { return bIsMyTurn; }
 	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
-
 	float GetCurrentTurnActivePoint() const { return CurrentTurnActivePoint; }
-	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint);
 
-	void SS_LoadCharacters();
+
+	void OnCharacterMoved(float Distance);
 
 	UFUNCTION()
 	void OnRep_TeamCharacterList();
@@ -66,11 +69,14 @@ private:
 	UPROPERTY(Transient, Replicated)
 	ETeamSide TeamSide;
 
+	UPROPERTY(transient, Replicated)
+	class APawn* CommanderPawn;
+
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterList)
 	TArray<class APWPlayerCharacter*> TeamCharacterList;
 
-	UPROPERTY(transient, Replicated)
-	class APawn* CommanderPawn;
+	UPROPERTY(Transient)
+	class APWPlayerController* OwningPlayerController;
 
 	//턴 행동력
 	//로컬에서 계산
@@ -80,9 +86,6 @@ private:
 
 	UPROPERTY(Transient)
 	bool bIsTeamCharacterInitialized = false;
-
-	UPROPERTY(Transient)
-	class APWPlayerController* OwningPlayerController;
 
 	UPROPERTY(transient)
 	bool bIsReadyToMove = false;

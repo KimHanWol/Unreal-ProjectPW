@@ -94,7 +94,7 @@ ETeamSide APWPlayerController::GetTeamSide() const
 	return TeamSide;
 }
 
-void APWPlayerController::SC_ChangeTurn_Implementation(bool bMyTurn)
+void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
 {
 	LP_SelectCharacter(0);
 
@@ -163,7 +163,7 @@ void APWPlayerController::SM_ApplyTurnActivePoint_Implementation(float InTurnAct
 	PWPlayerState->SetCurrentTurnActivePoint(InTurnActivePoint);
 }
 
-void APWPlayerController::CS_NextTurn_Implementation()
+void APWPlayerController::CS_RequestNextTurn_Implementation()
 {
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)

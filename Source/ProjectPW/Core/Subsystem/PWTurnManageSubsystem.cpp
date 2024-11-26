@@ -26,28 +26,15 @@ UPWTurnManageSubsystem* UPWTurnManageSubsystem::Get(const UObject* WorldContextO
     return nullptr;
 }
 
-void UPWTurnManageSubsystem::StartGame(const TArray<APWPlayerController*>& InGamePlayerControllerList)
+void UPWTurnManageSubsystem::StartGame(const TArray<APWPlayerController*>& GamePlayerControllerList)
 {
-    GamePlayerControllerList = InGamePlayerControllerList;
-
-    for (int32 i = 0; i < GamePlayerControllerList.Num(); i++)
+	APWGameState* PWGameState = Cast<APWGameState>(UPWGameplayStatics::GetGameState(this));
+	if (IsValid(PWGameState) == true)
 	{
-		APWPlayerController* PlayerController = GamePlayerControllerList[i];
-		if (IsValid(PlayerController) == true)
-		{
-			bool bMyTurn = i == CurrentTurnIndex; //0번 부터 시작
-			PlayerController->SC_ChangeTurn(bMyTurn);
-		}
+		PWGameState->OnStartGame(GamePlayerControllerList.Num());
 	}
 
-    PWGameState = Cast<APWGameState>(UPWGameplayStatics::GetGameState(this));
-    if (IsValid(PWGameState) == true)
-    {
-        PWGameState->OnStartGame(GamePlayerControllerList.Num());
-    }
-
-	LoadCharacterData();
-
+	ValidateTurnData();
     BindEvents();
 }
 
@@ -84,34 +71,32 @@ void UPWTurnManageSubsystem::NextTurn()
 {
 	SnapshotList.Empty();
 
+	APWGameState* PWGameState = Cast<APWGameState>(UPWGameplayStatics::GetGameState(this));
     if (IsValid(PWGameState) == true)
     {
-        PWGameState->NextTurn();
-        CurrentTurnIndex = PWGameState->GetCurrentPlayerTurn();
+		PWGameState->NextTurn();
     }
 
+	ValidateTurnData();
+}
+
+void UPWTurnManageSubsystem::ValidateTurnData()
+{
+	APWGameState* PWGameState = Cast<APWGameState>(UPWGameplayStatics::GetGameState(this));
+    if (IsValid(PWGameState) == false)
+    {
+		ensure(false);
+		return;
+    }
+
+	const TArray<APWPlayerController*>& GamePlayerControllerList =  UPWGameplayStatics::GetAllPlayerController(this);
     for (int32 i = 0; i < GamePlayerControllerList.Num(); i++)
 	{
 		APWPlayerController* PlayerController = GamePlayerControllerList[i];
 		if (IsValid(PlayerController) == true)
 		{
-			bool bMyTurn = i == CurrentTurnIndex; //0번 부터 시작
-			PlayerController->SC_ChangeTurn(bMyTurn);  
-		}
-	}
-}
-
-void UPWTurnManageSubsystem::LoadCharacterData()
-{
-	TArray<AActor*> CharacterActorList;
-	UPWGameplayStatics::GetAllActorsOfClass(this, APWPlayerCharacter::StaticClass(), CharacterActorList);
-
-	for (AActor* CharacterActor : CharacterActorList)
-	{
-		APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(CharacterActor);	
-		if (IsValid(PWPlayerCharacter) == true)
-		{
-			PlayerCharacterList.Add(PWPlayerCharacter);
+			bool bMyTurn = i == PWGameState->GetCurrentPlayerTurn(); //0번 부터 시작
+			PlayerController->SC_TurnChanged(bMyTurn);  
 		}
 	}
 }
@@ -123,6 +108,8 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 
 	LogString += TEXT("\nSNAPSHOT CHARACTER DATA\n");
 	FSnapshotData SnapshotData;
+
+	const TArray<APWPlayerCharacter*>& PlayerCharacterList =  UPWGameplayStatics::GetAllPlayerCharacter(this);
 	for (APWPlayerCharacter* PlayerCharacter : PlayerCharacterList)
 	{
 		FSnapshotCharacterData SnapshotCharacterData;
