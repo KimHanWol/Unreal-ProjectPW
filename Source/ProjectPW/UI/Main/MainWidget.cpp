@@ -86,6 +86,7 @@ void UMainWidget::UnbindEvents()
 		PWEventManager->TeamCharacterMovedDelegate.RemoveAll(this);
 		PWEventManager->TargetIsOnCrosshairDelegate.RemoveAll(this);
 		PWEventManager->PlayerPossessedDelegate.RemoveAll(this);
+		PWEventManager->TurnChangedDelegate.RemoveAll(this);
 	}
 }
 
@@ -193,7 +194,7 @@ void UMainWidget::OnTurnChanged()
 		bMyTurn = PWPlayerState->IsMyTurn();		
 	}
 
-	if (IsValid(Text_Turn) == true) 
+	if (IsValid(Text_Turn) == true)
 	{
 		if (bMyTurn == true)
 		{

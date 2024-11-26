@@ -50,4 +50,8 @@ private:
 
 	UPROPERTY(Transient)
 	bool bIsADSAnimPlaying = false;
+
+	//우클릭 중인지
+	UPROPERTY(Transient)
+	bool bIsSubExecuting = false;
 };

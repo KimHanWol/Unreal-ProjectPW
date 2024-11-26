@@ -18,7 +18,7 @@ void APWGameState::OnStartGame(int32 InMaxPlayerCount)
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
-		PWEventManager->GameOverDelegate.AddUObject(this, &APWGameState::OnGameOver);
+		PWEventManager->GameOverDelegate.AddUObject(this, &APWGameState::OnPlayerGameOver);
 		PWEventManager->CharacterAliveStateChangedDelegate.AddUObject(this, &APWGameState::OnCharacterAliveStateChanged);
 	}
 
@@ -56,11 +56,21 @@ void APWGameState::NextTurn()
 	UE_LOG(LogTemp, Log, TEXT("Turn Changed : %d Turn, Player %d"), CurrentRoundIndex + 1, CurrentPlayersTurn);
 }
 
-void APWGameState::OnGameOver(APWPlayerController* PlayerController, bool bLose)
+void APWGameState::OnPlayerGameOver(APWPlayerController* PlayerController, bool bLose)
 {
 	if (PlayerControllerGameStateMap.Contains(PlayerController) == true)
 	{
 		PlayerControllerGameStateMap[PlayerController] = bLose;
+	}
+}
+
+void APWGameState::OnEntireGameOver()
+{
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->GameOverDelegate.RemoveAll(this);
+		PWEventManager->CharacterAliveStateChangedDelegate.RemoveAll(this);
 	}
 }
 

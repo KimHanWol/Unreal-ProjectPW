@@ -23,6 +23,7 @@ class PROJECTPW_API APWPlayerController : public APlayerController
 protected:
 	
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type Reason) override;
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;

@@ -9,7 +9,6 @@
 
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
-#include "Actor/Character/PWPlayerCharacter.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "PWAttackableInterface.h"
 #include "PWHealableInterface.h"

@@ -36,6 +36,17 @@ void UPWPlayerInputComponent::BeginPlay()
 	}
 }
 
+void UPWPlayerInputComponent::EndPlay(EEndPlayReason::Type Reason)
+{
+	Super::EndPlay(Reason);
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->PlayerPossessedDelegate.RemoveAll(this);
+	}
+}
+
 void UPWPlayerInputComponent::InitMappingContext()
 {
 	TryCreateInputHandler();

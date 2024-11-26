@@ -112,7 +112,12 @@ APWPlayerCharacter* APWPlayerState::GetTeamCharacter(int32 CharacterNum) const
 	return nullptr;
 }
 
-TArray<APWPlayerCharacter*> APWPlayerState::GetAliveTeamCharacterList() const
+TArray<class APWPlayerCharacter*> APWPlayerState::GetTeamCharacterList() const
+{
+	return TeamCharacterList;
+}
+
+int32 APWPlayerState::GetAliveTeamCharacterNum() const
 {
 	TArray<APWPlayerCharacter*> AliveTeamCharacterList;
 	for (APWPlayerCharacter* TeamCharcter : TeamCharacterList)
@@ -123,17 +128,7 @@ TArray<APWPlayerCharacter*> APWPlayerState::GetAliveTeamCharacterList() const
 		}
 	}
 
-	return AliveTeamCharacterList;
-}
-
-TArray<class APWPlayerCharacter*> APWPlayerState::GetTeamCharacterList() const
-{
-	return TeamCharacterList;
-}
-
-int32 APWPlayerState::GetAliveTeamCharacterNum() const
-{
-	return GetAliveTeamCharacterList().Num();
+	return AliveTeamCharacterList.Num();
 }
 
 void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)

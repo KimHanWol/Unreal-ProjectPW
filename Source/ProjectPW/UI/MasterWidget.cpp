@@ -6,7 +6,6 @@
 //Engine
 
 //Game
-#include "Core/PWEventManager.h"
 #include "UI/Main/MainWidget.h"
 
 void UMasterWidget::NativeConstruct()

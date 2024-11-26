@@ -82,8 +82,6 @@ private:
 	void ApplyAttributeData();
 	void WithdrawAttributeData();
 
-	void OnLocalCharacterPossessed(APawn* PossessedPawn, bool bIsCommander);
-
 	//Montage
 	UFUNCTION(Server, Reliable)
 	void CS_PlayMontage(class UAnimMontage* AnimMontage);

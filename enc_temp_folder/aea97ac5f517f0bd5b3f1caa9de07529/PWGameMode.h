@@ -25,11 +25,9 @@ protected:
 private:
 
 	void ReadyToStart();
-	void StartGame(); // 게임 시작
-
+	void StartGame();
 	void CheckGameOver();
-	void OnEntireGameOver(); // 게임 종료
-
+	void OnGameOver();
 	void TransformCommanderPawns();
 
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);

@@ -9,7 +9,6 @@
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
-#include "Actor/Character/PWPlayerController.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"

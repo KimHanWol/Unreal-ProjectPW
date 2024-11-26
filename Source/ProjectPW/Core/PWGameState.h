@@ -37,10 +37,10 @@ public:
 	void NextTurn();
 
 	int32 GetCurrentPlayerTurn() const { return CurrentPlayersTurn; }
-	int32 GetCurrentRoundIndex() const { return CurrentRoundIndex; } // TODO: MainWidget 에 데이터 추가하기
 
-	void OnGameOver(class APWPlayerController* PlayerController, bool bLose);
 	void OnCharacterAliveStateChanged(class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
+	void OnPlayerGameOver(class APWPlayerController* PlayerController, bool bLose);
+	void OnEntireGameOver();
 
 public:
 

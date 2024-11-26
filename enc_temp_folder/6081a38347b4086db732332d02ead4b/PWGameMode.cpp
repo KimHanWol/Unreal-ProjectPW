@@ -98,12 +98,12 @@ void APWGameMode::CheckGameOver()
 	{
 		CandidateWinnerPlayerController->SM_GameOver(CandidateWinnerPlayerController, false);
 		LogString += CandidateWinnerPlayerController->GetName() + TEXT(" Win\n");
-		OnEntireGameOver();
 	}
+	OnGameOver();
 	UE_LOG(LogTemp, Log, TEXT("%s"), *LogString);
 }
 
-void APWGameMode::OnEntireGameOver()
+void APWGameMode::OnGameOver()
 {
 	APWGameState* PWGameState = GetGameState<APWGameState>();
 	if (IsValid(PWGameState) == true)

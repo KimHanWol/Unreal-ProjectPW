@@ -49,12 +49,6 @@ void APWPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->PlayerPossessedDelegate.AddUObject(this, &APWPlayerCharacter::OnLocalCharacterPossessed);
-	}
-
 	//Set attribute
 	ApplyAttributeData();
 }
@@ -62,12 +56,6 @@ void APWPlayerCharacter::BeginPlay()
 void APWPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->PlayerPossessedDelegate.RemoveAll(this);
-	}
 
 	//Set attribute
 	WithdrawAttributeData();
@@ -109,13 +97,29 @@ void APWPlayerCharacter::PossessedBy(class AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
+	if (NewController->IsPlayerController() == false)
+	{
+		return;
+	}
+
 	SM_EnableCharacterAnimation(true);
+
+	//로컬에서만 틱 확인
+	if (IsLocallyControlled() == true)
+	{
+		SetActorTickEnabled(true);
+	}
 }
 
 void APWPlayerCharacter::UnPossessed()
 {
 	PrevLocation = FVector::ZeroVector;
 	SM_EnableCharacterAnimation(false);
+
+	if (IsLocallyControlled() == true)
+	{
+		SetActorTickEnabled(false);
+	}
 
 	Super::UnPossessed();
 }
@@ -421,17 +425,5 @@ void APWPlayerCharacter::WithdrawAttributeData()
 	if (IsValid(PWAttributeSet_Damageable) == true)
 	{
 		PWAttributeSet_Damageable->UnbindAttributeChanged();
-	}
-}
-
-void APWPlayerCharacter::OnLocalCharacterPossessed(APawn* PossessedPawn, bool bIsCommander)
-{
-	if (PossessedPawn == this)
-	{
-		SetActorTickEnabled(true);
-	}
-	else
-	{
-		SetActorTickEnabled(false);
 	}
 }

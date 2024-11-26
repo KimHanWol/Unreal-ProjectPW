@@ -20,6 +20,7 @@ class PROJECTPW_API UPWPlayerInputComponent: public UActorComponent
 protected:
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type Reason) override;
 
 public:
 

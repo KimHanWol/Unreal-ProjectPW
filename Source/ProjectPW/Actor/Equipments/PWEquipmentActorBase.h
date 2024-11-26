@@ -22,6 +22,7 @@ protected:
 	APWEquipmentActorBase(const FObjectInitializer& ObjectInitializer);
 
 	virtual void BeginPlay() override;
+	virtual void EndPlay(EEndPlayReason::Type Reason) override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
@@ -43,12 +44,6 @@ private:
 	
 	void CheckTargetOnCrosshair();
 	void OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander);
-
-protected:
-
-	//Weather RMB is pressed
-	UPROPERTY(Transient)
-	bool bIsSubExecuting = false;
 
 private:
 

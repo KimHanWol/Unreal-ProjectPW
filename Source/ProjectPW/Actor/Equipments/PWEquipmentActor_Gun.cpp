@@ -12,7 +12,6 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWAssetLoadManager.h"
-#include "Core/PWEventManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Helper/PWGameplayStatics.h"
 #include "Interface/PWAttackableInterface.h"

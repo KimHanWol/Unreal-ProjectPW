@@ -23,6 +23,17 @@ void UCharacterInGameHUD::NativeConstruct()
 	}
 }
 
+void UCharacterInGameHUD::NativeDestruct()
+{
+	Super::NativeDestruct();
+
+	UPWEventManager* EventManager = UPWEventManager::Get(this);
+	if (IsValid(EventManager) == true)
+	{
+		EventManager->HealthChangedDelegate.RemoveAll(this);
+	}
+}
+
 void UCharacterInGameHUD::InitializeHUDWidget(class APWPlayerCharacter* InHUDOwnerCharacter)
 {
 	HUDOwnerCharacter = InHUDOwnerCharacter;

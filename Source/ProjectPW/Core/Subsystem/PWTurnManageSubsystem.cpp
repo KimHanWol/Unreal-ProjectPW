@@ -50,7 +50,7 @@ void UPWTurnManageSubsystem::BindEvents()
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
-		PWEventManager->NextTurnDelegate.AddUObject(this, &UPWTurnManageSubsystem::NextTurn);
+		PWEventManager->RequestNextTurnDelegate.AddUObject(this, &UPWTurnManageSubsystem::NextTurn);
 	}
 
 	UploadSnapshotDataDelegate.AddUObject(this, &UPWTurnManageSubsystem::Snapshot);
@@ -61,7 +61,7 @@ void UPWTurnManageSubsystem::UnbindEvents()
     UPWEventManager* PWEventManager = UPWEventManager::Get(this);
     if (IsValid(PWEventManager) == true)
     {
-        PWEventManager->NextTurnDelegate.RemoveAll(this);
+        PWEventManager->RequestNextTurnDelegate.RemoveAll(this);
     }
 
 	UploadSnapshotDataDelegate.RemoveAll(this);

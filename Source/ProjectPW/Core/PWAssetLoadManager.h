@@ -86,10 +86,8 @@ public:
 
 private:
 
+	//GC 되지 않도록 캐시
 	UPROPERTY(Transient)
 	TMap<struct FSoftObjectPath, UObject*> LoadAssetMap;
-
-	UPROPERTY(Transient)
-	TArray<TSoftObjectPtr<UObject>> SoftObjectListBeforeGameInstanceInit;
 	
 };

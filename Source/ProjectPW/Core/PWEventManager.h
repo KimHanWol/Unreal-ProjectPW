@@ -24,33 +24,33 @@ public:
 
 public:
 
-	//Health
+	//Character
 	DECLARE_MULTICAST_DELEGATE_ThreeParams(FHealthChanged, AActor* TargetActor, float MaxHealth, float CurrentHealth);
 	FHealthChanged HealthChangedDelegate;
 
-	DECLARE_MULTICAST_DELEGATE(FNextTurn);
-	FNextTurn NextTurnDelegate;
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FCharacterAliveStateChanged, class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
+	FCharacterAliveStateChanged CharacterAliveStateChangedDelegate;
 
-	//Game
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMoved, float CurrentTurnActivePoint);
 	FCharacterMoved TeamCharacterMovedDelegate;
 
+	//Player
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSelected, int32 CharacterNum);
 	FCharacterSelected CharacterSelectedDelegate;
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FPlayerPossessed, APawn* PossessedPawn, bool bIsCommander);
 	FPlayerPossessed PlayerPossessedDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_TwoParams(FCharacterAliveStateChanged, class APWPlayerCharacter* TargetCharacter, bool bIsAlive);
-	FCharacterAliveStateChanged CharacterAliveStateChangedDelegate;
-
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTargetIsOnCrosshair, class APWPlayerCharacter* AimingCharacter, bool bIsOnCrosshair);
 	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;
+
+	//Turn
+	DECLARE_MULTICAST_DELEGATE(FRequestNextTurn);
+	FRequestNextTurn RequestNextTurnDelegate;
 
 	DECLARE_MULTICAST_DELEGATE(FTurnChanged);
 	FTurnChanged TurnChangedDelegate;
 
-	//System
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FGameOver, class APWPlayerController* PlayerController, bool bWon);
 	FGameOver GameOverDelegate;
 };

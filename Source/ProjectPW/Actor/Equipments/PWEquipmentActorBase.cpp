@@ -30,6 +30,17 @@ void APWEquipmentActorBase::BeginPlay()
 	}
 }
 
+void APWEquipmentActorBase::EndPlay(EEndPlayReason::Type Reason)
+{
+	Super::EndPlay(Reason);
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->PlayerPossessedDelegate.RemoveAll(this);
+	}
+}
+
 void APWEquipmentActorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);

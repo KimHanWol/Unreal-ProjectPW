@@ -37,16 +37,13 @@ public:
 	//Getter
 	APawn* GetCommanderPawn();
 	class APWPlayerCharacter* GetTeamCharacter(int32 CharacterNum) const;
-	TArray<class APWPlayerCharacter*> GetAliveTeamCharacterList() const;
 	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
 	int32 GetAliveTeamCharacterNum() const;
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
-
 	bool IsMyTurn() const { return bIsMyTurn; }
 	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
 	float GetCurrentTurnActivePoint() const { return CurrentTurnActivePoint; }
-
 
 	void OnCharacterMoved(float Distance);
 

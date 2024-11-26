@@ -22,6 +22,7 @@ class PROJECTPW_API UCharacterInGameHUD : public UPWUserWidget
 protected:
 
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 public:
 
