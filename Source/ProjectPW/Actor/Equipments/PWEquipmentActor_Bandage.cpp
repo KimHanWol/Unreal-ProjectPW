@@ -39,7 +39,7 @@ void APWEquipmentActor_Bandage::Execute_Main_Triggered()
 	//Hit Test
 	FHitResult HitResult;
 	FRotator ViewPointRotation;
-	bool bHitSuccess = EquipmentActorHitTest(HitResult, ViewPointRotation);
+	bool bHitSuccess = EquipmentActorHitTest(MaxRange, ECollisionChannel::ECC_EngineTraceChannel1, HitResult, ViewPointRotation);
 
 	//Hit Success
 	if (bHitSuccess == true)

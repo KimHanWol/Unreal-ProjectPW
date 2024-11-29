@@ -25,4 +25,5 @@ enum class ECharacterType : uint8
 	None,
 	Soldier,
 	Doctor,
+	Carpenter,
 };

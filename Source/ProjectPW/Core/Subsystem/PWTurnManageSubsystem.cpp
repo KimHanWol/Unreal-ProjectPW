@@ -133,7 +133,7 @@ void UPWTurnManageSubsystem::ApplyTurnEvent()
 		return;
 	}
 
-	float SpawnVolumeChance;
+	float SpawnVolumeChance = 0.f;
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == true)
 	{

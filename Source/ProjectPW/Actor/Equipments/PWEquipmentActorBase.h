@@ -11,6 +11,7 @@
 //Default
 #include "PWEquipmentActorBase.generated.h"
 
+enum ECollisionChannel : int;
 
 UCLASS()
 class PROJECTPW_API APWEquipmentActorBase: public AActor
@@ -37,7 +38,7 @@ public:
 
 protected:
 
-	virtual bool EquipmentActorHitTest(FHitResult& OutHitResult, FRotator& OutViewPointRotation);
+	virtual bool EquipmentActorHitTest(float InMaxRange, ECollisionChannel TargetChannel,  FHitResult& OutHitResult, FRotator& OutViewPointRotation);
 	virtual bool IsInteractableActor(AActor* TargetActor) { return true; }
 
 private:
@@ -45,13 +46,15 @@ private:
 	void CheckTargetOnCrosshair();
 	void OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander);
 
+protected:
+
+	UPROPERTY(EditAnywhere)
+	float MaxRange = 1000.f;
+
 private:
 
 	UPROPERTY(EditAnywhere)
 	class UMeshComponent* MeshComponent;
-
-	UPROPERTY(EditAnywhere)
-	float MaxRange = 1000.f;
 
 	//타겟을 겨냥하고 있는가?
 	UPROPERTY(Transient)

@@ -18,6 +18,8 @@ enum class EAnimMontageType : uint8
 	Death,
 	Bandage,
 	ADS,
+	HammerSmash,
+	Build,
 };
 
 UCLASS()

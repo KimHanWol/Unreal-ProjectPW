@@ -17,6 +17,8 @@ APWEquipmentActorBase::APWEquipmentActorBase(const FObjectInitializer& ObjectIni
 
 	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh Component"));
 	MeshComponent->SetupAttachment(GetRootComponent());
+
+	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APWEquipmentActorBase::BeginPlay()
@@ -48,7 +50,7 @@ void APWEquipmentActorBase::Tick(float DeltaTime)
 	CheckTargetOnCrosshair();
 }
 
-bool APWEquipmentActorBase::EquipmentActorHitTest(FHitResult& OutHitResult, FRotator& OutViewPointRotation)
+bool APWEquipmentActorBase::EquipmentActorHitTest(float InMaxRange, ECollisionChannel TargetChannel, FHitResult& OutHitResult, FRotator& OutViewPointRotation)
 {
 	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
 	if (IsValid(OwnerCharacter) == false)
@@ -66,7 +68,7 @@ bool APWEquipmentActorBase::EquipmentActorHitTest(FHitResult& OutHitResult, FRot
 	FVector ViewPointLocation;
 	OwnerController->GetPlayerViewPoint(ViewPointLocation, OutViewPointRotation);
 
-	const FVector& EndLocation = ViewPointLocation + OutViewPointRotation.Vector() * MaxRange;
+	const FVector& EndLocation = ViewPointLocation + OutViewPointRotation.Vector() * InMaxRange;
 
 	if (IsValid(GetWorld()) == true)
 	{
@@ -74,7 +76,7 @@ bool APWEquipmentActorBase::EquipmentActorHitTest(FHitResult& OutHitResult, FRot
 		Params.AddIgnoredActor(this);
 		Params.AddIgnoredActor(GetOwner());
 
-		bHitSuccess = GetWorld()->LineTraceSingleByChannel(OutHitResult, ViewPointLocation, EndLocation, ECollisionChannel::ECC_GameTraceChannel1, Params);
+		bHitSuccess = GetWorld()->LineTraceSingleByChannel(OutHitResult, ViewPointLocation, EndLocation, TargetChannel, Params);
 	}
 
 	return bHitSuccess;
@@ -84,7 +86,7 @@ void APWEquipmentActorBase::CheckTargetOnCrosshair()
 {
 	FHitResult HitResult;
 	FRotator ViewPointRotation;
-	bool bHitSuccess = EquipmentActorHitTest(HitResult, ViewPointRotation);
+	bool bHitSuccess = EquipmentActorHitTest(MaxRange, ECollisionChannel::ECC_GameTraceChannel1, HitResult, ViewPointRotation);
 	bool bHitOnDemageableActor = bHitSuccess && IsInteractableActor(HitResult.GetActor());
 
 	if (bHitOnDemageableActor != bIsTargetOn)
