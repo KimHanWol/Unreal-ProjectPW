@@ -60,6 +60,10 @@ public:
 	UPROPERTY(Transient)
 	TArray<FSnapshotVolumeActorData> VolumeActorDataList;
 
+	//Locator, bIsOccupied
+	UPROPERTY(Transient)
+	TMap<class APWVolumeActorLocator*, bool> VolumeActorDataMap;
+
 	UPROPERTY(Transient)
 	float TurnActivePoint;
 
@@ -93,7 +97,11 @@ private:
 	void NextTurn();
 	void ValidateTurnData();
 
+	void ApplyTurnEvent();
+
 	void Snapshot(APawn* PossessedPawn, float CurrentTurnActivePoint);
+
+	class APWVolumeActorLocator* FindGroundForSpawnVolumeActor();
 
 public:
 
@@ -104,5 +112,8 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<FSnapshotData> SnapshotList;
+
+	UPROPERTY(Transient)
+	TArray<class APWVolumeActorLocator*> VolumeActorLocatorList;
 };
 

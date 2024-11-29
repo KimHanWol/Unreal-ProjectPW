@@ -93,6 +93,8 @@ public:
 		return RowArray;
 	}
 
+	static TSubclassOf<class APWVolumeActorBase> GetVolumeActorRandom(const UObject* WorldContextObj);
+
 protected:
 
 	static UPWGameData* Instance;
@@ -102,4 +104,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EDataTableType, TSoftObjectPtr<class UDataTable>> DataTableMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TArray<TSubclassOf<class APWVolumeActorBase>> VolumeActorList;
 };

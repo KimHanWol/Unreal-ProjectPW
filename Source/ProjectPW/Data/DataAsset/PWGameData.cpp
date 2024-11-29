@@ -44,3 +44,16 @@ TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* World
 
 	return UPWGameData::Get(WorldContextObj)->GameplayEffectMap[GameplayEffectType];
 }
+
+TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject* WorldContextObj)
+{
+	int32 VolumeActorListNum = UPWGameData::Get(WorldContextObj)->VolumeActorList.Num();
+	if (VolumeActorListNum <= 0)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	int32 RandIndex = FMath::RandRange(0, VolumeActorListNum - 1);
+	return UPWGameData::Get(WorldContextObj)->VolumeActorList[RandIndex];
+}

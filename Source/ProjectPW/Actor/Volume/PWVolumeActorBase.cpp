@@ -12,6 +12,8 @@
 APWVolumeActorBase::APWVolumeActorBase(const FObjectInitializer& ObjInit)
 	: Super(ObjInit)
 {
+	bReplicates = true;
+
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	SetRootComponent(RootComponent);
 

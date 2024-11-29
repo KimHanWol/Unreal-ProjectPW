@@ -11,9 +11,12 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/Volume/PWVolumeActorBase.h"
+#include "Actor/Volume/PWVolumeActorLocator.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWGameInstance.h"
 #include "Core/PWGameState.h"
+#include "Data/DataAsset/PWGameData.h"
+#include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 
 UPWTurnManageSubsystem* UPWTurnManageSubsystem::Get(const UObject* WorldContextObj)
@@ -33,6 +36,17 @@ void UPWTurnManageSubsystem::StartGame(const TArray<APWPlayerController*>& GameP
 	if (IsValid(PWGameState) == true)
 	{
 		PWGameState->OnStartGame(GamePlayerControllerList.Num());
+	}
+
+	TArray<AActor*> VolumeActorLocatorForActorList;
+	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorBase::StaticClass(), VolumeActorLocatorForActorList);
+	for (AActor* VolumeActorLocatorForActor : VolumeActorLocatorForActorList)
+	{
+		APWVolumeActorLocator* PWVolumeActorLocator = Cast<APWVolumeActorLocator>(VolumeActorLocatorForActor);
+		if (IsValid(PWVolumeActorLocator) == true)
+		{
+			VolumeActorLocatorList.Add(PWVolumeActorLocator);
+		}
 	}
 
 	ValidateTurnData();
@@ -72,6 +86,8 @@ void UPWTurnManageSubsystem::NextTurn()
 {
 	SnapshotList.Empty();
 
+	ApplyTurnEvent();
+
 	APWGameState* PWGameState = Cast<APWGameState>(UPWGameplayStatics::GetGameState(this));
     if (IsValid(PWGameState) == true)
     {
@@ -99,6 +115,37 @@ void UPWTurnManageSubsystem::ValidateTurnData()
 			bool bMyTurn = i == PWGameState->GetCurrentPlayerTurn(); //0번 부터 시작
 			PlayerController->SC_TurnChanged(bMyTurn);  
 		}
+	}
+}
+
+void UPWTurnManageSubsystem::ApplyTurnEvent()
+{
+	APWVolumeActorLocator* CandidateVolumeActorLocator = FindGroundForSpawnVolumeActor();
+	if (IsValid(CandidateVolumeActorLocator) == false)
+	{
+		return;
+	}
+
+	TSubclassOf<APWVolumeActorBase> TargetVolumeActorClass = UPWGameData::GetVolumeActorRandom(this);
+	if (IsValid(TargetVolumeActorClass) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	float SpawnVolumeChance;
+	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+	if (IsValid(PWGameSetting) == true)
+	{
+		SpawnVolumeChance = PWGameSetting->TurnEvent_SpawnVolumeChance;
+	}
+
+	float ChangeFloat = FMath::RandRange(0.f, 1.f);
+	if (ChangeFloat < SpawnVolumeChance)
+	{
+		APWVolumeActorBase* SpawnedVolumeActor = GetWorld()->SpawnActor<APWVolumeActorBase>(TargetVolumeActorClass);
+		SpawnedVolumeActor->SetActorLocation(CandidateVolumeActorLocator->GetActorLocation());
+		CandidateVolumeActorLocator->SetIsOccupied(true);
 	}
 }
 
@@ -132,21 +179,34 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 	}
 
 	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR DATA\n");
-	TArray<AActor*> VolumeActorForActorList;
-	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorBase::StaticClass(), VolumeActorForActorList);
-	for (AActor* VolumeActorForActor : VolumeActorForActorList)
+	TArray<AActor*> PWVolumeActorForActorList;
+	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorBase::StaticClass(), PWVolumeActorForActorList);
+	for (AActor* PWVolumeActorForActor : PWVolumeActorForActorList)
 	{
-		FSnapshotVolumeActorData SnapshotVolumeActorData;
-		APWVolumeActorBase* PWVolumeActor = Cast<APWVolumeActorBase>(VolumeActorForActor);
+		APWVolumeActorBase* PWVolumeActor = Cast<APWVolumeActorBase>(PWVolumeActorForActor);
 		if (IsValid(PWVolumeActor) == true)
 		{
+			FSnapshotVolumeActorData SnapshotVolumeActorData;
 			SnapshotVolumeActorData.TargetVolumeClass = PWVolumeActor->GetClass();
 			LogString += TEXT("Name : ") + SnapshotVolumeActorData.TargetVolumeClass->GetName() + TEXT("\n");
 
 			SnapshotVolumeActorData.VolumeActorTransform = PWVolumeActor->GetActorTransform();
 			LogString += TEXT("Transform : ") + SnapshotVolumeActorData.VolumeActorTransform.ToString() + TEXT("\n");
+			SnapshotData.VolumeActorDataList.Add(SnapshotVolumeActorData);
 		}
-		SnapshotData.VolumeActorDataList.Add(SnapshotVolumeActorData);
+	}
+
+	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR LOCATOR DATA\n");
+	for (APWVolumeActorLocator* PWVolumeActorLocator : VolumeActorLocatorList)
+	{
+		if (IsValid(PWVolumeActorLocator) == true)
+		{
+			SnapshotData.VolumeActorDataMap.Add(TTuple<APWVolumeActorLocator*, bool>(PWVolumeActorLocator, PWVolumeActorLocator->IsOccupied()));
+			LogString += TEXT("Name : ") + PWVolumeActorLocator->GetName() + TEXT("\n");
+
+			FString OccupiedString = PWVolumeActorLocator->IsOccupied() == true ? TEXT("true") : TEXT("false");
+			LogString += TEXT("Occupied : ") + OccupiedString + TEXT("\n");
+		}
 	}
 
 	LogString += TEXT("\nSNAPSHOT STATE DATA\n");
@@ -162,6 +222,33 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 	UE_LOG(LogTemp, Verbose, TEXT("%s"), *LogString);
 
 	SnapshotList.Push(SnapshotData);
+}
+
+APWVolumeActorLocator* UPWTurnManageSubsystem::FindGroundForSpawnVolumeActor()
+{
+	TArray<AActor*> VolumeActorLocatorActorList;
+	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorLocator::StaticClass(), VolumeActorLocatorActorList);
+
+	TArray<APWVolumeActorLocator*> CandidateLocatorList;
+	for (AActor* VolumeActorLocatorActor : VolumeActorLocatorActorList)
+	{
+		APWVolumeActorLocator* PWVolumeActorLocator = Cast<APWVolumeActorLocator>(VolumeActorLocatorActor);
+		if (IsValid(PWVolumeActorLocator) == true)
+		{
+			if (PWVolumeActorLocator->IsOccupied() == false)
+			{
+				CandidateLocatorList.Add(PWVolumeActorLocator);
+			}
+		}
+	}
+
+	if (CandidateLocatorList.Num() <= 0)
+	{
+		return nullptr;
+	}
+
+	int32 CandidateLocatorIndex = FMath::RandRange(0, CandidateLocatorList.Num() - 1);
+	return CandidateLocatorList[CandidateLocatorIndex];
 }
 
 void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerControllerInTurn)
@@ -225,6 +312,21 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 			SpawnedVolumeActor->SetActorTransform(SnapshotVolumeActorData.VolumeActorTransform);
 			LogString += TEXT("Name : ") + SnapshotVolumeActorData.TargetVolumeClass->GetName() + TEXT("\n");
 			LogString += TEXT("Transform : ") + SnapshotVolumeActorData.VolumeActorTransform.ToString() + TEXT("\n");
+		}
+	}
+
+	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR DATA\n");
+	for (APWVolumeActorLocator* PWVolumeActor : VolumeActorLocatorList)
+	{
+		if (IsValid(PWVolumeActor) == false)
+		{
+			ensure(false);
+			return;
+		}
+
+		if (SnapshotData.VolumeActorDataMap.Contains(PWVolumeActor) == true)
+		{
+			PWVolumeActor->SetIsOccupied(SnapshotData.VolumeActorDataMap[PWVolumeActor]);
 		}
 	}
 
