@@ -34,6 +34,20 @@ public:
 };
 
 USTRUCT()
+struct FSnapshotVolumeActorData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(Transient)
+	TSubclassOf<class APWVolumeActorBase> TargetVolumeClass;
+
+	UPROPERTY(Transient)
+	FTransform VolumeActorTransform;
+};
+
+USTRUCT()
 struct FSnapshotData
 {
 	GENERATED_USTRUCT_BODY()
@@ -42,6 +56,9 @@ public:
 
 	UPROPERTY(Transient)
 	TArray<FSnapshotCharacterData> CharacterDataList;
+
+	UPROPERTY(Transient)
+	TArray<FSnapshotVolumeActorData> VolumeActorDataList;
 
 	UPROPERTY(Transient)
 	float TurnActivePoint;

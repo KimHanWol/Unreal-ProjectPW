@@ -109,6 +109,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 
 	LogString += TEXT("\nSNAPSHOT CHARACTER DATA\n");
 	FSnapshotData SnapshotData;
+
 	const TArray<APWPlayerCharacter*>& PlayerCharacterList =  UPWGameplayStatics::GetAllPlayerCharacter(this);
 	for (APWPlayerCharacter* PlayerCharacter : PlayerCharacterList)
 	{
@@ -132,6 +133,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 	}
 
 	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR DATA\n");
+
 	TArray<AActor*> VolumeActorForActorList;
 	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorBase::StaticClass(), VolumeActorForActorList);
 	for (AActor* VolumeActorForActor : VolumeActorForActorList)
@@ -150,6 +152,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 	}
 
 	LogString += TEXT("\nSNAPSHOT STATE DATA\n");
+
 	SnapshotData.TurnActivePoint = CurrentTurnActivePoint;
 	LogString += TEXT("TurnActivePoint : ") + FString::FromInt(SnapshotData.TurnActivePoint) + TEXT("\n");
 	APWPlayerCharacter* PossassedCharacter = Cast<APWPlayerCharacter>(PossessedPawn);
@@ -178,7 +181,8 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 	LogString += TEXT("======================================APPLY SNAPSHOT======================================\n");
 
 	LogString += TEXT("\nAPPLY CHARACTER DATA\n");
-	for (const FSnapshotCharacterData& SnapshotCharacterData : SnapshotData.CharacterDataList)
+
+		for (const FSnapshotCharacterData& SnapshotCharacterData : SnapshotData.CharacterDataList)
 	{
 		APWPlayerCharacter* TargetCharacter = SnapshotCharacterData.TargetPlayerCharacter;
 		if (IsValid(TargetCharacter) == true)
@@ -203,6 +207,7 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 	}
 
 	LogString += TEXT("\nAPPLY VOLUME ACTOR DATA\n");
+
 	TArray<AActor*> VolumeActorForActorList;
 	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorBase::StaticClass(), VolumeActorForActorList);
 	for (AActor* VolumeActorForActor : VolumeActorForActorList)
