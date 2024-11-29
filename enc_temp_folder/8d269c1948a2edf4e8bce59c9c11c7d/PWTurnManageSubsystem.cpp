@@ -294,12 +294,6 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 	UPWGameplayStatics::GetAllActorsOfClass(this, APWVolumeActorBase::StaticClass(), VolumeActorForActorList);
 	for (AActor* VolumeActorForActor : VolumeActorForActorList)
 	{
-		//로케이터는 지우지 않음
-		if (IsValid(Cast<APWVolumeActorLocator>(VolumeActorForActor)) == true)
-		{
-			continue;
-		}
-
 		VolumeActorForActor->Destroy();
 	}
 	VolumeActorForActorList.Empty();
