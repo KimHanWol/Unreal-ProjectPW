@@ -48,7 +48,14 @@ APawn* APWPlayerState::GetCommanderPawn()
 
 void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint)
 {
-	CurrentTurnActivePoint = InCurrentTurnActivePoint;
+	float MaxTurnActivePoint = 0.f;
+	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+	if (ensure(IsValid(PWGameSetting) == true))
+	{
+		MaxTurnActivePoint = PWGameSetting->TurnActivePoint;
+	}
+
+	CurrentTurnActivePoint = FMath::Clamp(InCurrentTurnActivePoint, 0.f, MaxTurnActivePoint);
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
