@@ -201,7 +201,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 	{
 		if (IsValid(PWVolumeActorLocator) == true)
 		{
-			SnapshotData.VolumeActorDataMap.Add(TTuple<APWVolumeActorLocator*, bool>(PWVolumeActorLocator, PWVolumeActorLocator->IsOccupied()));
+			SnapshotData.VolumeActorLocatorDataMap.Add(TTuple<APWVolumeActorLocator*, bool>(PWVolumeActorLocator, PWVolumeActorLocator->IsOccupied()));
 			LogString += TEXT("Name : ") + PWVolumeActorLocator->GetName() + TEXT("\n");
 
 			FString OccupiedString = PWVolumeActorLocator->IsOccupied() == true ? TEXT("true") : TEXT("false");
@@ -235,7 +235,7 @@ APWVolumeActorLocator* UPWTurnManageSubsystem::FindGroundForSpawnVolumeActor()
 		APWVolumeActorLocator* PWVolumeActorLocator = Cast<APWVolumeActorLocator>(VolumeActorLocatorActor);
 		if (IsValid(PWVolumeActorLocator) == true)
 		{
-			if (PWVolumeActorLocator->IsOccupied() == false)
+			if (PWVolumeActorLocator->IsSpawnable() == true)
 			{
 				CandidateLocatorList.Add(PWVolumeActorLocator);
 			}
@@ -315,7 +315,7 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 		}
 	}
 
-	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR DATA\n");
+	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR LOCATOR DATA\n");
 	for (APWVolumeActorLocator* PWVolumeActor : VolumeActorLocatorList)
 	{
 		if (IsValid(PWVolumeActor) == false)
@@ -324,9 +324,13 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 			return;
 		}
 
-		if (SnapshotData.VolumeActorDataMap.Contains(PWVolumeActor) == true)
+		if (SnapshotData.VolumeActorLocatorDataMap.Contains(PWVolumeActor) == true)
 		{
-			PWVolumeActor->SetIsOccupied(SnapshotData.VolumeActorDataMap[PWVolumeActor]);
+			PWVolumeActor->SetIsOccupied(SnapshotData.VolumeActorLocatorDataMap[PWVolumeActor]);
+			LogString += TEXT("Name : ") + PWVolumeActor->GetName() + TEXT("\n");
+
+			FString OccupiedString = SnapshotData.VolumeActorLocatorDataMap[PWVolumeActor] == true ? TEXT("true") : TEXT("false");
+			LogString += TEXT("Occupied : ") + OccupiedString + TEXT("\n");
 		}
 	}
 

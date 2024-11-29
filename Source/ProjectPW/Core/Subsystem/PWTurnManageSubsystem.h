@@ -60,9 +60,9 @@ public:
 	UPROPERTY(Transient)
 	TArray<FSnapshotVolumeActorData> VolumeActorDataList;
 
-	//Locator, bIsOccupied
+	//Locator, bIsSpawnable
 	UPROPERTY(Transient)
-	TMap<class APWVolumeActorLocator*, bool> VolumeActorDataMap;
+	TMap<class APWVolumeActorLocator*, bool> VolumeActorLocatorDataMap;
 
 	UPROPERTY(Transient)
 	float TurnActivePoint;

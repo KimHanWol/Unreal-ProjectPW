@@ -6,20 +6,22 @@
 #include "CoreMinimal.h"
 
 //Game
-#include "GameFramework/Actor.h"
+#include "Actor/Volume/PWVolumeActorBase.h"
 
 //Default
 #include "PWVolumeActorLocator.generated.h"
 
 UCLASS(Blueprintable)
-class PROJECTPW_API APWVolumeActorLocator : public AActor
+class PROJECTPW_API APWVolumeActorLocator : public APWVolumeActorBase
 {
 	GENERATED_BODY()
-	
+
 public:
 
-	bool IsOccupied() const { return bIsOccupied; }
+	bool IsSpawnable();
+
 	void SetIsOccupied(bool bInOccupied);
+	bool IsOccupied() const { return bIsOccupied; }
 
 private:
 

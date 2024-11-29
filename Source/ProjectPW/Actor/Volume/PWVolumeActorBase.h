@@ -26,20 +26,20 @@ protected:
 
 	virtual void Execute_Internal(AActor* OverlappedActor) {};
 
+	UFUNCTION()
+	virtual void OnVolumeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 public:
 
 	//이번 라운드 마무리 시 실행
 	void ExecuteByRound();
 
-private:
-
-	UFUNCTION()
-	void OnVolumeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-private:
+protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UStaticMeshComponent* BoundMeshComponent;
+
+private:
 
 	UPROPERTY(EditDefaultsOnly)
 	FVector DefaultActorScale = FVector(5.f);
