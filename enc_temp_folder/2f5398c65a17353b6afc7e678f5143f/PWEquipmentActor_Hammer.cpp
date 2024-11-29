@@ -92,7 +92,7 @@ void APWEquipmentActor_Hammer::Execute_Main_Triggered()
 {
 	FHitResult HitResult;
 	FRotator ViewPointRotation;
-	bool bHitSuccess = EquipmentActorHitTest(MaxRange, ECollisionChannel::ECC_EngineTraceChannel1, HitResult, ViewPointRotation);
+	bool bHitSuccess = EquipmentActorHitTest(MaxRange, ECollisionChannel::ECC_GameTraceChannel1, HitResult, ViewPointRotation);
 	if (bHitSuccess == true)
 	{
 		APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
@@ -160,5 +160,6 @@ void APWEquipmentActor_Hammer::Execute_Sub_Completed()
 		AActor* BuildObject = GetWorld()->SpawnActor<AActor>(BuildObjectClass);
 		BuildObject->SetActorLocation(HitResult.Location);
 		BuildObject->SetActorEnableCollision(true);
+		BuildObject->SetReplicates(true);
 	}
 }

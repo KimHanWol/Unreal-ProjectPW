@@ -191,18 +191,6 @@ void APWPlayerController::SM_PossessBySnapshot_Implementation(APawn* Possessable
 	}
 }
 
-void APWPlayerController::CS_SpawnActor_Implementation(const TSubclassOf<AActor>& SpawnActorClass, const FVector& Location)
-{
-	if (IsValid(GetWorld()) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, FTransform(Location));
-	SpawnedActor->SetReplicates(true);
-}
-
 void APWPlayerController::OnCharacterSelected(int32 SelectNum)
 {
 	LP_SelectCharacter(SelectNum, false);

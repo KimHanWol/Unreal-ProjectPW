@@ -8,6 +8,7 @@
 //Game
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Attackable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
+#include "Actor/Character/PWPlayerController.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 
@@ -140,6 +141,13 @@ void APWEquipmentActor_Hammer::Execute_Sub_Completed()
 		return;
 	}
 
+	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(PWPlayerCharacter->GetController());
+	if(IsValid(PWPlayerController) == false)
+	{
+		ensure(false);
+		return;
+	}
+
 	bBuildPreviewMode = false;
 
 	if (IsValid(BuildPreviewObject) == true)
@@ -156,9 +164,6 @@ void APWEquipmentActor_Hammer::Execute_Sub_Completed()
 	if (bHitSuccess == true)
 	{
 		PWPlayerCharacter->PlayMontage(UPWAssetLoadManager::GetLoadedAsset<UAnimMontage>(this, Montage_Build));
-
-		AActor* BuildObject = GetWorld()->SpawnActor<AActor>(BuildObjectClass);
-		BuildObject->SetActorLocation(HitResult.Location);
-		BuildObject->SetActorEnableCollision(true);
+		PWPlayerController->CS_SpawnActor(BuildObjectClass, HitResult.Location);
 	}
 }

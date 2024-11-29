@@ -59,10 +59,6 @@ public:
 	void SM_PossessBySnapshot(APawn* PossessablePawn);
 	void SM_PossessBySnapshot_Implementation(APawn* PossessablePawn);
 
-	UFUNCTION(Server, Reliable)
-	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
-	void CS_SpawnActor_Implementation(const TSubclassOf<AActor>& SpawnActorClass, const FVector& Location);
-
 	void OnCharacterSelected(int32 SelectNum);
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);
 	void LP_OnPossess(APawn* PossessedPawn);
