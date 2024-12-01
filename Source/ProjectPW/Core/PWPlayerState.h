@@ -26,13 +26,14 @@ protected:
 public:
 
 	void SS_InitializePlayerState(ETeamSide InTeamSide);
+	void SS_AddCharacter(class APWPlayerCharacter* NewCharacter);
+
 	void SS_LoadCharacters();
 
 	//Setter
 	void SetCommanderPawn(APawn* InCommanderPawn);
 	void SetIsMyTurn(bool bInIsMyTurn);
 	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint);
-
 
 	//Getter
 	APawn* GetCommanderPawn();

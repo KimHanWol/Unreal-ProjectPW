@@ -32,6 +32,10 @@ public:
 
 	ETeamSide GetTeamSide() const;
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_StartSpawnCharacter();
+	void SM_StartSpawnCharacter_Implementation();
+
 	//Turn changed
 	UFUNCTION(Client, Reliable)
 	void SC_TurnChanged(bool bMyTurn);
@@ -69,13 +73,18 @@ public:
 
 private:
 
+	void SS_OnPlayerCharacterSpawned(AActor* SpawnedActor);
+	void SS_OnPlayerCharacterAllSpawned(const TArray<class APWPlayerCharacter*>& TeamCharacterList);
+
 	UFUNCTION(Server, Reliable)
 	void CS_Possess(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot);
 	void CS_Possess_Implementation(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot);
 
-	void LP_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter);
+	void LP_ChangeInGameInputEnabled(bool bEnableCommander, bool bEnableCharacter);
 
 	void UpdateTurnData();
+
+	void TryEnableCharacterSpawn();
 
 public:
 
@@ -91,9 +100,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UPWPlayerInputComponent* PlayerInputComponent;
 
+	//Only for server 
+	UPROPERTY(transient)
+	bool bIsCharacterSpawning = false;
+
 	UPROPERTY(transient)
 	bool bIsMyTurn = false;
 
 	UPROPERTY(transient)
 	bool bTurnDataDirty = false;
+
+	FTimerHandle CharacterSpawnTimerHandle;
 };

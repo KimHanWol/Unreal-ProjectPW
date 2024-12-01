@@ -9,13 +9,12 @@
 #include "Core/InputHandler/InputHandlerBase.h"
 
 //Default
-#include "CommanderInputHandler.generated.h"
+#include "SpawnCharacterInputHandler.generated.h"
 
-/**
- * 
- */
+enum class ECharacterType : uint8;
+
 UCLASS()
-class PROJECTPW_API UCommanderInputHandler : public UInputHandlerBase
+class PROJECTPW_API USpawnCharacterInputHandler : public UInputHandlerBase
 {
 	GENERATED_BODY()
 
@@ -28,26 +27,26 @@ private:
 	void Select_1(const struct FInputActionValue& Value);
 	void Select_2(const struct FInputActionValue& Value);
 	void Select_3(const struct FInputActionValue& Value);
-	void Select_4(const struct FInputActionValue& Value);
-	void Select_5(const struct FInputActionValue& Value);
+
+	void TrySpawn(const struct FInputActionValue& Value);
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
-	class UInputAction* SelectAction_1;
+	class UInputAction* SpawnAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
-	class UInputAction* SelectAction_2;
+	class UInputAction* SelectCharacter_1;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
-	class UInputAction* SelectAction_3;
+	class UInputAction* SelectCharacter_2;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
-	class UInputAction* SelectAction_4;
+	class UInputAction* SelectCharacter_3;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Inputs")
-	class UInputAction* SelectAction_5;
+private:
 
 	UPROPERTY(Transient)
-	class APWPlayerController* PWPlayerController;
+	ECharacterType SelectedCharacterType;
+
 };

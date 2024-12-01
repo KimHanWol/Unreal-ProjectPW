@@ -40,11 +40,13 @@ void APWPlayerController::BeginPlay()
 				MasterWidget->AddToViewport();
 			}
 		}
-	}
 
-	if (IsValid(PlayerInputComponent) == true)
-	{
-		PlayerInputComponent->InitMappingContext();
+		if (IsValid(PlayerInputComponent) == true)
+		{
+			PlayerInputComponent->InitMappingContext();
+		}
+
+		TryEnableCharacterSpawn();
 	}
 
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
@@ -90,6 +92,7 @@ void APWPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
+	TryEnableCharacterSpawn();
 	UpdateTurnData();
 }
 
@@ -105,6 +108,46 @@ ETeamSide APWPlayerController::GetTeamSide() const
 	return TeamSide;
 }
 
+void APWPlayerController::SM_StartSpawnCharacter_Implementation()
+{
+	if (HasAuthority() == true)
+	{
+		bIsCharacterSpawning = true;
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::SS_OnPlayerCharacterAllSpawned);
+		}
+	}
+}
+
+void APWPlayerController::SS_OnPlayerCharacterSpawned(AActor* SpawnedActor)
+{
+	APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(SpawnedActor);
+	if (IsValid(PWPlayerCharacter) == false)
+	{
+		return;
+	}
+
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	PWPlayerState->SS_AddCharacter(PWPlayerCharacter);
+}
+
+void APWPlayerController::SS_OnPlayerCharacterAllSpawned(const TArray<APWPlayerCharacter*>& TeamCharacterList)
+{
+	bIsCharacterSpawning = false;
+	if (IsValid(PlayerInputComponent) == true)
+	{
+		PlayerInputComponent->SetSpawnCharacterInputEnabled(false);
+	}
+}
+
 void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
 {
 	LP_SelectCharacter(0, true);
@@ -115,7 +158,7 @@ void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
 
 	if (bMyTurn == false)
 	{
-		LP_ChangeInputEnabled(false, false);
+		LP_ChangeInGameInputEnabled(false, false);
 	}
 }
 
@@ -201,6 +244,11 @@ void APWPlayerController::CS_SpawnActor_Implementation(const TSubclassOf<AActor>
 
 	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, FTransform(Location));
 	SpawnedActor->SetReplicates(true);
+
+	if (bIsCharacterSpawning == true)
+	{
+		SS_OnPlayerCharacterSpawned(SpawnedActor);
+	}
 }
 
 void APWPlayerController::OnCharacterSelected(int32 SelectNum)
@@ -252,11 +300,11 @@ void APWPlayerController::LP_OnPossess(APawn* PossessedPawn)
 	bool bIsCommander = PWPlayerState->GetCommanderPawn() == PossessedPawn;
 	if (bIsCommander == true)
 	{
-		LP_ChangeInputEnabled(true, false);
+		LP_ChangeInGameInputEnabled(true, false);
 	}
 	else
 	{
-		LP_ChangeInputEnabled(false, true);
+		LP_ChangeInGameInputEnabled(false, true);
 	}
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
@@ -266,11 +314,11 @@ void APWPlayerController::LP_OnPossess(APawn* PossessedPawn)
 	}
 }
 
-void APWPlayerController::LP_ChangeInputEnabled(bool bEnableCommander, bool bEnableCharacter)
+void APWPlayerController::LP_ChangeInGameInputEnabled(bool bEnableCommander, bool bEnableCharacter)
 {
 	if (IsValid(PlayerInputComponent) == true)
 	{
-		PlayerInputComponent->SetInputEnabled(bEnableCommander, bEnableCharacter);
+		PlayerInputComponent->SetInGameInputEnabled(bEnableCommander, bEnableCharacter);
 	}
 }
 
@@ -292,5 +340,23 @@ void APWPlayerController::UpdateTurnData()
 	if (IsValid(PWEventManager) == true)
 	{
 	    PWEventManager->TurnChangedDelegate.Broadcast();
+	}
+}
+
+void APWPlayerController::TryEnableCharacterSpawn()
+{
+	if (IsLocalPlayerController() == false)
+	{
+		return;
+	}
+
+	//캐릭터 스폰
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == true && PWPlayerState->GetAliveTeamCharacterNum() < 5)
+	{
+		if (IsValid(PlayerInputComponent) == true)
+		{
+			PlayerInputComponent->SetSpawnCharacterInputEnabled(true);
+		}
 	}
 }

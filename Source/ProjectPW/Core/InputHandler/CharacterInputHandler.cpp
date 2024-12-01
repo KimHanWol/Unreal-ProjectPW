@@ -13,13 +13,13 @@
 #include "Core/PWEventManager.h"
 #include "Helper/PWGameplayStatics.h"
 
-void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController, UInputComponent* InputComponent)
+void UCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController)
 {
-	Super::SetupKeyBindings(InPWPlayerController, InputComponent);
+	Super::SetupKeyBindings(InPWPlayerController);
 
 	PWPlayerController = InPWPlayerController;
 
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PWPlayerController->InputComponent);
 	if (IsValid(EnhancedInputComponent) == false)
 	{
 		return;

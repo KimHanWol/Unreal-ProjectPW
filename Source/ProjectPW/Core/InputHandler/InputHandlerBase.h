@@ -17,7 +17,7 @@ class PROJECTPW_API UInputHandlerBase : public UObject
 
 public:
 
-	virtual void SetupKeyBindings(class APWPlayerController* PWPlayerController, class UInputComponent* InputComponent) {};
+	virtual void SetupKeyBindings(class APWPlayerController* PWPlayerController) {};
 	
 	void SetInputEnabled(bool bInInputEnabled);
 	bool IsInputEnabled() const { return bInputEnabled; }

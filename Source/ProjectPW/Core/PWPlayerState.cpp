@@ -33,7 +33,13 @@ void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void APWPlayerState::SS_InitializePlayerState(ETeamSide InTeamSide)
 {
 	TeamSide = InTeamSide;
-	SS_LoadCharacters();
+	//SS_LoadCharacters();
+}
+
+void APWPlayerState::SS_AddCharacter(APWPlayerCharacter* NewCharacter)
+{
+	TeamCharacterList.Add(NewCharacter);
+	OnRep_TeamCharacterList();
 }
 
 void APWPlayerState::SetCommanderPawn(APawn* InCommanderPawn)
@@ -61,7 +67,6 @@ void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint)
 	{
 		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
 	}
-
 }
 
 void APWPlayerState::SS_LoadCharacters()
@@ -162,5 +167,12 @@ void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
 
 void APWPlayerState::OnRep_TeamCharacterList()
 {
-	bIsTeamCharacterInitialized = true;
+	if (TeamCharacterList.Num() >= 5)
+	{
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->TeamCharacterAllSpawnedDelegate.Broadcast(TeamCharacterList);
+		}
+	}
 }

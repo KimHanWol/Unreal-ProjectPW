@@ -26,7 +26,8 @@ public:
 
 	void InitMappingContext();
 
-	void SetInputEnabled(bool EnableCommanderInput, bool EnableCharacterInput);
+	void SetSpawnCharacterInputEnabled(bool bEnabled);
+	void SetInGameInputEnabled(bool bEnableCommanderInput, bool bEnableCharacterInput);
 
 private:
 
@@ -47,6 +48,9 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UCharacterInputHandler> CharacterInputHandlerClass;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class USpawnCharacterInputHandler> SpawnCharacterInputHandlerClass;
+
 	UPROPERTY(transient)
 	class APWPlayerController* PWPlayerController;
 
@@ -55,5 +59,8 @@ private:
 
 	UPROPERTY(transient)
 	class UCharacterInputHandler* CharacterInputHandler;
+
+	UPROPERTY(transient)
+	class USpawnCharacterInputHandler* SpawnCharacterInputHandler;
 
 };

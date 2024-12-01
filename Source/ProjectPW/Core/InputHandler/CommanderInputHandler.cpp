@@ -10,18 +10,12 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWEventManager.h"
 
-void UCommanderInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController, UInputComponent* InputComponent)
+void UCommanderInputHandler::SetupKeyBindings(APWPlayerController* InPWPlayerController)
 {
-	Super::SetupKeyBindings(InPWPlayerController, InputComponent);
-
-	if (IsValid(InputComponent) == false)
-	{
-		return;
-	}
+	Super::SetupKeyBindings(InPWPlayerController);
 
 	PWPlayerController = InPWPlayerController;
-
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PWPlayerController->InputComponent);
 	if (IsValid(EnhancedInputComponent) == false)
 	{
 		return;

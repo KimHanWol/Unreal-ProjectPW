@@ -42,13 +42,13 @@ private:
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UTextBlock* Text_Turn;
+	UTextBlock* Text_Turn;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UTextBlock* Text_Result;
+	UTextBlock* Text_Result;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UTextBlock* Text_Crosshair;
+	UTextBlock* Text_Crosshair;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UProgressBar* ProgressBar_TurnPoint;

@@ -12,6 +12,7 @@
 #include "PWEventManager.generated.h"
 
 enum class ETeamSide : uint8;
+enum class EWidgetType : uint8;
 
 UCLASS()
 class PROJECTPW_API UPWEventManager : public UObject
@@ -34,6 +35,12 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterMoved, float CurrentTurnActivePoint);
 	FCharacterMoved TeamCharacterMovedDelegate;
 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSpawned, class APWPlayerCharacter* TargetCharacter);
+	FCharacterSpawned CharacterSpawnedDelegate;
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FTeamCharacterAllSpawned, const TArray<class APWPlayerCharacter*>& TargetCharacterList);
+	FTeamCharacterAllSpawned TeamCharacterAllSpawnedDelegate;
+
 	//Player
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSelected, int32 CharacterNum);
 	FCharacterSelected CharacterSelectedDelegate;
@@ -53,4 +60,8 @@ public:
 
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FGameOver, class APWPlayerController* PlayerController, bool bWon);
 	FGameOver GameOverDelegate;
+
+	//UI
+	DECLARE_MULTICAST_DELEGATE_OneParam(FShowWidget, EWidgetType TargetWidgetType);
+	FShowWidget ShowWidgetDelegate;
 };

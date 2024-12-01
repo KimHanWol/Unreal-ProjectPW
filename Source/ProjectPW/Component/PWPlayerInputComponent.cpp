@@ -11,6 +11,7 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/InputHandler/CharacterInputHandler.h"
 #include "Core/InputHandler/CommanderInputHandler.h"
+#include "Core/InputHandler/SpawnCharacterInputHandler.h"
 #include "Core/PWEventManager.h"
 
 void UPWPlayerInputComponent::BeginPlay()
@@ -66,18 +67,28 @@ void UPWPlayerInputComponent::InitMappingContext()
 	}
 }
 
-void UPWPlayerInputComponent::SetInputEnabled(bool EnableCommanderInput, bool EnableCharacterInput)
+void UPWPlayerInputComponent::SetSpawnCharacterInputEnabled(bool bEnabled)
+{
+	TryCreateInputHandler();
+
+	if (IsValid(SpawnCharacterInputHandler) == true)
+	{
+		SpawnCharacterInputHandler->SetInputEnabled(bEnabled);
+	}
+}
+
+void UPWPlayerInputComponent::SetInGameInputEnabled(bool bEnableCommanderInput, bool bEnableCharacterInput)
 {
 	TryCreateInputHandler();
 
 	if (IsValid(CommanderInputHandler) == true)
 	{
-		CommanderInputHandler->SetInputEnabled(EnableCommanderInput);
+		CommanderInputHandler->SetInputEnabled(bEnableCommanderInput);
 	}
 
 	if(IsValid(CharacterInputHandler) == true)
 	{
-		CharacterInputHandler->SetInputEnabled(EnableCharacterInput);
+		CharacterInputHandler->SetInputEnabled(bEnableCharacterInput);
 	}
 }
 
@@ -112,7 +123,8 @@ void UPWPlayerInputComponent::SetMouseInputToGame()
 void UPWPlayerInputComponent::TryCreateInputHandler()
 {
 	if (IsValid(CommanderInputHandler) == true &&
-		IsValid(CharacterInputHandler) == true)
+		IsValid(CharacterInputHandler) == true &&
+		IsValid(SpawnCharacterInputHandler) == true)
 	{
 		return;
 	}
@@ -122,21 +134,25 @@ void UPWPlayerInputComponent::TryCreateInputHandler()
 		return;
 	}
 
-	if (IsValid(PWPlayerController->InputComponent) == true)
+	if (IsValid(CommanderInputHandlerClass) == true)
 	{
-		if (IsValid(CommanderInputHandlerClass) == true)
-		{
-			CommanderInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
-			CommanderInputHandler->SetupKeyBindings(PWPlayerController, PWPlayerController->InputComponent);
-			CommanderInputHandler->SetInputEnabled(false);
-		}
+		CommanderInputHandler = NewObject<UCommanderInputHandler>(this, CommanderInputHandlerClass);
+		CommanderInputHandler->SetupKeyBindings(PWPlayerController);
+		CommanderInputHandler->SetInputEnabled(false);
+	}
 
-		if (IsValid(CharacterInputHandlerClass) == true)
-		{
-			CharacterInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
-			CharacterInputHandler->SetupKeyBindings(PWPlayerController, PWPlayerController->InputComponent);
-			CharacterInputHandler->SetInputEnabled(false);
-		}
+	if (IsValid(CharacterInputHandlerClass) == true)
+	{
+		CharacterInputHandler = NewObject<UCharacterInputHandler>(this, CharacterInputHandlerClass);
+		CharacterInputHandler->SetupKeyBindings(PWPlayerController);
+		CharacterInputHandler->SetInputEnabled(false);
+	}
+
+	if (IsValid(SpawnCharacterInputHandlerClass) == true)
+	{
+		SpawnCharacterInputHandler = NewObject<USpawnCharacterInputHandler>(this, SpawnCharacterInputHandlerClass);
+		SpawnCharacterInputHandler->SetupKeyBindings(PWPlayerController);
+		SpawnCharacterInputHandler->SetInputEnabled(false);
 	}
 }
 

@@ -21,7 +21,7 @@ class PROJECTPW_API UCharacterInputHandler : public UInputHandlerBase
 
 public:
 
-	virtual void SetupKeyBindings(class APWPlayerController* InPWPlayerController, class UInputComponent* InputComponent) override;
+	virtual void SetupKeyBindings(class APWPlayerController* InPWPlayerController) override;
 
 private:
 

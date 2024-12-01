@@ -25,13 +25,14 @@ protected:
 private:
 
 	void ReadyToStart();
-	void StartGame(); // 게임 시작
-
-	void CheckGameOver();
-	void OnEntireGameOver(); // 게임 종료
+	void StartGame(); // 캐릭터 선택
+	void PlayBattle(); // 게임 시작
 
 	void TransformCommanderPawns();
 
+	void CheckGameOver();
+	void OnEntireGameOver(); // 게임 종료
+	void OnTeamCharacterAllSpawned(const TArray<class APWPlayerCharacter*>& TeamCharacterList);
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);
 
 	AActor* GetCommanderPointActor(ETeamSide TeamSide) const;
@@ -44,4 +45,8 @@ private:
 
 	UPROPERTY(Transient)
 	int32 TotalPlayerCount;
+
+	//각자 스폰을 마치고 게임 시작 준비가된 컨트롤러 수
+	UPROPERTY(Transient)
+	int32 CharacterAllSpawnedControllerCount = 0;
 };

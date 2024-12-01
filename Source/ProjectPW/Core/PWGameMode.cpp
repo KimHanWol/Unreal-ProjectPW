@@ -14,9 +14,10 @@
 #include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
+#include "PWEventManager.h"
 #include "PWGameState.h"
 #include "PWPlayerState.h"
-
+#include "UI/MasterWidget.h"
 
 void APWGameMode::OnPostLogin(AController* NewPlayer)
 {
@@ -113,6 +114,22 @@ void APWGameMode::OnEntireGameOver()
 	}
 }
 
+void APWGameMode::OnTeamCharacterAllSpawned(const TArray<class APWPlayerCharacter*>& TeamCharacterList)
+{
+	CharacterAllSpawnedControllerCount++;
+
+	if (CharacterAllSpawnedControllerCount >= 2)
+	{
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->TeamCharacterAllSpawnedDelegate.RemoveAll(this);
+		}
+
+		PlayBattle();
+	}
+}
+
 AActor* APWGameMode::GetCommanderPointActor(ETeamSide TeamSide) const
 {
 	TArray<AActor*> CommanderPointActorList;
@@ -176,8 +193,23 @@ void APWGameMode::ReadyToStart()
 void APWGameMode::StartGame()
 {
 	//Move player to commander position
-	TransformCommanderPawns();
+	TransformCommanderPawns(); 
 
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWGameMode::OnTeamCharacterAllSpawned);
+	}
+
+	TArray<APWPlayerController*> PlayerControllerList = UPWGameplayStatics::GetAllPlayerController(this);
+	for (APWPlayerController* PlayerController : PlayerControllerList)
+	{
+		PlayerController->SM_StartSpawnCharacter();
+	}
+}
+
+void APWGameMode::PlayBattle()
+{
 	//Bind game over check
 	APWGameState* PWGameState = GetGameState<APWGameState>();
 	if (IsValid(PWGameState) == true)

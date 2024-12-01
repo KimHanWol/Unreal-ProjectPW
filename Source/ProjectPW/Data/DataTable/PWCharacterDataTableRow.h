@@ -27,6 +27,9 @@ public:
 	ECharacterType CharacterType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Description;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<class UTexture2D> Portrait;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
