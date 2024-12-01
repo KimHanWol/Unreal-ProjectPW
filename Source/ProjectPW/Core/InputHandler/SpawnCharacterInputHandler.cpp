@@ -7,6 +7,7 @@
 #include "EnhancedInputComponent.h"
 
 //Game
+#include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameData.h"
@@ -15,7 +16,14 @@ void USpawnCharacterInputHandler::SetupKeyBindings(APWPlayerController* InPWPlay
 {
 	Super::SetupKeyBindings(InPWPlayerController);
 
-	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InPWPlayerController->InputComponent);
+	if (IsValid(InPWPlayerController) == false)
+	{
+		ensure(false);
+		return;
+	}
+	PWPlayerController = InPWPlayerController;
+
+	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PWPlayerController->InputComponent);
 	if (IsValid(EnhancedInputComponent) == false)
 	{
 		return;
@@ -92,5 +100,44 @@ void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value
 
 void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value)
 {
-	
+	if (IsInputEnabled() == false)
+	{
+		return;
+	}
+
+	if (IsValid(PWPlayerController) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+    FVector WorldLocation;
+	FVector WorldDirection;
+
+	float ScreenX;
+	float ScreenY;
+
+    if (PWPlayerController->GetMousePosition(ScreenX, ScreenY))
+    {
+        PWPlayerController->DeprojectScreenPositionToWorld(ScreenX, ScreenY, WorldLocation, WorldDirection);
+
+        const FVector& StartLostion = WorldLocation;
+        const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
+
+        FHitResult HitResult;
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility))
+        {
+            FVector SpawnLocation = HitResult.ImpactPoint;
+			SpawnLocation += FVector(0.f, 0.f, 1.f); //Offset
+
+			const UPWGameData* PWGameData = UPWGameData::Get(this);
+			if (IsValid(PWGameData) == true)
+			{
+				if (PWGameData->PlayerCharacterClassMap.Contains(SelectedCharacterType) == true)
+				{
+				    PWPlayerController->CS_SpawnActor(PWGameData->PlayerCharacterClassMap[SelectedCharacterType], SpawnLocation);
+				}
+			}
+        }
+    }
 }

@@ -125,6 +125,7 @@ void APWPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerCharacter, bIsDead, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerCharacter, TeamSide, COND_None, REPNOTIFY_Always);
 }
 
 void APWPlayerCharacter::PlayMontage(TSoftObjectPtr<UAnimMontage> AnimMontage)
@@ -336,6 +337,11 @@ void APWPlayerCharacter::OnPlayerRevived()
 UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const
 {
 	return PWAttributeSet_Healable;
+}
+
+void APWPlayerCharacter::SetTeamSide(ETeamSide NewTeamSide)
+{
+	TeamSide = NewTeamSide;
 }
 
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const

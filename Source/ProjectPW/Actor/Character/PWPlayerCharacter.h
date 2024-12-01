@@ -66,6 +66,7 @@ public:
 
 	bool IsDead() const { return bIsDead; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
+	void SetTeamSide(ETeamSide NewTeamSide);
 	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
 	UFUNCTION(Server, Reliable)
@@ -120,11 +121,11 @@ protected:
 private:
 
 	//Data
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, Replicated)
 	ETeamSide TeamSide;
 
 	//Character Table Key
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditDefaultsOnly)
 	ECharacterType CharacterType;
 
 	//Component

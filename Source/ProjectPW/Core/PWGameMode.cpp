@@ -27,6 +27,8 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 	if (IsValid(PWPlayerController) == true)
 	{
 		PWPlayerController->InitialPossessedDelegate.AddUObject(this, &APWGameMode::OnInitialPossess);
+
+		PlayerControllerReadyMap.Add(TTuple<APWPlayerController*, bool>(PWPlayerController, false));
 	}
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
@@ -114,11 +116,23 @@ void APWGameMode::OnEntireGameOver()
 	}
 }
 
-void APWGameMode::OnTeamCharacterAllSpawned(const TArray<class APWPlayerCharacter*>& TeamCharacterList)
+void APWGameMode::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList)
 {
-	CharacterAllSpawnedControllerCount++;
+	if (PlayerControllerReadyMap.Contains(TargetPlayerController) == true)
+	{
+		PlayerControllerReadyMap[TargetPlayerController] = true;
+	}
 
-	if (CharacterAllSpawnedControllerCount >= 2)
+	bool bReadyToPlay = true;
+	for (TTuple<APWPlayerController*, bool> PlayerControllerReadyData : PlayerControllerReadyMap)
+	{
+		if (PlayerControllerReadyData.Value == false)
+		{
+			bReadyToPlay = false;
+		}
+	}
+
+	if (bReadyToPlay == true)
 	{
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
@@ -200,12 +214,6 @@ void APWGameMode::StartGame()
 	{
 		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWGameMode::OnTeamCharacterAllSpawned);
 	}
-
-	TArray<APWPlayerController*> PlayerControllerList = UPWGameplayStatics::GetAllPlayerController(this);
-	for (APWPlayerController* PlayerController : PlayerControllerList)
-	{
-		PlayerController->SM_StartSpawnCharacter();
-	}
 }
 
 void APWGameMode::PlayBattle()
@@ -217,8 +225,13 @@ void APWGameMode::PlayBattle()
 		PWGameState->GameStateCharacterAliveStateChangedDelegate.AddUObject(this, &APWGameMode::CheckGameOver);
 	}
 
-	//서버만 운용
 	TArray<APWPlayerController*> PlayerControllerList = UPWGameplayStatics::GetAllPlayerController(this);
+	for (APWPlayerController* PlayerController : PlayerControllerList)
+	{
+		PlayerController->SM_GameStart();
+	}
+
+	//서버만 운용
 	UPWTurnManageSubsystem* PWTurnManageSubsystem = UPWTurnManageSubsystem::Get(this);
 	if (IsValid(PWTurnManageSubsystem) == true)
 	{

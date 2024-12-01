@@ -32,6 +32,8 @@ void UPWGameData::Initialize()
 	{
 		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
 	}
+
+	UPWAssetLoadManager::AsyncLoad(this, SpawnPreviewMI);
 }
 
 TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* WorldContextObj, EGameplayEffectType GameplayEffectType)

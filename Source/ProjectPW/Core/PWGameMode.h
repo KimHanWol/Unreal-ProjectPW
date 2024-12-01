@@ -32,7 +32,7 @@ private:
 
 	void CheckGameOver();
 	void OnEntireGameOver(); // 게임 종료
-	void OnTeamCharacterAllSpawned(const TArray<class APWPlayerCharacter*>& TeamCharacterList);
+	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);
 
 	AActor* GetCommanderPointActor(ETeamSide TeamSide) const;
@@ -46,7 +46,7 @@ private:
 	UPROPERTY(Transient)
 	int32 TotalPlayerCount;
 
-	//각자 스폰을 마치고 게임 시작 준비가된 컨트롤러 수
+	//각자 스폰을 마치고 게임 시작 준비가 된 컨트롤러
 	UPROPERTY(Transient)
-	int32 CharacterAllSpawnedControllerCount = 0;
+	TMap<class APWPlayerController*, bool> PlayerControllerReadyMap;
 };

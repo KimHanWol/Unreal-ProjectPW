@@ -144,8 +144,11 @@ void UPWTurnManageSubsystem::ApplyTurnEvent()
 	if (ChangeFloat < SpawnVolumeChance)
 	{
 		APWVolumeActorBase* SpawnedVolumeActor = GetWorld()->SpawnActor<APWVolumeActorBase>(TargetVolumeActorClass);
-		SpawnedVolumeActor->SetActorLocation(CandidateVolumeActorLocator->GetActorLocation());
-		CandidateVolumeActorLocator->SetIsOccupied(true);
+		if (ensure(IsValid(SpawnedVolumeActor) == true))
+		{
+			SpawnedVolumeActor->SetActorLocation(CandidateVolumeActorLocator->GetActorLocation());
+			CandidateVolumeActorLocator->SetIsOccupied(true);
+		}
 	}
 }
 

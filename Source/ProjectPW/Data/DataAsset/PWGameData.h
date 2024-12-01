@@ -26,6 +26,8 @@ enum class EDataTableType : uint8
 	Character,
 };
 
+enum class ECharacterType : uint8;
+
 UCLASS()
 class PROJECTPW_API UPWGameData: public UDataAsset
 {
@@ -107,4 +109,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<TSubclassOf<class APWVolumeActorBase>> VolumeActorList;
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<ECharacterType, TSubclassOf<class APWPlayerCharacter>> PlayerCharacterClassMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftObjectPtr<class UMaterialInstance> SpawnPreviewMI;
 };

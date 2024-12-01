@@ -172,7 +172,7 @@ void APWPlayerState::OnRep_TeamCharacterList()
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
 		{
-			PWEventManager->TeamCharacterAllSpawnedDelegate.Broadcast(TeamCharacterList);
+			PWEventManager->TeamCharacterAllSpawnedDelegate.Broadcast(Cast<APWPlayerController>(GetPlayerController()), TeamCharacterList);
 		}
 	}
 }

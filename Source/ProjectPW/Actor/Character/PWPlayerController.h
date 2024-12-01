@@ -32,10 +32,6 @@ public:
 
 	ETeamSide GetTeamSide() const;
 
-	UFUNCTION(NetMulticast, Reliable)
-	void SM_StartSpawnCharacter();
-	void SM_StartSpawnCharacter_Implementation();
-
 	//Turn changed
 	UFUNCTION(Client, Reliable)
 	void SC_TurnChanged(bool bMyTurn);
@@ -44,6 +40,11 @@ public:
 	UFUNCTION(Server, Reliable)
 	void CS_RequestNextTurn();
 	void CS_RequestNextTurn_Implementation();
+
+	//Game start
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_GameStart();
+	void SM_GameStart_Implementation();
 
 	//Game over
 	UFUNCTION(NetMulticast, Reliable)
@@ -65,7 +66,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
-	void CS_SpawnActor_Implementation(const TSubclassOf<AActor>& SpawnActorClass, const FVector& Location);
+	void CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
 
 	void OnCharacterSelected(int32 SelectNum);
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);
@@ -73,8 +74,8 @@ public:
 
 private:
 
-	void SS_OnPlayerCharacterSpawned(AActor* SpawnedActor);
-	void SS_OnPlayerCharacterAllSpawned(const TArray<class APWPlayerCharacter*>& TeamCharacterList);
+	void SS_CheckPlayerCharacterSpawned(AActor* SpawnedActor);
+	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
 
 	UFUNCTION(Server, Reliable)
 	void CS_Possess(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot);

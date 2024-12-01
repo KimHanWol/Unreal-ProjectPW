@@ -38,7 +38,7 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSpawned, class APWPlayerCharacter* TargetCharacter);
 	FCharacterSpawned CharacterSpawnedDelegate;
 
-	DECLARE_MULTICAST_DELEGATE_OneParam(FTeamCharacterAllSpawned, const TArray<class APWPlayerCharacter*>& TargetCharacterList);
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FTeamCharacterAllSpawned, const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TargetCharacterList);
 	FTeamCharacterAllSpawned TeamCharacterAllSpawnedDelegate;
 
 	//Player

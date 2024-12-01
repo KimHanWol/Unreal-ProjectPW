@@ -9,6 +9,7 @@
 #include "Core/InputHandler/InputHandlerBase.h"
 
 //Default
+#include "Data/PWGameEnum.h"
 #include "SpawnCharacterInputHandler.generated.h"
 
 enum class ECharacterType : uint8;
@@ -47,6 +48,8 @@ protected:
 private:
 
 	UPROPERTY(Transient)
-	ECharacterType SelectedCharacterType;
+	ECharacterType SelectedCharacterType = ECharacterType::Soldier;
 
+	UPROPERTY(Transient)
+	class APWPlayerController* PWPlayerController;
 };

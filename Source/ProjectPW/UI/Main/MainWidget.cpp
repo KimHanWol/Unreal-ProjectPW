@@ -72,6 +72,7 @@ void UMainWidget::BindEvents()
 		PWEventManager->TargetIsOnCrosshairDelegate.AddUObject(this, &UMainWidget::OnTargetIsOnCrosshair);
 		PWEventManager->PlayerPossessedDelegate.AddUObject(this, &UMainWidget::OnPlayerPossessed);
 		PWEventManager->TurnChangedDelegate.AddUObject(this, &UMainWidget::OnTurnChanged);
+		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &UMainWidget::OnTeamCharacterAllSpawned);
 	}
 }
 
@@ -87,6 +88,7 @@ void UMainWidget::UnbindEvents()
 		PWEventManager->TargetIsOnCrosshairDelegate.RemoveAll(this);
 		PWEventManager->PlayerPossessedDelegate.RemoveAll(this);
 		PWEventManager->TurnChangedDelegate.RemoveAll(this);
+		PWEventManager->TeamCharacterAllSpawnedDelegate.RemoveAll(this);
 	}
 }
 
@@ -125,9 +127,9 @@ void UMainWidget::OnTeamCharacterMoved(float CurrentTurnActivePoint)
 	}
 }
 
-void UMainWidget::OnTeamCharacterLoaded(ETeamSide TeamSide, const TArray<class APWPlayerCharacter*>& TeamCharcterList)
+void UMainWidget::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharcterList)
 {
-	if (UPWGameplayStatics::GetLocalPlayerTeamSide(this) != TeamSide)
+	if (UPWGameplayStatics::GetLocalPlayerController(this) != TargetPlayerController)
 	{
 		return;
 	}
@@ -214,7 +216,7 @@ void UMainWidget::TryInitializeCharacterData()
 	APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
 	if (IsValid(PWPlayerState) == true && PWPlayerState->IsTeamCharacterInitialized() == true) //완전히 초기화 되지 않은 상태의 접근 방지
 	{
-		OnTeamCharacterLoaded(UPWGameplayStatics::GetLocalPlayerTeamSide(this), PWPlayerState->GetTeamCharacterList());
+		OnTeamCharacterAllSpawned(UPWGameplayStatics::GetLocalPlayerController(this), PWPlayerState->GetTeamCharacterList());
 		GetWorld()->GetTimerManager().ClearTimer(WaitCharacterDataInitTimerHandle);
 	}
 }
