@@ -29,6 +29,8 @@ public:
 	void SetSpawnCharacterInputEnabled(bool bEnabled);
 	void SetInGameInputEnabled(bool bEnableCommanderInput, bool bEnableCharacterInput);
 
+	class USpawnCharacterInputHandler* GetSpawnCharacterInputHandler() const { return SpawnCharacterInputHandler; }
+
 private:
 
 	void TryCreateInputHandler();

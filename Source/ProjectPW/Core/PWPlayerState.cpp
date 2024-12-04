@@ -33,7 +33,6 @@ void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 void APWPlayerState::SS_InitializePlayerState(ETeamSide InTeamSide)
 {
 	TeamSide = InTeamSide;
-	//SS_LoadCharacters();
 }
 
 void APWPlayerState::SS_AddCharacter(APWPlayerCharacter* NewCharacter)
@@ -67,23 +66,6 @@ void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint)
 	{
 		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
 	}
-}
-
-void APWPlayerState::SS_LoadCharacters()
-{
-	for (TActorIterator<APWPlayerCharacter> PlayerCharacter(GetWorld()); PlayerCharacter; ++PlayerCharacter)
-	{
-		if (IsValid(*PlayerCharacter) == false)
-		{
-			continue;
-		}
-
-		if (PlayerCharacter->GetTeamSide() == TeamSide)
-		{
-			TeamCharacterList.Add(*PlayerCharacter);
-		}
-	}
-	OnRep_TeamCharacterList();
 }
 
 void APWPlayerState::OnCharacterMoved(float Distance)

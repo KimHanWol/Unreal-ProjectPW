@@ -66,7 +66,7 @@ public:
 
 	bool IsDead() const { return bIsDead; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
-	void SetTeamSide(ETeamSide NewTeamSide);
+	void InitializeCharacter(ETeamSide NewTeamSide, ECharacterType NewCharacterType);
 	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
 	UFUNCTION(Server, Reliable)
@@ -76,6 +76,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void SM_ApplySnapshotTransform(const FTransform& NewTransform);
 	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_InitializeCharacter(ECharacterType InCharacterType);
+	void SM_InitializeCharacter_Implementation(ECharacterType InCharacterType);
 
 private:
 
@@ -125,7 +129,7 @@ private:
 	ETeamSide TeamSide;
 
 	//Character Table Key
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Replicated)
 	ECharacterType CharacterType;
 
 	//Component

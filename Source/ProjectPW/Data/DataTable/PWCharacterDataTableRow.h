@@ -33,6 +33,9 @@ public:
 	TSoftObjectPtr<class UTexture2D> Portrait;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftObjectPtr<class USkeletalMesh> Mesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class APWEquipmentActorBase> EquipmentActorClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stats")

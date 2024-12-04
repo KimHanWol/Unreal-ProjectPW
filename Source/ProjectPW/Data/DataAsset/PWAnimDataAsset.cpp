@@ -11,10 +11,18 @@
 
 void UPWAnimDataAsset::Initialize()
 {
-	TArray<TSoftObjectPtr<class UAnimMontage>> SoftObjectList;
-	AnimationMap.GenerateValueArray(SoftObjectList);
+	TArray<TSoftObjectPtr<class UAnimMontage>> MontageSoftObjectList;
+	MontageMap.GenerateValueArray(MontageSoftObjectList);
 
-	for (TSoftObjectPtr<class UAnimMontage> SoftObject : SoftObjectList)
+	for (TSoftObjectPtr<class UAnimMontage> SoftObject : MontageSoftObjectList)
+	{
+		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
+	}
+
+	TArray<TSoftObjectPtr<class UAnimationAsset>> AnimationSoftObjectList;
+	AnimationMap.GenerateValueArray(AnimationSoftObjectList);
+
+	for (TSoftObjectPtr<class UAnimationAsset> SoftObject : AnimationSoftObjectList)
 	{
 		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
 	}
@@ -40,11 +48,29 @@ TSoftObjectPtr<UAnimMontage> UPWAnimDataAsset::GetAnimMontage(const UObject* Wor
 		return nullptr;
 	}
 
-	if (PWAnimDataAsset->AnimationMap.Contains(AnimMontageType) == false)
+	if (PWAnimDataAsset->MontageMap.Contains(AnimMontageType) == false)
 	{
 		ensureMsgf(false, TEXT("AnimDataAsset doesn't have data. check AnimMontageType."));
 		return nullptr;
 	}
 
-	return PWAnimDataAsset->AnimationMap[AnimMontageType];
+	return PWAnimDataAsset->MontageMap[AnimMontageType];
+}
+
+TSoftObjectPtr<UAnimationAsset> UPWAnimDataAsset::GetAnimation(const UObject* WorldContextObj, EAnimationType AnimationType)
+{
+	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj);
+	if (IsValid(PWAnimDataAsset) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	if (PWAnimDataAsset->AnimationMap.Contains(AnimationType) == false)
+	{
+		ensureMsgf(false, TEXT("AnimDataAsset doesn't have data. check AnimationType."));
+		return nullptr;
+	}
+
+	return PWAnimDataAsset->AnimationMap[AnimationType];
 }

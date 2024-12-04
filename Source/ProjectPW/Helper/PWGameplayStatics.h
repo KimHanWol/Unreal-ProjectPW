@@ -12,6 +12,7 @@
 #include "PWGameplayStatics.generated.h"
 
  enum class ETeamSide : uint8;
+ enum class ECharacterType : uint8;
 
 UCLASS()
 class PROJECTPW_API UPWGameplayStatics : public UGameplayStatics
@@ -27,6 +28,8 @@ public:
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
 	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);
+
+	static const struct FPWCharacterDataTableRow* FindCharacterData(const UObject* WorldContextObj, const ECharacterType TargetCharacterType);
 
 	template <typename EnumType> 
 	static FORCEINLINE FString ConvertEnumToString(const UObject* WorldContextObj, const EnumType InValue)

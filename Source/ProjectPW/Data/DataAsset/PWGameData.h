@@ -113,7 +113,7 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<ECharacterType, TSubclassOf<class APWPlayerCharacter>> PlayerCharacterClassMap;
+	TSubclassOf<class APWPlayerCharacter> PlayerCharacterClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<class UMaterialInstance> SpawnPreviewMI;

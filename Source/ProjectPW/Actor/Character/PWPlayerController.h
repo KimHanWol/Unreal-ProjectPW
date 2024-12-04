@@ -12,6 +12,7 @@
 #include "PWPlayerController.generated.h"
 
 enum class ETeamSide : uint8;
+enum class ECharacterType : uint8;
 
 UCLASS()
 class PROJECTPW_API APWPlayerController : public APlayerController
@@ -24,6 +25,7 @@ protected:
 	
 	virtual void BeginPlay() override;
 	virtual void EndPlay(EEndPlayReason::Type Reason) override;
+	virtual void Tick(float DeltaTime) override;
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void OnRep_PlayerState() override;
@@ -68,13 +70,16 @@ public:
 	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
 	void CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
 
+	UFUNCTION(Server, Reliable)
+	void CS_SpawnCharacter(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
+	void CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
+
 	void OnCharacterSelected(int32 SelectNum);
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);
 	void LP_OnPossess(APawn* PossessedPawn);
 
 private:
 
-	void SS_CheckPlayerCharacterSpawned(AActor* SpawnedActor);
 	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
 
 	UFUNCTION(Server, Reliable)
@@ -85,7 +90,10 @@ private:
 
 	void UpdateTurnData();
 
+
+	void Tick_ShowSpawnPreviewMesh();
 	void TryEnableCharacterSpawn();
+	void OnSelectedCharacterTypeChanged(ECharacterType NewCharacterType);
 
 public:
 
@@ -101,15 +109,26 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UPWPlayerInputComponent* PlayerInputComponent;
 
-	//Only for server 
-	UPROPERTY(transient)
-	bool bIsCharacterSpawning = false;
+	UPROPERTY(Transient)
+	class AActor* SpawnPreviewActor;
+
+	UPROPERTY(Transient)
+	class USkeletalMeshComponent* SpawnPreviewComponent;
 
 	UPROPERTY(transient)
 	bool bIsMyTurn = false;
 
 	UPROPERTY(transient)
 	bool bTurnDataDirty = false;
+
+	//TODO: 스폰 컨트롤러 분리
+	//Only for server 
+	UPROPERTY(transient)
+	bool bIsCharacterSpawning = false;
+
+	//Only for local
+	UPROPERTY(transient)
+	ECharacterType CurrentSelectedCharacterType;
 
 	FTimerHandle CharacterSpawnTimerHandle;
 };

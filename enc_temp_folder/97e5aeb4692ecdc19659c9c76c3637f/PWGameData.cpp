@@ -4,6 +4,7 @@
 #include "PWGameData.h"
 
 //Engine
+#include "Engine/SkeletalMesh.h"
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"

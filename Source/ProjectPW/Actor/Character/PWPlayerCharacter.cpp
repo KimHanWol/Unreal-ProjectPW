@@ -54,9 +54,6 @@ void APWPlayerCharacter::BeginPlay()
 	{
 		PWEventManager->PlayerPossessedDelegate.AddUObject(this, &APWPlayerCharacter::OnLocalCharacterPossessed);
 	}
-
-	//Set attribute
-	ApplyAttributeData();
 }
 
 void APWPlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -126,6 +123,7 @@ void APWPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 
 	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerCharacter, bIsDead, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerCharacter, TeamSide, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(APWPlayerCharacter, CharacterType, COND_None, REPNOTIFY_Always);
 }
 
 void APWPlayerCharacter::PlayMontage(TSoftObjectPtr<UAnimMontage> AnimMontage)
@@ -195,6 +193,25 @@ void APWPlayerCharacter::SM_ApplySnapshotTransform_Implementation(const FTransfo
 	//딜레이 생기지 않도록 직접 이동시켜줌
 	bIgnoreMoveRecordForNextTick = true;
 	SetActorTransform(NewTransform);
+}
+
+void APWPlayerCharacter::SM_InitializeCharacter_Implementation(ECharacterType InCharacterType)
+{
+	CharacterType = InCharacterType;
+	
+	if (const FPWCharacterDataTableRow* CharacterData = UPWGameplayStatics::FindCharacterData(this, CharacterType))
+	{
+		USkeletalMeshComponent* SkeletalMeshComponent = GetMesh();
+		if (IsValid(SkeletalMeshComponent) == true)
+		{
+			SkeletalMeshComponent->SetSkeletalMesh(CharacterData->Mesh.LoadSynchronous());
+		}
+
+		if (IsValid(PWEquipmentComponent) == true)
+		{
+			PWEquipmentComponent->SpawnEquipmentActor(CharacterType);
+		}
+	}
 }
 
 void APWPlayerCharacter::SM_HideActorByAliveState_Implementation(bool bHide)
@@ -339,9 +356,15 @@ UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const
 	return PWAttributeSet_Healable;
 }
 
-void APWPlayerCharacter::SetTeamSide(ETeamSide NewTeamSide)
+void APWPlayerCharacter::InitializeCharacter(ETeamSide NewTeamSide, ECharacterType NewCharacterType)
 {
 	TeamSide = NewTeamSide;
+	CharacterType = NewCharacterType;
+
+	//Set attribute
+	ApplyAttributeData();
+
+	SM_InitializeCharacter(CharacterType);
 }
 
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const

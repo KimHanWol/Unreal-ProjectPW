@@ -11,6 +11,8 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWPlayerState.h"
+#include "Data/DataAsset/PWGameData.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/PWGameEnum.h"
 
 APWPlayerController* UPWGameplayStatics::GetLocalPlayerController(const UObject* WorldContextObj)
@@ -128,4 +130,18 @@ ETeamSide UPWGameplayStatics::GetLocalPlayerTeamSide(const UObject* WorldContext
 
 	ensure(false);
 	return ETeamSide::Red;
+}
+
+const FPWCharacterDataTableRow* UPWGameplayStatics::FindCharacterData(const UObject* WorldContextObj, const ECharacterType TargetCharacterType)
+{
+	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = UPWGameData::Get(WorldContextObj)->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
+	for (const FPWCharacterDataTableRow* CharacterData : CharacterDataList)
+	{
+		if (CharacterData->CharacterType == TargetCharacterType)
+		{
+			return CharacterData;
+		}
+	}
+
+	return nullptr;
 }

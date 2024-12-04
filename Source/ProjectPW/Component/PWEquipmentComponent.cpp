@@ -9,6 +9,7 @@
 #include "Actor/Equipments/PWEquipmentActorBase.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Helper/PWGameplayStatics.h"
 
 
 void UPWEquipmentComponent::BeginPlay()
@@ -26,8 +27,6 @@ void UPWEquipmentComponent::BeginPlay()
 			OwnerSkeletalMesh->HideBoneByName(TEXT("weapon_r"), PBO_None);
 		}
 	}
-
-	SpawnEquipmentActor();
 }
 
 void UPWEquipmentComponent::Execute_Main_Triggered()
@@ -81,15 +80,9 @@ void UPWEquipmentComponent::OnAliveStateChanged(bool bAlive)
 	SpawnedEquipmentActor->SetActorHiddenInGame(bAlive);
 }
 
-void UPWEquipmentComponent::SpawnEquipmentActor()
+void UPWEquipmentComponent::SpawnEquipmentActor(ECharacterType OwnerCharacterType)
 {
-	const APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
-	if (IsValid(OwnerCharacter) == false)
-	{
-		return;
-	}
-		
-	const FPWCharacterDataTableRow* CharacterData = OwnerCharacter->GetCharacterData();
+	const FPWCharacterDataTableRow* CharacterData = UPWGameplayStatics::FindCharacterData(this, OwnerCharacterType);
 	if (CharacterData == nullptr)
 	{
 		return;

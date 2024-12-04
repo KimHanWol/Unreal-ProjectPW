@@ -22,6 +22,13 @@ enum class EAnimMontageType : uint8
 	Build,
 };
 
+UENUM()
+enum class EAnimationType : uint8
+{
+	None,
+	Idle_SpawnPreivew,
+};
+
 UCLASS()
 class PROJECTPW_API UPWAnimDataAsset: public UDataAsset
 {
@@ -32,6 +39,7 @@ public:
 	static const UPWAnimDataAsset* Get(const UObject* WorldContextObj);
 
 	static TSoftObjectPtr<UAnimMontage> GetAnimMontage(const UObject* WorldContextObj, EAnimMontageType AnimMontageType);
+	static TSoftObjectPtr<UAnimationAsset> GetAnimation(const UObject* WorldContextObj, EAnimationType AnimationType);
 
 	void Initialize();
 
@@ -40,5 +48,8 @@ protected:
 	static UPWAnimDataAsset* Instance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<EAnimMontageType, TSoftObjectPtr<class UAnimMontage>> AnimationMap;
+	TMap<EAnimMontageType, TSoftObjectPtr<class UAnimMontage>> MontageMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<EAnimationType, TSoftObjectPtr<class UAnimationAsset>> AnimationMap;
 };

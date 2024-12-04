@@ -146,13 +146,6 @@ void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController*
 	}
 
 	bIsCharacterSpawning = false;
-	if (IsValid(SpawnPreviewActor) == true)
-	{
-		SpawnPreviewActor->Destroy();
-		SpawnPreviewActor = nullptr;
-		SpawnPreviewComponent = nullptr;
-	}
-
 }
 
 void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
@@ -409,6 +402,7 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
 	if (IsValid(PWPlayerState) == false)
 	{
+		ensure(false);
 		return;
 	}
 
@@ -444,13 +438,21 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 			}
 	    }
 	}
+	else
+	{
+		SpawnPreviewComponent->SetVisibility(false);
+	}
 }
 
 void APWPlayerController::TryEnableCharacterSpawn()
 {
-	if (bIsCharacterSpawning == true)
+	bIsCharacterSpawning = true;
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
 	{
-		return;
+		PWEventManager->TeamCharacterAllSpawnedDelegate.RemoveAll(this);
+		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
 	}
 
 	if(IsValid(PlayerInputComponent) == false)
@@ -465,14 +467,6 @@ void APWPlayerController::TryEnableCharacterSpawn()
 		ensure(false);
 		return;
 	}
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
-	}
-
-	bIsCharacterSpawning = true;
 
 	if (IsLocalPlayerController() == true)
 	{

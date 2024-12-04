@@ -23,6 +23,8 @@ public:
 
 	virtual void SetupKeyBindings(class APWPlayerController* InPWPlayerController) override;
 
+	ECharacterType GetSelectedCharacterType() const { return SelectedCharacterType; }
+
 private:
 
 	void Select_1(const struct FInputActionValue& Value);
@@ -30,6 +32,11 @@ private:
 	void Select_3(const struct FInputActionValue& Value);
 
 	void TrySpawn(const struct FInputActionValue& Value);
+
+public:
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FSelectedCharacterTypeChanged, ECharacterType NewCharacterType)
+	FSelectedCharacterTypeChanged SelectedCharacterTypeChangedDelegate;
 
 protected:
 

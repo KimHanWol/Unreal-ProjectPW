@@ -9,6 +9,7 @@
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWPlayerState.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameData.h"
 
@@ -53,7 +54,9 @@ void USpawnCharacterInputHandler::Select_1(const struct FInputActionValue& Value
 	if (ensure(CharacterDataList.Num() > 0))
 	{
 		SelectedCharacterType = CharacterDataList[0]->CharacterType;
+		SelectedCharacterTypeChangedDelegate.Broadcast(SelectedCharacterType);
 	}
+
 }
 
 void USpawnCharacterInputHandler::Select_2(const struct FInputActionValue& Value)
@@ -74,7 +77,9 @@ void USpawnCharacterInputHandler::Select_2(const struct FInputActionValue& Value
 	if (ensure(CharacterDataList.Num() > 1))
 	{
 		SelectedCharacterType = CharacterDataList[1]->CharacterType;
+		SelectedCharacterTypeChangedDelegate.Broadcast(SelectedCharacterType);
 	}
+
 }
 
 void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value)
@@ -95,6 +100,7 @@ void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value
 	if (ensure(CharacterDataList.Num() > 2))
 	{
 		SelectedCharacterType = CharacterDataList[2]->CharacterType;
+		SelectedCharacterTypeChangedDelegate.Broadcast(SelectedCharacterType);
 	}
 }
 
@@ -106,6 +112,13 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 	}
 
 	if (IsValid(PWPlayerController) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	APWPlayerState* PWPlayerState = PWPlayerController->GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
 	{
 		ensure(false);
 		return;
@@ -130,13 +143,15 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
             FVector SpawnLocation = HitResult.ImpactPoint;
 			SpawnLocation += FVector(0.f, 0.f, 1.f); //Offset
 
-			const UPWGameData* PWGameData = UPWGameData::Get(this);
-			if (IsValid(PWGameData) == true)
+			APawn* CommanderPawn = PWPlayerState->GetCommanderPawn();
+			if (IsValid(CommanderPawn) == true)
 			{
-				if (PWGameData->PlayerCharacterClassMap.Contains(SelectedCharacterType) == true)
-				{
-				    PWPlayerController->CS_SpawnActor(PWGameData->PlayerCharacterClassMap[SelectedCharacterType], SpawnLocation);
-				}
+				FRotator CommanderPawnRotator = CommanderPawn->GetActorRotation();
+				FTransform Transform;
+				Transform.SetLocation(SpawnLocation);
+				Transform.SetRotation(FQuat(CommanderPawnRotator));
+
+				PWPlayerController->CS_SpawnCharacter(SelectedCharacterType, Transform);
 			}
         }
     }

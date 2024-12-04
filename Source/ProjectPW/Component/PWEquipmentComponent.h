@@ -11,6 +11,7 @@
 //Default
 #include "PWEquipmentComponent.generated.h"
 
+enum class ECharacterType : uint8;
 
 UCLASS()
 class PROJECTPW_API UPWEquipmentComponent: public UActorComponent
@@ -23,6 +24,8 @@ protected:
 
 public:
 
+	void SpawnEquipmentActor(ECharacterType OwnerCharacterType);
+
 	void Execute_Main_Triggered();
 	void Execute_Main_Completed();
 
@@ -33,7 +36,6 @@ public:
 
 private:
 
-	void SpawnEquipmentActor();
 
 private:
 
