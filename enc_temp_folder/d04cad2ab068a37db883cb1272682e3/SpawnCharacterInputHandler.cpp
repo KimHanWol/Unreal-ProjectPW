@@ -9,7 +9,6 @@
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
-#include "Actor/Object/PWSpawnAreaActor.h"
 #include "Core/PWPlayerState.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameData.h"
@@ -112,11 +111,6 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 		return;
 	}
 
-	if (SpawnedCharacterNum >= 5)
-	{
-		return;
-	}
-
 	if (IsValid(PWPlayerController) == false)
 	{
 		ensure(false);
@@ -144,30 +138,20 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
         const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
 
         FHitResult HitResult;
-		bool bIsHitSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility);
-
-		bool bSpawnAreaFound = false;
-		APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
-		if (IsValid(PWSpawnAreaActor) == true)
-		{
-			if (PWSpawnAreaActor->GetTeamSide() == PWPlayerState->GetTeamSide())
-			{
-				bSpawnAreaFound = true;
-			}
-		}
-
-        if (bIsHitSuccess == true && bSpawnAreaFound == true)
+        if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility))
         {
+            FVector SpawnLocation = HitResult.ImpactPoint;
+			SpawnLocation += FVector(0.f, 0.f, 1.f); //Offset
+
 			APawn* CommanderPawn = PWPlayerState->GetCommanderPawn();
 			if (IsValid(CommanderPawn) == true)
 			{
 				FRotator CommanderPawnRotator = CommanderPawn->GetActorRotation();
 				FTransform Transform;
-				Transform.SetLocation(HitResult.ImpactPoint);
+				Transform.SetLocation(SpawnLocation);
 				Transform.SetRotation(FQuat(CommanderPawnRotator));
 
 				PWPlayerController->CS_SpawnCharacter(SelectedCharacterType, Transform);
-				SpawnedCharacterNum++;
 			}
         }
     }

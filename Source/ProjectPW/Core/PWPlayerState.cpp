@@ -46,7 +46,7 @@ void APWPlayerState::SetCommanderPawn(APawn* InCommanderPawn)
 	CommanderPawn = InCommanderPawn;
 }
 
-APawn* APWPlayerState::GetCommanderPawn()
+APawn* APWPlayerState::GetCommanderPawn() const
 {
 	return CommanderPawn;
 }

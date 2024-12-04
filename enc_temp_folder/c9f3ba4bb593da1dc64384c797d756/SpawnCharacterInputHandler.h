@@ -59,7 +59,4 @@ private:
 
 	UPROPERTY(Transient)
 	class APWPlayerController* PWPlayerController;
-
-	UPROPERTY(Transient)
-	int32 SpawnedCharacterNum;
 };

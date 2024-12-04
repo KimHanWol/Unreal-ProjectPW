@@ -72,7 +72,7 @@ public:
 
 	UFUNCTION(Server, Reliable)
 	void CS_SpawnCharacter(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
-	void CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, FTransform SpawnTransform);
+	void CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
 
 	void OnCharacterSelected(int32 SelectNum);
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);

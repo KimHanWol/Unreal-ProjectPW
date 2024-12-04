@@ -34,7 +34,7 @@ public:
 	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint);
 
 	//Getter
-	APawn* GetCommanderPawn();
+	APawn* GetCommanderPawn() const;
 	class APWPlayerCharacter* GetTeamCharacter(int32 CharacterNum) const;
 	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
 	int32 GetAliveTeamCharacterNum() const;

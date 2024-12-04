@@ -17,13 +17,20 @@ UCLASS(Blueprintable)
 class PROJECTPW_API APWCommanderPointActor : public AActor
 {
 	GENERATED_BODY()
-	
+		
+	APWCommanderPointActor();
+
 public:
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
+
+	FTransform GetSpawnAreaTransform();
 
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeamSide TeamSide;
+
+	UPROPERTY(Transient)
+	class UStaticMeshComponent* SpawnAreaLocationActor;
 };

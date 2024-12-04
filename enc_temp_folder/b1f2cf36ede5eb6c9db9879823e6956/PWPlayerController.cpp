@@ -9,6 +9,7 @@
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
+#include "Actor/Object/PWSpawnAreaActor.h"
 #include "Component/PWPlayerInputComponent.h"
 #include "Core/InputHandler/SpawnCharacterInputHandler.h"
 #include "Core/PWEventManager.h"
@@ -146,6 +147,13 @@ void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController*
 	}
 
 	bIsCharacterSpawning = false;
+	if (IsValid(SpawnPreviewActor) == true)
+	{
+		SpawnPreviewActor->Destroy();
+		SpawnPreviewActor = nullptr;
+		SpawnPreviewComponent = nullptr;
+	}
+
 }
 
 void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
@@ -402,7 +410,6 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
 	if (IsValid(PWPlayerState) == false)
 	{
-		ensure(false);
 		return;
 	}
 
@@ -420,11 +427,27 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 	    const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
 
 	    FHitResult HitResult;
-	    if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility))
+		bool bIsHitSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility);
+
+		bool bSpawnAreaFound = false;
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *HitResult.GetActor()->GetName());
+	 	APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
+		if (IsValid(PWSpawnAreaActor) == true)
+		{
+			if (PWSpawnAreaActor->GetTeamSide() == GetTeamSide())
+			{
+				bSpawnAreaFound = true;
+				UE_LOG(LogTemp, Warning, TEXT("Found"));
+			}
+		}
+
+	    if (bIsHitSuccess == true && bSpawnAreaFound == true)
 	    {
 	        FVector NewSpawnLocation = HitResult.ImpactPoint;
 			NewSpawnLocation += FVector(0.f, 0.f, 1.f); //Offset
 			SpawnPreviewActor->SetActorLocation(NewSpawnLocation);
+
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *NewSpawnLocation.ToString());
 
 			APawn* CommanderPawn = PWPlayerState->GetCommanderPawn();
 			if (IsValid(CommanderPawn) == true)
@@ -436,23 +459,27 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 				CommanderPawnRotator.Yaw -= 90.f; // 메시 방향 때문에 일부러 설정
 				SpawnPreviewActor->SetActorRotation(CommanderPawnRotator);
 			}
+
+			if (IsValid(SpawnPreviewComponent) == true)
+			{
+				SpawnPreviewComponent->SetVisibility(true);
+			}
 	    }
-	}
-	else
-	{
-		SpawnPreviewComponent->SetVisibility(false);
+		else
+		{
+			if (IsValid(SpawnPreviewComponent) == true)
+			{
+				SpawnPreviewComponent->SetVisibility(false);
+			}
+		}
 	}
 }
 
 void APWPlayerController::TryEnableCharacterSpawn()
 {
-	bIsCharacterSpawning = true;
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
+	if (bIsCharacterSpawning == true)
 	{
-		PWEventManager->TeamCharacterAllSpawnedDelegate.RemoveAll(this);
-		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
+		return;
 	}
 
 	if(IsValid(PlayerInputComponent) == false)
@@ -468,6 +495,20 @@ void APWPlayerController::TryEnableCharacterSpawn()
 		return;
 	}
 
+	const APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	bIsCharacterSpawning = true;
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
+	}
+
 	if (IsLocalPlayerController() == true)
 	{
 		//Activate character spawn input
@@ -479,7 +520,7 @@ void APWPlayerController::TryEnableCharacterSpawn()
 			SpawnCharacterInputHandler->SelectedCharacterTypeChangedDelegate.AddUObject(this, &APWPlayerController::OnSelectedCharacterTypeChanged);
 		}
 
-		//Spawn preivew actor
+		//Spawn preview actor
 		SpawnPreviewActor = GetWorld()->SpawnActor<AActor>();
 		if (IsValid(SpawnPreviewActor) == true)
 		{

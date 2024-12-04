@@ -9,6 +9,8 @@
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
+#include "Actor/Object/PWSpawnAreaActor.h"
+#include "Components/CapsuleComponent.h"
 #include "Component/PWPlayerInputComponent.h"
 #include "Core/InputHandler/SpawnCharacterInputHandler.h"
 #include "Core/PWEventManager.h"
@@ -268,7 +270,7 @@ void APWPlayerController::CS_SpawnActor_Implementation(TSubclassOf<AActor> Spawn
 	}
 }
 
-void APWPlayerController::CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform)
+void APWPlayerController::CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, FTransform SpawnTransform)
 {
 	if (IsValid(GetWorld()) == false)
 	{
@@ -283,8 +285,21 @@ void APWPlayerController::CS_SpawnCharacter_Implementation(ECharacterType SpawnC
 		return;
 	}
 
+	float CharacterHalfHeight;
+	const APWPlayerCharacter* PlayerCharacterCDO = Cast<APWPlayerCharacter>(PWGameData->PlayerCharacterClass->GetDefaultObject());
+	if (IsValid(PlayerCharacterCDO) == true)
+	{
+		UCapsuleComponent* CharacterCapsuleComponent = PlayerCharacterCDO->GetCapsuleComponent();
+		if (IsValid(CharacterCapsuleComponent) == true)
+		{
+			CharacterHalfHeight = CharacterCapsuleComponent->GetScaledCapsuleHalfHeight();
+		}
+	}
+
+	SpawnTransform.SetLocation(SpawnTransform.GetLocation() + FVector(0.f, 0.f, CharacterHalfHeight + 1.f));// Offset
+
 	APWPlayerCharacter* SpawnedCharacter = GetWorld()->SpawnActor<APWPlayerCharacter>(PWGameData->PlayerCharacterClass, SpawnTransform);
-	if (ensure(IsValid(SpawnedCharacter) == true))
+	if (IsValid(SpawnedCharacter) == true)
 	{
 		SpawnedCharacter->SetReplicates(true);
 
@@ -426,7 +441,19 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 	    const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
 
 	    FHitResult HitResult;
-	    if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility))
+		bool bIsHitSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility);
+
+		bool bSpawnAreaFound = false;
+	 	APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
+		if (IsValid(PWSpawnAreaActor) == true)
+		{
+			if (PWSpawnAreaActor->GetTeamSide() == GetTeamSide())
+			{
+				bSpawnAreaFound = true;
+			}
+		}
+
+	    if (bIsHitSuccess == true && bSpawnAreaFound == true)
 	    {
 	        FVector NewSpawnLocation = HitResult.ImpactPoint;
 			NewSpawnLocation += FVector(0.f, 0.f, 1.f); //Offset
@@ -442,7 +469,19 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 				CommanderPawnRotator.Yaw -= 90.f; // 메시 방향 때문에 일부러 설정
 				SpawnPreviewActor->SetActorRotation(CommanderPawnRotator);
 			}
+
+			if (IsValid(SpawnPreviewComponent) == true)
+			{
+				SpawnPreviewComponent->SetVisibility(true);
+			}
 	    }
+		else
+		{
+			if (IsValid(SpawnPreviewComponent) == true)
+			{
+				SpawnPreviewComponent->SetVisibility(false);
+			}
+		}
 	}
 }
 
@@ -466,13 +505,19 @@ void APWPlayerController::TryEnableCharacterSpawn()
 		return;
 	}
 
+	const APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	bIsCharacterSpawning = true;
+
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
 	}
-
-	bIsCharacterSpawning = true;
 
 	if (IsLocalPlayerController() == true)
 	{
@@ -485,7 +530,7 @@ void APWPlayerController::TryEnableCharacterSpawn()
 			SpawnCharacterInputHandler->SelectedCharacterTypeChangedDelegate.AddUObject(this, &APWPlayerController::OnSelectedCharacterTypeChanged);
 		}
 
-		//Spawn preivew actor
+		//Spawn preview actor
 		SpawnPreviewActor = GetWorld()->SpawnActor<AActor>();
 		if (IsValid(SpawnPreviewActor) == true)
 		{
