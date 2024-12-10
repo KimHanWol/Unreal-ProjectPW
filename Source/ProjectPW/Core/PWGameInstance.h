@@ -44,6 +44,7 @@ public:
 	FORCEINLINE class UPWAssetLoadManager* GetAssetLoadManager() const { return PWAssetLoadManager; }
 
 	class UPWTurnManageSubsystem* GetPWTurnManageSubsystem() const;
+	class UPWSteamMatchMakingSubsystem* GetPWSteamMatchMakingSubsystem() const;
 
 protected:
 

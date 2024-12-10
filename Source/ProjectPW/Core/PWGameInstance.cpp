@@ -7,6 +7,7 @@
 //Engine
 
 //Game
+#include "Core/Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
@@ -106,4 +107,9 @@ UPWAssetLoadManager* UPWGameInstance::GetAssetLoadManager(const UObject* WorldCo
 UPWTurnManageSubsystem* UPWGameInstance::GetPWTurnManageSubsystem() const
 {
 	return GetSubsystem<UPWTurnManageSubsystem>();
+}
+
+UPWSteamMatchMakingSubsystem* UPWGameInstance::GetPWSteamMatchMakingSubsystem() const
+{
+	return GetSubsystem<UPWSteamMatchMakingSubsystem>();
 }

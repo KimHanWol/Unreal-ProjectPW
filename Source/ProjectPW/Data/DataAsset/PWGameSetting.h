@@ -39,4 +39,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	float TurnEvent_SpawnVolumeChance = 0.2f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
+	FName MainLevelPath;
 };
