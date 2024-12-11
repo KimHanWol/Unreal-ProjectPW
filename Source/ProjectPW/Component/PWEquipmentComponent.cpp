@@ -101,7 +101,7 @@ void UPWEquipmentComponent::SpawnEquipmentActor(ECharacterType OwnerCharacterTyp
 
 	SpawnedEquipmentActor = GetWorld()->SpawnActor<APWEquipmentActorBase>(EquipmentActorClass);
 	if (IsValid(OwnerSkeletalMesh) == true)
-	{
+	{	
 		SpawnedEquipmentActor->AttachToComponent(OwnerSkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 		SpawnedEquipmentActor->SetOwner(GetOwner());
 	}

@@ -15,6 +15,7 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Healable.h"
 #include "Component/PWCharacterHUDComponent.h"
+#include "Component/PWCharacterSightComponent.h"
 #include "Component/PWEquipmentComponent.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
@@ -22,15 +23,23 @@
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Engine/SpotLight.h"
 #include "Helper/PWGameplayStatics.h"
+#include "PWPlayerController.h"
+
 
 APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
+	
+
 	PWEquipmentComponent = CreateDefaultSubobject<UPWEquipmentComponent>(TEXT("EquipmentComponent"));
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemCompnent"));
 	CharacterHUDComponent = CreateDefaultSubobject<UPWCharacterHUDComponent>(TEXT("CharacterHUDComponent"));
 	CharacterHUDComponent->SetupAttachment(GetRootComponent());
+
+	CharacterSightComponent = CreateDefaultSubobject<UPWCharacterSightComponent>(TEXT("CharacterSightComponent"));
+	CharacterSightComponent->SetupAttachment(GetRootComponent());
 
 	PWAttributeSet_Attackable = CreateDefaultSubobject<UPWAttributeSet_Attackable>(TEXT("AttributeSet_Attackable"));
 	AbilitySystemComponent->AddAttributeSetSubobject(PWAttributeSet_Attackable);
@@ -195,9 +204,10 @@ void APWPlayerCharacter::SM_ApplySnapshotTransform_Implementation(const FTransfo
 	SetActorTransform(NewTransform);
 }
 
-void APWPlayerCharacter::SM_InitializeCharacter_Implementation(ECharacterType InCharacterType)
+void APWPlayerCharacter::SM_InitializeCharacter_Implementation(APWPlayerController* OwnerController, ECharacterType InCharacterType)
 {
 	CharacterType = InCharacterType;
+	bIsLocalCharacter = IsValid(OwnerController) == true && OwnerController->IsLocalController() == true;
 	
 	if (const FPWCharacterDataTableRow* CharacterData = UPWGameplayStatics::FindCharacterData(this, CharacterType))
 	{
@@ -211,6 +221,42 @@ void APWPlayerCharacter::SM_InitializeCharacter_Implementation(ECharacterType In
 		{
 			PWEquipmentComponent->SpawnEquipmentActor(CharacterType);
 		}
+	}
+}
+
+void APWPlayerCharacter::SM_EnableCharacterSpotLight_Implementation(bool bEnabled)
+{
+	if(bIsLocalCharacter == false) 
+	{
+		return;
+	}
+
+	if (IsValid(CharacterSightComponent) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (IsValid(CharacterSightSpotLight) == false)
+	{
+		CharacterSightSpotLight = CharacterSightComponent->SpawnCharacterSightSpotLight();
+	}
+
+	if (IsValid(CharacterSpotLight) == false)
+	{
+		CharacterSpotLight =  CharacterSightComponent->SpawnCharacterSpotLight();
+	}
+
+	bool bNeedToHide = bEnabled == false;
+
+	if (ensure(IsValid(CharacterSightSpotLight) == true))
+	{
+		CharacterSightSpotLight->SetActorHiddenInGame(bNeedToHide);
+	}
+
+	if (ensure(IsValid(CharacterSpotLight) == true))
+	{
+		CharacterSpotLight->SetActorHiddenInGame(bNeedToHide);
 	}
 }
 
@@ -304,6 +350,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	bIsDead = true;
 
 	SM_EnableCharacterAnimation(true);
+	SM_EnableCharacterSpotLight(false);
 
 	//LookAt
 	LastRotationBeforeDeath = GetActorRotation();
@@ -343,6 +390,7 @@ void APWPlayerCharacter::OnPlayerRevived()
 
 	SM_EnableCharacterAnimation(false);
 	SM_HideActorByAliveState(false);
+	SM_EnableCharacterSpotLight(true);
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
@@ -356,7 +404,7 @@ UPWAttributeSet_Healable* APWPlayerCharacter::GetPWAttributeSet_Healable() const
 	return PWAttributeSet_Healable;
 }
 
-void APWPlayerCharacter::InitializeCharacter(ETeamSide NewTeamSide, ECharacterType NewCharacterType)
+void APWPlayerCharacter::InitializeCharacter(class APWPlayerController* OwnerPlayerController, ETeamSide NewTeamSide, ECharacterType NewCharacterType)
 {
 	TeamSide = NewTeamSide;
 	CharacterType = NewCharacterType;
@@ -364,7 +412,8 @@ void APWPlayerCharacter::InitializeCharacter(ETeamSide NewTeamSide, ECharacterTy
 	//Set attribute
 	ApplyAttributeData();
 
-	SM_InitializeCharacter(CharacterType);
+	SM_InitializeCharacter(OwnerPlayerController, NewCharacterType);
+	SM_EnableCharacterSpotLight(true);
 }
 
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const

@@ -66,7 +66,7 @@ public:
 
 	bool IsDead() const { return bIsDead; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
-	void InitializeCharacter(ETeamSide NewTeamSide, ECharacterType NewCharacterType);
+	void InitializeCharacter(class APWPlayerController* OwnerPlayerController, ETeamSide NewTeamSide, ECharacterType NewCharacterType);
 	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
 	UFUNCTION(Server, Reliable)
@@ -78,8 +78,8 @@ public:
 	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);
 
 	UFUNCTION(NetMulticast, Reliable)
-	void SM_InitializeCharacter(ECharacterType InCharacterType);
-	void SM_InitializeCharacter_Implementation(ECharacterType InCharacterType);
+	void SM_InitializeCharacter(class APWPlayerController* OwnerController, ECharacterType InCharacterType);
+	void SM_InitializeCharacter_Implementation(class APWPlayerController* OwnerController, ECharacterType InCharacterType);
 
 private:
 
@@ -117,6 +117,10 @@ private:
 	//기본적인 움직임이 아닌 캐릭터의 모션을 완전히 멈춤
 	void EnableCharacterAnimation(bool bEnabled);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void SM_EnableCharacterSpotLight(bool bEnabled);
+	void SM_EnableCharacterSpotLight_Implementation(bool bEnabled);
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
@@ -132,15 +136,29 @@ private:
 	UPROPERTY(EditDefaultsOnly, Replicated)
 	ECharacterType CharacterType;
 
+	UPROPERTY(Transient)
+	bool bIsLocalCharacter = false;
+
+	//Local
+	UPROPERTY(EditDefaultsOnly)
+	class ASpotLight* CharacterSightSpotLight;
+
+	//Local
+	UPROPERTY(EditDefaultsOnly)
+	class ASpotLight* CharacterSpotLight;
+
 	//Component
 	UPROPERTY(EditAnywhere)
 	class UPWEquipmentComponent* PWEquipmentComponent;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	class UAbilitySystemComponent* AbilitySystemComponent;
 
 	UPROPERTY(VisibleAnywhere)
 	class UPWCharacterHUDComponent* CharacterHUDComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	class UPWCharacterSightComponent* CharacterSightComponent;
 
 	//AttributeSet
 	UPROPERTY(Transient)
