@@ -45,23 +45,31 @@ void UPWCharacterHUDComponent::TickComponent(float DeltaTime, enum ELevelTick Ti
 		return;
 	}
 
-	APawn* LocalPlayerPawn = LocalPlayerController->GetPawn();
-	if (IsValid(LocalPlayerPawn) == true && IsValid(GetOwner()) == true )
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
+	if (IsValid(OwnerCharacter) == false)
 	{
-		const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetComponentLocation(), LocalPlayerPawn->GetActorLocation());
-		SetWorldRotation(LookRotator);
+		return;
 	}
 
-	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
-	if (IsValid(OwnerCharacter) == true)
+	bool bNeedToShowHUD = true;
+	if (OwnerCharacter->IsDead() == true)
 	{
-		if (LocalPlayerController->GetTeamSide() == OwnerCharacter->GetTeamSide())
+		bNeedToShowHUD = false;
+	}
+	else if(LocalPlayerController->GetTeamSide() != OwnerCharacter->GetTeamSide())
+	{	
+		bNeedToShowHUD = false;
+	}
+
+	SetVisibility(bNeedToShowHUD);
+
+	if (bNeedToShowHUD == true)
+	{
+		APawn* LocalPlayerPawn = LocalPlayerController->GetPawn();
+		if (IsValid(LocalPlayerPawn) == true && IsValid(GetOwner()) == true)
 		{
-			SetVisibility(true);
-		}
-		else
-		{
-			SetVisibility(false);
+			const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetComponentLocation(), LocalPlayerPawn->GetActorLocation());
+			SetWorldRotation(LookRotator);
 		}
 	}
 }
