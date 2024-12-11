@@ -31,6 +31,10 @@ public:
 
 	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TargetCharacterList);
 
+public:
+
+	FTimerHandle TeamSideInitializeWaitTimerHandle;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -38,4 +42,5 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* StaticMeshComponent;
+
 };

@@ -41,7 +41,6 @@ public:
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
 	bool IsMyTurn() const { return bIsMyTurn; }
-	bool IsTeamSideInitialized() const;
 	bool IsTeamCharacterInitialized() const { return bIsTeamCharacterInitialized; }
 	float GetCurrentTurnActivePoint() const { return CurrentTurnActivePoint; }
 

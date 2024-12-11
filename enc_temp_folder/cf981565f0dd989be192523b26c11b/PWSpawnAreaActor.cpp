@@ -46,7 +46,7 @@ void APWSpawnAreaActor::BeginPlay()
 				if (IsValid(LocalPlayerController) == true)
 				{
 					APWPlayerState* PWPlayerState = LocalPlayerController->GetPlayerState<APWPlayerState>();
-					if (IsValid(PWPlayerState) == true && PWPlayerState->IsTeamSideInitialized() == true)
+					if (IsValid(PWPlayerState) == true)
 					{
 						if (PWPlayerState->GetTeamSide() == WeakThis->GetTeamSide())
 						{

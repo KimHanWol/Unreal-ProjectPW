@@ -11,7 +11,6 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Data/DataAsset/PWGameSetting.h"
-#include "Data/PWGameEnum.h"
 #include "PWEventManager.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -126,11 +125,6 @@ int32 APWPlayerState::GetAliveTeamCharacterNum() const
 	return AliveTeamCharacterList.Num();
 }
 
-bool APWPlayerState::IsTeamSideInitialized() const
-{
-	return TeamSide != ETeamSide::None;
-}
-
 void APWPlayerState::SetIsMyTurn(bool bInIsMyTurn)
 {
 	bIsMyTurn = bInIsMyTurn;
@@ -161,7 +155,6 @@ void APWPlayerState::OnRep_TeamCharacterList()
 		if (IsValid(PWEventManager) == true)
 		{
 			PWEventManager->TeamCharacterAllSpawnedDelegate.Broadcast(Cast<APWPlayerController>(GetPlayerController()), TeamCharacterList);
-			bIsTeamCharacterInitialized = true;
 		}
 	}
 }
