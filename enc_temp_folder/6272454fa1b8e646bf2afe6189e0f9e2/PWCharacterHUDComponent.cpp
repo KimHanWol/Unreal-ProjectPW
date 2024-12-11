@@ -51,17 +51,4 @@ void UPWCharacterHUDComponent::TickComponent(float DeltaTime, enum ELevelTick Ti
 		const FRotator& LookRotator = UKismetMathLibrary::FindLookAtRotation(GetComponentLocation(), LocalPlayerPawn->GetActorLocation());
 		SetWorldRotation(LookRotator);
 	}
-
-	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());
-	if (IsValid(OwnerCharacter) == true)
-	{
-		if (LocalPlayerController->GetTeamSide() == OwnerCharacter->GetTeamSide())
-		{
-			SetVisibility(true);
-		}
-		else
-		{
-			SetVisibility(false);
-		}
-	}
 }
