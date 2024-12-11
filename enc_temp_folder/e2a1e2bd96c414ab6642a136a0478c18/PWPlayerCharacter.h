@@ -121,6 +121,10 @@ private:
 	void SM_EnableCharacterSpotLight(bool bEnabled);
 	void SM_EnableCharacterSpotLight_Implementation(bool bEnabled);
 
+public:
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterPossessDataChanged, )
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Replicated)

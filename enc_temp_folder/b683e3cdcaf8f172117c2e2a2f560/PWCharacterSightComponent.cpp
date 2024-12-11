@@ -87,9 +87,12 @@ void UPWCharacterSightComponent::OnCharacterPossessed(APawn* PossessedPawn, bool
 
 void UPWCharacterSightComponent::InvalidateSight()
 {
+	//TrySpawnSpotLight();
+
 	if (IsValid(CharacterSightSpotLight) == false ||
 		IsValid(CharacterSpotLight) == false)
 	{
+		ensure(false);
 		return;
 	}
 

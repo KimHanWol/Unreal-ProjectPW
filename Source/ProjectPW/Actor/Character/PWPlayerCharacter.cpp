@@ -231,33 +231,7 @@ void APWPlayerCharacter::SM_EnableCharacterSpotLight_Implementation(bool bEnable
 		return;
 	}
 
-	if (IsValid(CharacterSightComponent) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	if (IsValid(CharacterSightSpotLight) == false)
-	{
-		CharacterSightSpotLight = CharacterSightComponent->SpawnCharacterSightSpotLight();
-	}
-
-	if (IsValid(CharacterSpotLight) == false)
-	{
-		CharacterSpotLight =  CharacterSightComponent->SpawnCharacterSpotLight();
-	}
-
-	bool bNeedToHide = bEnabled == false;
-
-	if (ensure(IsValid(CharacterSightSpotLight) == true))
-	{
-		CharacterSightSpotLight->SetActorHiddenInGame(bNeedToHide);
-	}
-
-	if (ensure(IsValid(CharacterSpotLight) == true))
-	{
-		CharacterSpotLight->SetActorHiddenInGame(bNeedToHide);
-	}
+	CharacterSightComponent->EnableSpotLight(bEnabled);
 }
 
 void APWPlayerCharacter::SM_HideActorByAliveState_Implementation(bool bHide)
