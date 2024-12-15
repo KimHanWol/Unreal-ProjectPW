@@ -333,7 +333,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 
 	SetActorEnableCollision(false);
 
-	PlayMontage(UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::Death));
+	PlayMontage(UPWAnimDataAsset::GetAnimMontage(this, CharacterType, EAnimMontageType::Death));
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == true)

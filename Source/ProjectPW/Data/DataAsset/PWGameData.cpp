@@ -9,6 +9,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 
 UPWGameData* UPWGameData::Instance = nullptr;
@@ -39,7 +40,14 @@ void UPWGameData::Initialize()
 
 TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* WorldContextObj, EGameplayEffectType GameplayEffectType)
 {
-	if (UPWGameData::Get(WorldContextObj)->GameplayEffectMap.Contains(GameplayEffectType) == false)
+	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	if (PWGameData->GameplayEffectMap.Contains(GameplayEffectType) == false)
 	{
 		ensure(false);
 		return nullptr;
@@ -48,9 +56,38 @@ TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* World
 	return UPWGameData::Get(WorldContextObj)->GameplayEffectMap[GameplayEffectType];
 }
 
+const FPWCharacterDataTableRow* UPWGameData::FindCharacterTableRow(const UObject* WorldContextObj, ECharacterType CharacterType)
+{
+	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	const FPWCharacterDataTableRow* CharacterData;
+	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
+	for (const FPWCharacterDataTableRow* InCharacterData : CharacterDataList)
+	{
+		if (InCharacterData != nullptr && InCharacterData->CharacterType == CharacterType)
+		{
+			return CharacterData = InCharacterData;
+		}
+	}
+
+	return nullptr;
+}
+
 TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject* WorldContextObj)
 {
-	int32 VolumeActorListNum = UPWGameData::Get(WorldContextObj)->VolumeActorList.Num();
+	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	int32 VolumeActorListNum = PWGameData->VolumeActorList.Num();
 	if (VolumeActorListNum <= 0)
 	{
 		ensure(false);

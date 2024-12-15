@@ -12,14 +12,29 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Interface/PWDamageableInterface.h"
 #include "Interface/PWHealableInterface.h"
 
-void APWEquipmentActor_Bandage::BeginPlay()
+void APWEquipmentActor_Bandage::InitializeEquipmentActor(AActor* OwnerActor)
 {
-	Super::BeginPlay();
+	Super::InitializeEquipmentActor(OwnerActor);
 
-	Montage_Bandage = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::Bandage);
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(OwnerActor);
+	if (IsValid(OwnerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	const FPWCharacterDataTableRow* CharacterData = OwnerCharacter->GetCharacterData(); 
+	if (CharacterData == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	Montage_Bandage = UPWAnimDataAsset::GetAnimMontage(this, CharacterData->CharacterType, EAnimMontageType::Bandage);
 	UPWAssetLoadManager::AsyncLoad(this, Montage_Bandage);
 }
 

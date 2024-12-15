@@ -34,9 +34,6 @@ public:
 	static class UPWGameSetting* GetGameSetting(const UObject* WorldContextObj);
 	class UPWGameSetting* GetGameSetting() const;
 
-	static class UPWAnimDataAsset* GetAnimDataAsset(const UObject* WorldContextObj);
-	class UPWAnimDataAsset* GetAnimDataAsset() const;
-
 	static class UPWEventManager* GetEventManager(const UObject* WorldContextObj);
 	FORCEINLINE class UPWEventManager* GetEventManager() const { return PWEventManager; }
 
@@ -55,9 +52,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	class UPWGameData* PWGameData;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	class UPWAnimDataAsset* PWAnimDataAsset;
 
 private:
 

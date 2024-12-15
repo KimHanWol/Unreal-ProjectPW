@@ -19,7 +19,7 @@ class PROJECTPW_API APWEquipmentActor_Gun: public APWEquipmentActorBase
 
 protected:
 
-	virtual void BeginPlay() override;
+	virtual void InitializeEquipmentActor(AActor* OwnerActor) override;
 
 public:
 

@@ -95,6 +95,8 @@ public:
 		return RowArray;
 	}
 
+	static const struct FPWCharacterDataTableRow* FindCharacterTableRow(const UObject* WorldContextObj, ECharacterType CharacterType);
+
 	static TSubclassOf<class APWVolumeActorBase> GetVolumeActorRandom(const UObject* WorldContextObj);
 
 protected:

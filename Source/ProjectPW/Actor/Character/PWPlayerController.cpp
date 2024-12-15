@@ -576,7 +576,7 @@ void APWPlayerController::OnSelectedCharacterTypeChanged(ECharacterType NewChara
 						}
 					}
 
-					SpawnPreviewComponent->PlayAnimation(UPWAnimDataAsset::GetAnimation(this, EAnimationType::Idle_SpawnPreivew).LoadSynchronous(), true);
+					SpawnPreviewComponent->PlayAnimation(UPWAnimDataAsset::GetAnimation(this, CharacterData->CharacterType, EAnimationType::Idle).LoadSynchronous(), true);
 					SpawnPreviewComponent->SetCastShadow(false);
 				}
 			}

@@ -18,6 +18,7 @@ class PROJECTPW_API APWEquipmentActorBase: public AActor
 {
 	GENERATED_BODY()
 
+
 protected:
 
 	APWEquipmentActorBase(const FObjectInitializer& ObjectInitializer);
@@ -27,6 +28,8 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 
 public:
+
+	virtual void InitializeEquipmentActor(AActor* OwnerActor);
 
 	virtual void Execute_Main_Triggered() {};
 	virtual void Execute_Main_Completed() {};

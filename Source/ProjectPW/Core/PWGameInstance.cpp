@@ -29,11 +29,6 @@ void UPWGameInstance::Init()
 	{
 		PWGameData->Initialize();
 	}
-
-	if (ensure(IsValid(PWAnimDataAsset) == true))
-	{
-		PWAnimDataAsset->Initialize();
-	}
 }
 
 void UPWGameInstance::Shutdown()
@@ -82,16 +77,6 @@ UPWGameSetting* UPWGameInstance::GetGameSetting(const UObject* WorldContextObj)
 UPWGameSetting* UPWGameInstance::GetGameSetting() const
 {
 	return PWGameSetting;
-}
-
-UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset(const UObject* WorldContextObj)
-{
-	return UPWGameInstance::Get(WorldContextObj)->GetAnimDataAsset();
-}
-
-UPWAnimDataAsset* UPWGameInstance::GetAnimDataAsset() const
-{
-	return PWAnimDataAsset;
 }
 
 UPWEventManager* UPWGameInstance::GetEventManager(const UObject* WorldContextObj)

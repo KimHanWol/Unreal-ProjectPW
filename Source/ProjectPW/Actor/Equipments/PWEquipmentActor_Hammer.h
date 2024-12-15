@@ -21,7 +21,7 @@ protected:
 
 	APWEquipmentActor_Hammer(const FObjectInitializer& ObjectInitializer);
 
-	virtual void BeginPlay() override;
+	virtual void InitializeEquipmentActor(AActor* OwnerActor) override;
 	virtual void Tick(float DeltaTime) override;
 	virtual bool IsInteractableActor(AActor* TargetActor) override;
 

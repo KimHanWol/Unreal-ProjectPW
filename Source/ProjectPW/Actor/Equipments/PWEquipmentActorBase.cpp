@@ -50,6 +50,11 @@ void APWEquipmentActorBase::Tick(float DeltaTime)
 	CheckTargetOnCrosshair();
 }
 
+void APWEquipmentActorBase::InitializeEquipmentActor(AActor* OwnerActor)
+{
+	SetOwner(OwnerActor);
+}
+
 bool APWEquipmentActorBase::EquipmentActorHitTest(float InMaxRange, ECollisionChannel TargetChannel, FHitResult& OutHitResult, FRotator& OutViewPointRotation)
 {
 	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(GetOwner());

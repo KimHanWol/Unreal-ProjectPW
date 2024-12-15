@@ -8,6 +8,8 @@
 //Game
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "PWGameData.h"
 
 void UPWAnimDataAsset::Initialize()
 {
@@ -26,22 +28,25 @@ void UPWAnimDataAsset::Initialize()
 	{
 		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
 	}
+
+	UPWAssetLoadManager::AsyncLoad(this, BlendSpace);
 }
 
-const UPWAnimDataAsset* UPWAnimDataAsset::Get(const UObject* WorldContextObj)
+const UPWAnimDataAsset* UPWAnimDataAsset::Get(const UObject* WorldContextObj, ECharacterType CharcterType)
 {
-	UPWGameInstance* PWGameInstance = UPWGameInstance::Get(WorldContextObj);
-	if (ensure(IsValid(PWGameInstance) == true))
+	const FPWCharacterDataTableRow* CharacterData = UPWGameData::FindCharacterTableRow(WorldContextObj, CharcterType);
+	if (CharacterData == nullptr)
 	{
-		return PWGameInstance->GetAnimDataAsset(WorldContextObj);
+		ensure(false);
+		return nullptr;
 	}
 
-	return nullptr;
+	return CharacterData->AnimDataAsset;
 }
 
-TSoftObjectPtr<UAnimMontage> UPWAnimDataAsset::GetAnimMontage(const UObject* WorldContextObj, EAnimMontageType AnimMontageType)
+TSoftObjectPtr<UAnimMontage> UPWAnimDataAsset::GetAnimMontage(const UObject* WorldContextObj, ECharacterType CharcterType, EAnimMontageType AnimMontageType)
 {
-	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj);
+	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj, CharcterType);
 	if (IsValid(PWAnimDataAsset) == false)
 	{
 		ensure(false);
@@ -57,9 +62,9 @@ TSoftObjectPtr<UAnimMontage> UPWAnimDataAsset::GetAnimMontage(const UObject* Wor
 	return PWAnimDataAsset->MontageMap[AnimMontageType];
 }
 
-TSoftObjectPtr<UAnimationAsset> UPWAnimDataAsset::GetAnimation(const UObject* WorldContextObj, EAnimationType AnimationType)
+TSoftObjectPtr<UAnimationAsset> UPWAnimDataAsset::GetAnimation(const UObject* WorldContextObj, ECharacterType CharcterType, EAnimationType AnimationType)
 {
-	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj);
+	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj, CharcterType);
 	if (IsValid(PWAnimDataAsset) == false)
 	{
 		ensure(false);
@@ -73,4 +78,16 @@ TSoftObjectPtr<UAnimationAsset> UPWAnimDataAsset::GetAnimation(const UObject* Wo
 	}
 
 	return PWAnimDataAsset->AnimationMap[AnimationType];
+}
+
+TSoftObjectPtr<UBlendSpace> UPWAnimDataAsset::GetBlendSpace(const UObject* WorldContextObj, ECharacterType CharcterType)
+{
+	const UPWAnimDataAsset* PWAnimDataAsset = UPWAnimDataAsset::Get(WorldContextObj, CharcterType);
+	if (IsValid(PWAnimDataAsset) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	return PWAnimDataAsset->BlendSpace;
 }

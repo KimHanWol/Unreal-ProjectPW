@@ -13,15 +13,30 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 #include "Interface/PWAttackableInterface.h"
 #include "Interface/PWDamageableInterface.h"
 
-void APWEquipmentActor_Gun::BeginPlay()
+void APWEquipmentActor_Gun::InitializeEquipmentActor(AActor* OwnerActor)
 {
-	Super::BeginPlay();
+	Super::InitializeEquipmentActor(OwnerActor);
 
-	Montage_ADS = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::ADS);
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(OwnerActor);
+	if (IsValid(OwnerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	const FPWCharacterDataTableRow* CharacterData = OwnerCharacter->GetCharacterData(); 
+	if (CharacterData == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	Montage_ADS = UPWAnimDataAsset::GetAnimMontage(this, CharacterData->CharacterType, EAnimMontageType::ADS);
 	UPWAssetLoadManager::AsyncLoad(this, MuzzleEffect, ImpactEffect, Montage_ADS);
 }
 

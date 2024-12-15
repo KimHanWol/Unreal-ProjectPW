@@ -26,8 +26,13 @@ UENUM()
 enum class EAnimationType : uint8
 {
 	None,
-	Idle_SpawnPreivew,
+	Idle,
+	JumpStart,
+	Jumping,
+	JumpEnd,
 };
+
+enum class ECharacterType : uint8;
 
 UCLASS()
 class PROJECTPW_API UPWAnimDataAsset: public UDataAsset
@@ -36,20 +41,23 @@ class PROJECTPW_API UPWAnimDataAsset: public UDataAsset
 
 public:
 
-	static const UPWAnimDataAsset* Get(const UObject* WorldContextObj);
-
-	static TSoftObjectPtr<UAnimMontage> GetAnimMontage(const UObject* WorldContextObj, EAnimMontageType AnimMontageType);
-	static TSoftObjectPtr<UAnimationAsset> GetAnimation(const UObject* WorldContextObj, EAnimationType AnimationType);
-
+	//TODO: PWGameInstance 나 GameData 쪽에서 AsyncLoad 방법 찾아야 함
 	void Initialize();
 
-protected:
+	static const UPWAnimDataAsset* Get(const UObject* WorldContextObj, ECharacterType CharcterType);
 
-	static UPWAnimDataAsset* Instance;
+	static TSoftObjectPtr<UAnimMontage> GetAnimMontage(const UObject* WorldContextObj, ECharacterType CharcterType, EAnimMontageType AnimMontageType);
+	static TSoftObjectPtr<UAnimationAsset> GetAnimation(const UObject* WorldContextObj, ECharacterType CharcterType, EAnimationType AnimationType);
+	static TSoftObjectPtr<UBlendSpace> GetBlendSpace(const UObject* WorldContextObj, ECharacterType CharcterType);
+
+protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EAnimMontageType, TSoftObjectPtr<class UAnimMontage>> MontageMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EAnimationType, TSoftObjectPtr<class UAnimationAsset>> AnimationMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftObjectPtr<class UBlendSpace> BlendSpace;
 };

@@ -11,6 +11,7 @@
 #include "Actor/Character/PWPlayerController.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 
 APWEquipmentActor_Hammer::APWEquipmentActor_Hammer(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -19,12 +20,26 @@ APWEquipmentActor_Hammer::APWEquipmentActor_Hammer(const FObjectInitializer& Obj
 	PrimaryActorTick.bStartWithTickEnabled = false;
 }
 
-void APWEquipmentActor_Hammer::BeginPlay()
+void APWEquipmentActor_Hammer::InitializeEquipmentActor(AActor* OwnerActor)
 {	
-	Super::BeginPlay();
+	Super::InitializeEquipmentActor(OwnerActor);
 
-	Montage_HammerSmash = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::HammerSmash);
-	Montage_Build = UPWAnimDataAsset::GetAnimMontage(this, EAnimMontageType::Build);
+	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(OwnerActor);
+	if (IsValid(OwnerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	const FPWCharacterDataTableRow* CharacterData = OwnerCharacter->GetCharacterData(); 
+	if (CharacterData == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	Montage_HammerSmash = UPWAnimDataAsset::GetAnimMontage(this, CharacterData->CharacterType, EAnimMontageType::HammerSmash);
+	Montage_Build = UPWAnimDataAsset::GetAnimMontage(this, CharacterData->CharacterType, EAnimMontageType::Build);
 	UPWAssetLoadManager::AsyncLoad(this, Montage_HammerSmash, Montage_Build);
 
 	BuildPreviewObject = GetWorld()->SpawnActor(BuildObjectClass);
