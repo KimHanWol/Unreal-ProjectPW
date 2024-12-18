@@ -62,12 +62,20 @@ void UGA_Fire::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	
 	//TODO: EffectDataTable 만들어서 Asyncload 하기
 
-	//Muzzle Effect
-	MuzzleEffectEmitter = UPWGameplayStatics::SpawnEmitterAttached(
-		UPWAssetLoadManager::GetLoadedAsset<UParticleSystem>(this, MuzzleEffect),
-		OwnerEquipmentActor->GetMesh(),
-		TEXT("MuzzleFlashSocket")
-	);
+	TArray<UActorComponent*> MuzzlePointComponentList =	OwnerEquipmentActor->GetComponentsByTag(UStaticMeshComponent::StaticClass(), TEXT("MuzzlePoint"));
+	if (MuzzlePointComponentList.Num() > 0)
+	{
+		USceneComponent* MuzzlePointSeceneComponent = Cast<USceneComponent>(MuzzlePointComponentList[0]);
+		if (IsValid(MuzzlePointSeceneComponent) == true)
+		{
+			//Muzzle Effect
+			MuzzleEffectEmitter = UPWGameplayStatics::SpawnEmitterAttached(
+				UPWAssetLoadManager::GetLoadedAsset<UParticleSystem>(this, MuzzleEffect),
+				MuzzlePointSeceneComponent
+			);
+			MuzzleEffectEmitter->SetWorldScale3D(FVector(5.f)); //메시 자체의 스케일이 줄어들어있기 때문에 강제로 스케일 설정
+		}
+	}
 
 	//Hit Test
 	FHitResult HitResult;
@@ -142,7 +150,10 @@ void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 		}
 	}
 
-	MuzzleEffectEmitter->DestroyComponent();
+	if (IsValid(MuzzleEffectEmitter) == true)
+	{
+		MuzzleEffectEmitter->DestroyComponent();
+	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

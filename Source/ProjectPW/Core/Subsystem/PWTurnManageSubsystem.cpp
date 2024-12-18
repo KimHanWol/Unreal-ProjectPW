@@ -163,7 +163,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 	const TArray<APWPlayerCharacter*>& PlayerCharacterList =  UPWGameplayStatics::GetAllPlayerCharacter(this);
 	for (APWPlayerCharacter* PlayerCharacter : PlayerCharacterList)
 	{
-		FSnapshotCharacterData SnapshotCharacterData;
+		FSnapshotCharacterData SnapshotCharacterData = FSnapshotCharacterData();
 		SnapshotCharacterData.TargetPlayerCharacter = PlayerCharacter;
 		LogString += TEXT("Character : ") + SnapshotCharacterData.TargetPlayerCharacter->GetName() + TEXT("\n");
 
@@ -190,7 +190,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 		APWVolumeActorBase* PWVolumeActor = Cast<APWVolumeActorBase>(PWVolumeActorForActor);
 		if (IsValid(PWVolumeActor) == true)
 		{
-			FSnapshotVolumeActorData SnapshotVolumeActorData;
+			FSnapshotVolumeActorData SnapshotVolumeActorData = FSnapshotVolumeActorData();
 			SnapshotVolumeActorData.TargetVolumeClass = PWVolumeActor->GetClass();
 			LogString += TEXT("Name : ") + SnapshotVolumeActorData.TargetVolumeClass->GetName() + TEXT("\n");
 
@@ -208,7 +208,7 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 		APWBuildableWall* PWBuildableWall = Cast<APWBuildableWall>(PWBuildableWallForActor);
 		if (IsValid(PWBuildableWall) == true)
 		{
-			FSnapshotBuildableWallData SnapshotBuildableWallData;
+			FSnapshotBuildableWallData SnapshotBuildableWallData = FSnapshotBuildableWallData();
 			SnapshotBuildableWallData.BuildableWall = PWBuildableWall;
 			LogString += TEXT("Name : ") + SnapshotBuildableWallData.BuildableWall->GetName() + TEXT("\n");
 

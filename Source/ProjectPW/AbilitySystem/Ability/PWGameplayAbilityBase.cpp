@@ -58,6 +58,14 @@ bool UPWGameplayAbilityBase::EquipmentActorHitTest(float InMaxRange, ECollisionC
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(OwnerCharacter);
 
+		TArray<AActor*> ChildActors;
+		OwnerCharacter->GetAllChildActors(ChildActors);
+
+		for (AActor* ChildActor : ChildActors)
+		{
+			Params.AddIgnoredActor(ChildActor);
+		}
+
 		bHitSuccess = GetWorld()->LineTraceSingleByChannel(OutHitResult, ViewPointLocation, EndLocation, TargetChannel, Params);
 	}
 

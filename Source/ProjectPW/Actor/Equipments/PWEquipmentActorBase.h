@@ -37,7 +37,7 @@ public:
 	virtual void Execute_Sub_Triggered();
 	virtual void Execute_Sub_Completed();
 
-	class UMeshComponent* GetMesh() { return MeshComponent; }
+	class UMeshComponent* GetMesh() { return StaticMeshComponent; }
 
 protected:
 
@@ -68,7 +68,7 @@ protected:
 private:
 
 	UPROPERTY(EditAnywhere)
-	class UMeshComponent* MeshComponent;
+	class UStaticMeshComponent* StaticMeshComponent;
 
 	//타겟을 겨냥하고 있는가?
 	UPROPERTY(Transient)

@@ -20,10 +20,10 @@ APWEquipmentActorBase::APWEquipmentActorBase(const FObjectInitializer& ObjectIni
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	MeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh Component"));
-	MeshComponent->SetupAttachment(GetRootComponent());
+	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
+	StaticMeshComponent->SetupAttachment(GetRootComponent());
 
-	MeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	StaticMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APWEquipmentActorBase::BeginPlay()
