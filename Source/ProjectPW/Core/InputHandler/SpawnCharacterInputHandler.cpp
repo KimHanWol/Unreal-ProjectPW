@@ -112,11 +112,6 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 		return;
 	}
 
-	if (SpawnedCharacterNum >= 5)
-	{
-		return;
-	}
-
 	if (IsValid(PWPlayerController) == false)
 	{
 		ensure(false);
@@ -166,8 +161,7 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 				Transform.SetLocation(HitResult.ImpactPoint);
 				Transform.SetRotation(FQuat(CommanderPawnRotator));
 
-				PWPlayerController->CS_SpawnCharacter(PWPlayerController, SelectedCharacterType, Transform);
-				SpawnedCharacterNum++;
+				PWPlayerController->CS_SpawnCharacter(SelectedCharacterType, Transform);
 			}
         }
     }

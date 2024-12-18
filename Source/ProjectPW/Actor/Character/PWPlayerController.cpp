@@ -273,7 +273,7 @@ void APWPlayerController::CS_SpawnActor_Implementation(TSubclassOf<AActor> Spawn
 	}
 }
 
-void APWPlayerController::CS_SpawnCharacter_Implementation(APWPlayerController* OwnerPlayerController, ECharacterType SpawnCharacterType, FTransform SpawnTransform)
+void APWPlayerController::CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, FTransform SpawnTransform)
 {
 	if (IsValid(GetWorld()) == false)
 	{
@@ -285,6 +285,17 @@ void APWPlayerController::CS_SpawnCharacter_Implementation(APWPlayerController* 
 	if(IsValid(PWGameData) == false)
 	{
 		ensure(false);
+		return;
+	}
+
+	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
+	if (IsValid(PWPlayerState) == false)
+	{
+		return;
+	}
+
+	if (PWPlayerState->GetAliveTeamCharacterNum() >= 5)
+	{
 		return;
 	}
 
@@ -305,12 +316,8 @@ void APWPlayerController::CS_SpawnCharacter_Implementation(APWPlayerController* 
 	if (IsValid(SpawnedCharacter) == true)
 	{
 		SpawnedCharacter->SetReplicates(true);
-		APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
-		if (IsValid(PWPlayerState) == true)
-		{
-			SpawnedCharacter->InitializeCharacter(this, GetTeamSide(), SpawnCharacterType);
-			PWPlayerState->SS_AddCharacter(SpawnedCharacter);
-		}
+		SpawnedCharacter->InitializeCharacter(this, GetTeamSide(), SpawnCharacterType);
+		PWPlayerState->SS_AddCharacter(SpawnedCharacter);
 	}
 }
 
