@@ -37,9 +37,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	int32 PlayerCount = 3;
 
+	//이벤트 볼륨이 생기는 확률
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	float TurnEvent_SpawnVolumeChance = 0.2f;
 
+	//메인 레벨 경로
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	FName MainLevelPath;
+
+	//BuildableWall 체력
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Object")
+	float BuildableWallDefaultHealth = 60.f;
 };

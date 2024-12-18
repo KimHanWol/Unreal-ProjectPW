@@ -31,8 +31,6 @@
 APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
-	
-
 	PWEquipmentComponent = CreateDefaultSubobject<UPWEquipmentComponent>(TEXT("EquipmentComponent"));
 	AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>(TEXT("AbilitySystemCompnent"));
 	CharacterHUDComponent = CreateDefaultSubobject<UPWCharacterHUDComponent>(TEXT("CharacterHUDComponent"));
@@ -304,6 +302,40 @@ UAbilitySystemComponent* APWPlayerCharacter::GetAbilitySystemComponent() const
 	return AbilitySystemComponent;
 }
 
+void APWPlayerCharacter::LoadCharacterDefaultStats()
+{
+	if (const FPWCharacterDataTableRow* PWCharacterDataTableRow = GetCharacterData())
+	{
+		FString LogString;
+
+		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *UPWGameplayStatics::ConvertEnumToString(this, CharacterType)));
+		if (IsValid(PWAttributeSet_Damageable) == true)
+		{
+			float Health = PWCharacterDataTableRow->Health;
+			PWAttributeSet_Damageable->InitHealth(Health);
+			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), Health));
+			PWAttributeSet_Damageable->InitMaxHealth(Health);
+			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), Health));
+		}
+		if (IsValid(PWAttributeSet_Attackable) == true)
+		{
+			PWAttributeSet_Attackable->InitDamage(PWCharacterDataTableRow->Damage);
+			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Attackable Damage :%f \n"), PWCharacterDataTableRow->Damage));
+		}
+		if (IsValid(PWAttributeSet_Healable) == true)
+		{
+			PWAttributeSet_Healable->InitHealAmount(PWCharacterDataTableRow->HealAmount);
+			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Healable HealAmount :%f \n"), PWCharacterDataTableRow->HealAmount));
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("%s"), *LogString);
+	}
+	else
+	{
+		ensureMsgf(false, TEXT("There's no character data on CharacterDataTable. Check character name on PWPlayerCharacter."));
+	}
+}
+
 UPWAttributeSet_Attackable* APWPlayerCharacter::GetPWAttributeSet_Attackable() const
 {
 	return PWAttributeSet_Attackable;
@@ -353,7 +385,7 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	}
 }
 
-void APWPlayerCharacter::OnPlayerRevived()
+void APWPlayerCharacter::OnRevived()
 {
 	//On character revive
 	bIsDead = false;
@@ -413,49 +445,15 @@ const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 
 void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPWDamageableInterface>& Victim, float Damage)
 {
-	APWPlayerCharacter* VictimCharacter = Cast<APWPlayerCharacter>(Victim.GetObject());
-	if (IsValid(VictimCharacter) == false)
+	IPWDamageableInterface* VictimActor = Cast<IPWDamageableInterface>(Victim.GetObject());
+	if (VictimActor == nullptr)
 	{
 		ensure(false);
 		return;
 	}
 
 	//Apply Damage
-	VictimCharacter->ApplyDamage(this, Damage);
-}
-
-void APWPlayerCharacter::LoadCharacterDefaultStats()
-{
-	if (const FPWCharacterDataTableRow* PWCharacterDataTableRow = GetCharacterData())
-	{
-		FString LogString;
-
-		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *UPWGameplayStatics::ConvertEnumToString(this, CharacterType)));
-		if (IsValid(PWAttributeSet_Damageable) == true)
-		{
-			float Health = PWCharacterDataTableRow->Health;
-			PWAttributeSet_Damageable->InitHealth(Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), Health));
-			PWAttributeSet_Damageable->InitMaxHealth(Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), Health));
-		}
-		if (IsValid(PWAttributeSet_Attackable) == true)
-		{
-			PWAttributeSet_Attackable->InitDamage(PWCharacterDataTableRow->Damage);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Attackable Damage :%f \n"), PWCharacterDataTableRow->Damage));
-		}
-		if (IsValid(PWAttributeSet_Healable) == true)
-		{
-			PWAttributeSet_Healable->InitHealAmount(PWCharacterDataTableRow->HealAmount);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Healable HealAmount :%f \n"), PWCharacterDataTableRow->HealAmount));
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("%s"), *LogString);
-	}
-	else
-	{
-		ensureMsgf(false, TEXT("There's no character data on CharacterDataTable. Check character name on PWPlayerCharacter."));
-	}
+	VictimActor->ApplyDamage(this, Damage);
 }
 
 void APWPlayerCharacter::ApplyAttributeData()

@@ -290,7 +290,7 @@ void APWPlayerController::SM_PossessBySnapshot_Implementation(APawn* Possessable
 	}
 }
 
-void APWPlayerController::CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location)
+void APWPlayerController::CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location, const FRotator& Rotation)
 {
 	if (IsValid(GetWorld()) == false)
 	{

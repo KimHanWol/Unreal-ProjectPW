@@ -26,10 +26,13 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const = 0;
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const = 0;
 
+	virtual void LoadCharacterDefaultStats() = 0;
+
 	virtual void ApplyDamage(class IPWAttackableInterface* Attacker, float DamageAmount);
 	virtual void ApplyHeal(class IPWHealableInterface* Healer, float HealAmount);
 
 	virtual void PostApplyDamage(class IPWAttackableInterface* Attacker);
+	virtual void OnRevived() = 0;
 
 private:
 

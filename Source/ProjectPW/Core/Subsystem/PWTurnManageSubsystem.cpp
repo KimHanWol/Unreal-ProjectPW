@@ -10,6 +10,7 @@
 #include "AbilitySystem/AttributeSet/PWAttributeSet_Damageable.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
+#include "Actor/Object/PWBuildableWall.h"
 #include "Actor/Volume/PWVolumeActorBase.h"
 #include "Actor/Volume/PWVolumeActorLocator.h"
 #include "Core/PWEventManager.h"
@@ -199,6 +200,32 @@ void UPWTurnManageSubsystem::Snapshot(APawn* PossessedPawn, float CurrentTurnAct
 		}
 	}
 
+	LogString += TEXT("\nSNAPSHOT BUILDABLE ACTOR DATA\n");
+	TArray<AActor*> PWBuildableWallForActorList;
+	UPWGameplayStatics::GetAllActorsOfClass(this, APWBuildableWall::StaticClass(), PWBuildableWallForActorList);
+	for (AActor* PWBuildableWallForActor : PWBuildableWallForActorList)
+	{
+		APWBuildableWall* PWBuildableWall = Cast<APWBuildableWall>(PWBuildableWallForActor);
+		if (IsValid(PWBuildableWall) == true)
+		{
+			FSnapshotBuildableWallData SnapshotBuildableWallData;
+			SnapshotBuildableWallData.BuildableWall = PWBuildableWall;
+			LogString += TEXT("Name : ") + SnapshotBuildableWallData.BuildableWall->GetName() + TEXT("\n");
+
+			UPWAttributeSet_Damageable* WallDamageableAttributeSet = PWBuildableWall->GetPWAttributeSet_Damageable();
+			if (WallDamageableAttributeSet != nullptr)
+			{
+				SnapshotBuildableWallData.CurrentHelath = WallDamageableAttributeSet->GetHealth();
+				LogString += TEXT("Helath : ") + FString::FromInt(SnapshotBuildableWallData.CurrentHelath) + TEXT("\n");
+			}
+
+			SnapshotBuildableWallData.bIsDestroyed = SnapshotBuildableWallData.CurrentHelath <= 0.f;
+
+			SnapshotData.BuildableWallDataList.Add(SnapshotBuildableWallData);
+		}
+	}
+
+
 	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR LOCATOR DATA\n");
 	for (APWVolumeActorLocator* PWVolumeActorLocator : VolumeActorLocatorList)
 	{
@@ -287,7 +314,7 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 
 			if (TargetCharacter->IsDead() != SnapshotCharacterData.bIsDead)
 			{
-				TargetCharacter->OnPlayerRevived();
+				TargetCharacter->OnRevived();
 			}
 		}
 	}
@@ -323,6 +350,44 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 			LogString += TEXT("Transform : ") + SnapshotVolumeActorData.VolumeActorTransform.ToString() + TEXT("\n");
 		}
 	}
+
+	LogString += TEXT("\nAPPLY BUILDABLE WALL DATA\n");
+	TArray<AActor*> BuildableWallForActorList;
+	UPWGameplayStatics::GetAllActorsOfClass(this, APWBuildableWall::StaticClass(), BuildableWallForActorList);
+	for (AActor* BuildableWallForActor : BuildableWallForActorList)
+	{
+		BuildableWallForActor->Destroy();
+	}
+	BuildableWallForActorList.Empty();
+
+	for (const FSnapshotBuildableWallData& SnapshotBuildableWallData : SnapshotData.BuildableWallDataList)
+	{
+		AActor* BuildableWall = SnapshotBuildableWallData.BuildableWall;
+		if (IsValid(BuildableWall) == true)
+		{
+			IPWDamageableInterface* BuildableWallInterface = Cast<IPWDamageableInterface>(BuildableWall);
+			if(BuildableWallInterface == nullptr)
+			{
+				ensure(false);
+				continue;
+			}
+
+			LogString += TEXT("Character : ") + BuildableWall->GetName() + TEXT("\n");
+
+			UPWAttributeSet_Damageable* PlayerAttribute_Damageable = BuildableWallInterface->GetPWAttributeSet_Damageable();
+			if (IsValid(PlayerAttribute_Damageable) == true)
+			{
+				if (PlayerAttribute_Damageable->GetHealth() <= 0 && SnapshotBuildableWallData.bIsDestroyed == false)
+				{
+					BuildableWallInterface->OnRevived();
+				}
+
+				PlayerAttribute_Damageable->SetHealth(SnapshotBuildableWallData.CurrentHelath);
+				LogString += TEXT("Health : ") + FString::FromInt(SnapshotBuildableWallData.CurrentHelath) + TEXT("\n");
+			}
+		}
+	}
+
 
 	LogString += TEXT("\nSNAPSHOT VOLUME ACTOR LOCATOR DATA\n");
 	for (APWVolumeActorLocator* PWVolumeActor : VolumeActorLocatorList)

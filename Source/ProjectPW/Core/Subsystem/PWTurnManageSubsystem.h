@@ -48,6 +48,23 @@ public:
 };
 
 USTRUCT()
+struct FSnapshotBuildableWallData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(Transient)
+	class APWBuildableWall* BuildableWall;
+
+	UPROPERTY(Transient)
+	float CurrentHelath;
+
+	UPROPERTY(Transient)
+	bool bIsDestroyed;
+};
+
+USTRUCT()
 struct FSnapshotData
 {
 	GENERATED_USTRUCT_BODY()
@@ -59,6 +76,9 @@ public:
 
 	UPROPERTY(Transient)
 	TArray<FSnapshotVolumeActorData> VolumeActorDataList;
+
+	UPROPERTY(Transient)
+	TArray<FSnapshotBuildableWallData> BuildableWallDataList;
 
 	//Locator, bIsSpawnable
 	UPROPERTY(Transient)

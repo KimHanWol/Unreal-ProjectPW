@@ -71,8 +71,8 @@ public:
 	void SM_PossessBySnapshot_Implementation(APawn* PossessablePawn);
 
 	UFUNCTION(Server, Reliable)
-	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
-	void CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location);
+	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location, const FRotator& Rotation);
+	void CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location, const FRotator& Rotation);
 
 	UFUNCTION(Server, Reliable)
 	void CS_SpawnCharacter(class APWPlayerController* OwnerPlayerController, ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);

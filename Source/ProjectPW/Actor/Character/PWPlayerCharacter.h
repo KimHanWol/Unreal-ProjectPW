@@ -50,19 +50,24 @@ public:
 	void Execute_Sub_Triggered();
 	void Execute_Sub_Completed();
 
+	//Interface Default
+	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	virtual void LoadCharacterDefaultStats() override;
+	//~Interface Default
 
 	//IPWAttackableInterface
-	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual class UPWAttributeSet_Attackable* GetPWAttributeSet_Attackable() const override;
+	//~IPWAttackableInterface
 
 	//IPWDamageableInterface
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const override;
 	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) override;
-
-	void OnPlayerRevived();
+	virtual void OnRevived() override;
+	//~IPWDamageableInterface
 
 	//IPWHealableInterface
 	virtual class UPWAttributeSet_Healable* GetPWAttributeSet_Healable() const override;
+	//~IPWHealableInterface
 
 	bool IsDead() const { return bIsDead; }
 	ETeamSide GetTeamSide() const { return TeamSide; }
@@ -83,7 +88,6 @@ public:
 
 private:
 
-	void LoadCharacterDefaultStats();
 	void ApplyAttributeData();
 	void WithdrawAttributeData();
 

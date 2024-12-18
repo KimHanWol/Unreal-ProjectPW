@@ -25,5 +25,7 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const = 0;
 	virtual class UPWAttributeSet_Attackable* GetPWAttributeSet_Attackable() const = 0;
 
+	virtual void LoadCharacterDefaultStats() = 0;
+
 	virtual void GiveDamage(class IPWDamageableInterface* Victim, float DamageAmount);
 };
