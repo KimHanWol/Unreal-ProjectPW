@@ -41,7 +41,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	float TurnEvent_SpawnVolumeChance = 0.2f;
 
-	//메인 레벨 경로
+	//메인 메뉴 레벨 경로
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
+	FName MainMenuLevelPath;
+
+	//인게임 레벨 경로
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	FName MainLevelPath;
 

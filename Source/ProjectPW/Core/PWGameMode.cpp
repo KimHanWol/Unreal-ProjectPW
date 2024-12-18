@@ -17,6 +17,7 @@
 #include "PWEventManager.h"
 #include "PWGameState.h"
 #include "PWPlayerState.h"
+#include "Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "UI/MasterWidget.h"
 
 void APWGameMode::OnPostLogin(AController* NewPlayer)
@@ -39,6 +40,17 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 			ReadyToStart();
 			TotalPlayerCount = PWGameSetting->PlayerCount;
 		}
+	}
+}
+
+void APWGameMode::Logout(AController* ExitPlayer)
+{
+	Super::Logout(ExitPlayer);
+
+	UPWSteamMatchMakingSubsystem* MatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
+	if (IsValid(MatchMakingSubsystem) == true)
+	{
+		MatchMakingSubsystem->LeaveGameSession();
 	}
 }
 

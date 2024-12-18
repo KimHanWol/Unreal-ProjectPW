@@ -21,6 +21,7 @@ class PROJECTPW_API APWGameMode : public AGameModeBase
 protected:
 
 	virtual void OnPostLogin(AController* NewPlayer) override;
+	virtual void Logout(AController* ExitPlayer) override;
 
 private:
 

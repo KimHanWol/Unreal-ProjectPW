@@ -25,12 +25,13 @@ public:
 
 	void CreateGameSession();
 	void FindAndJoinGameSession();
-	void DestroyGameSession();
+	void LeaveGameSession();
 
 private:
 
 	void FindGameSession();
 	void JoinGameSession();
+	void DestroyGameSession();
 
    	void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);    
 	void OnFindSessionComplete(bool bWasSuccessful);

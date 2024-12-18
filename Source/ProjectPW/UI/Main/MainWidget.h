@@ -37,6 +37,9 @@ private:
 	void OnPlayerPossessed(APawn* PossessedPawn, bool bIsCommander);
 	void OnTurnChanged();
 
+	UFUNCTION()
+	void OnReturnToMainMenuButtonPressed();
+
 	void TryInitializeCharacterData();
 
 protected:
@@ -45,7 +48,13 @@ protected:
 	UTextBlock* Text_Turn;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Result;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UTextBlock* Text_Result;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UButton* Btn_ReturnMainMenu;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UTextBlock* Text_Crosshair;

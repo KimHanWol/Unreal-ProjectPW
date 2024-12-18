@@ -9,8 +9,10 @@
 #include "Online/OnlineSessionNames.h"
 
 //Game
+#include "Actor/Character/PWPlayerController.h"
 #include "Core/PWGameInstance.h"
 #include "Data/DataAsset/PWGameSetting.h"
+#include "Helper/PWGameplayStatics.h"
 
 UPWSteamMatchMakingSubsystem::UPWSteamMatchMakingSubsystem()
 {
@@ -71,6 +73,24 @@ void UPWSteamMatchMakingSubsystem::CreateGameSession()
 void UPWSteamMatchMakingSubsystem::FindAndJoinGameSession()
 {
 	FindGameSession();
+}
+
+void UPWSteamMatchMakingSubsystem::LeaveGameSession()
+{
+	DestroyGameSession();
+
+	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+	if (IsValid(PWGameSetting) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	APWPlayerController* PWPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(PWPlayerController) == true)
+	{
+		PWPlayerController->ClientTravel(PWGameSetting->MainMenuLevelPath.ToString(), ETravelType::TRAVEL_Absolute);
+	}
 }
 
 void UPWSteamMatchMakingSubsystem::FindGameSession()
