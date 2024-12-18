@@ -20,13 +20,18 @@ public:
 
 	bool IsSpawnable();
 
-	void SetIsOccupied(bool bInOccupied);
-	bool IsOccupied() const { return bIsOccupied; }
+	void SetOccupiedVolume(class APWVolumeActorBase* InOccupiedVolume);
+	TSubclassOf<class APWVolumeActorBase> GetOccuiedVolumeClass();
+
+	bool IsOccupied() const { return IsValid(OccupiedVolume) == true; }
+
+protected:
+
+	virtual void OnVolumeBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* Other, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 private:
 
-	// 이미 볼륨이 스폰되어있는지
 	UPROPERTY(Transient)
-	bool bIsOccupied = false;
+	class APWVolumeActorBase* OccupiedVolume;
 
 };

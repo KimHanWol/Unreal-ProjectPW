@@ -82,7 +82,7 @@ public:
 
 	//Locator, bIsSpawnable
 	UPROPERTY(Transient)
-	TMap<class APWVolumeActorLocator*, bool> VolumeActorLocatorDataMap;
+	TMap<class APWVolumeActorLocator*, TSubclassOf<APWVolumeActorBase>> VolumeActorLocatorDataMap;
 
 	UPROPERTY(Transient)
 	float TurnActivePoint;

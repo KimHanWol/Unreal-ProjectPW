@@ -425,7 +425,6 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 			if (IsValid(SpawnedVolumeActor) == true)
 			{
 				PWVolumeActorLocator->SetOccupiedVolume(SpawnedVolumeActor);
-				SpawnedVolumeActor->SetActorLocation(PWVolumeActorLocator->GetActorLocation());
 				LogString += TEXT("VolumeActorLocator occupied : %s") + SpawnedVolumeActor->GetName() + TEXT("\n");
 			}
 		}

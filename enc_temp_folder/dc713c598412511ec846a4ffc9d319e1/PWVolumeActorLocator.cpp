@@ -36,13 +36,13 @@ bool APWVolumeActorLocator::IsSpawnable()
 		return false;
 	}
 
-	// 캐릭터랑 겹치지 않아야 스폰 가능
+	// 캐릭터나 볼륨이랑 겹치지 않아야 스폰 가능
 	TArray<AActor*> OverlappingActors;
 	BoundMeshComponent->GetOverlappingActors(OverlappingActors);
 
 	for (AActor* OverlappingActor : OverlappingActors)
 	{
-		if (IsValid(Cast<APWPlayerCharacter>(OverlappingActor)) == true)
+		if (IsValid(Cast<APWPlayerCharacter>(OverlappingActor)) == true || IsValid(Cast<APWVolumeActorBase>(OverlappingActor)) == true)
 		{
 			return false;
 		}
