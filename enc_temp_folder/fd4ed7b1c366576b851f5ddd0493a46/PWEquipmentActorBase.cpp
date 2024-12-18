@@ -286,6 +286,7 @@ void APWEquipmentActorBase::TryExecute_Action_Internal(bool bExecute, TSubclassO
 	if (bExecute == true)
 	{
 		bool bHasEnoughTurnActivePoint = TargetAbilityCDO->GetTurnActivePointCost() <= OwnerPlayerState->GetCurrentTurnActivePoint();
+		UE_LOG(LogTemp, Warning, TEXT("%f / %f"), TargetAbilityCDO->GetTurnActivePointCost(), OwnerPlayerState->GetCurrentTurnActivePoint());
 		if (bHasEnoughTurnActivePoint == true)
 		{
 			OwnerController->CS_ActivateAbility(true, TargetAbility);
@@ -293,10 +294,6 @@ void APWEquipmentActorBase::TryExecute_Action_Internal(bool bExecute, TSubclassO
 			//TODO: 클라에서 계산하는 게 위험한 것 같은데 수정 필요
 			//Ability 성공 여부를 모름
 			OwnerPlayerState->SetCurrentTurnActivePoint(OwnerPlayerState->GetCurrentTurnActivePoint() - TargetAbilityCDO->GetTurnActivePointCost());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Can't activate %s ability : not enough current turn point."), *TargetAbility->GetName());
 		}
 	}
 	else

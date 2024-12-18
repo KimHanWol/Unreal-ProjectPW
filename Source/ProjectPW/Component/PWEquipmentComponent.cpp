@@ -36,7 +36,11 @@ void UPWEquipmentComponent::Execute_Main_Triggered()
 		return;
 	}
 
-	SpawnedEquipmentActor->Execute_Main_Triggered();
+	if (bMainTriggered == false)
+	{
+		bMainTriggered = true;
+		SpawnedEquipmentActor->Execute_Main_Triggered();
+	}
 }
 
 void UPWEquipmentComponent::Execute_Main_Completed()
@@ -46,7 +50,11 @@ void UPWEquipmentComponent::Execute_Main_Completed()
 		return;
 	}
 
-	SpawnedEquipmentActor->Execute_Main_Completed();
+	if (bMainTriggered == true)
+	{
+		bMainTriggered = false;
+		SpawnedEquipmentActor->Execute_Main_Completed();
+	}
 }
 
 void UPWEquipmentComponent::Execute_Sub_Triggered()
@@ -56,7 +64,11 @@ void UPWEquipmentComponent::Execute_Sub_Triggered()
 		return;
 	}
 
-	SpawnedEquipmentActor->Execute_Sub_Triggered();
+	if (bSubTriggered == false)
+	{
+		bSubTriggered = true;
+		SpawnedEquipmentActor->Execute_Sub_Triggered();
+	}
 }
 
 void UPWEquipmentComponent::Execute_Sub_Completed()
@@ -66,7 +78,11 @@ void UPWEquipmentComponent::Execute_Sub_Completed()
 		return;
 	}
 
-	SpawnedEquipmentActor->Execute_Sub_Completed();
+	if (bSubTriggered == true)
+	{
+		bSubTriggered = false;
+		SpawnedEquipmentActor->Execute_Sub_Completed();
+	}
 }
 
 void UPWEquipmentComponent::OnAliveStateChanged(bool bAlive)
@@ -100,9 +116,15 @@ void UPWEquipmentComponent::SpawnEquipmentActor(ECharacterType OwnerCharacterTyp
 	}
 
 	SpawnedEquipmentActor = GetWorld()->SpawnActor<APWEquipmentActorBase>(EquipmentActorClass);
-	if (IsValid(OwnerSkeletalMesh) == true)
-	{	
-		SpawnedEquipmentActor->AttachToComponent(OwnerSkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+	if (ensure(IsValid(SpawnedEquipmentActor) == true))
+	{
+		if (ensure(IsValid(OwnerSkeletalMesh) == true))
+		{	
+			SpawnedEquipmentActor->AttachToComponent(OwnerSkeletalMesh, FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
+		}
 		SpawnedEquipmentActor->InitializeEquipmentActor(GetOwner());
 	}
+
+
+
 }

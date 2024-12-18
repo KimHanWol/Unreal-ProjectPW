@@ -227,6 +227,40 @@ void APWPlayerController::CS_ActivateAbility_Implementation(bool bActivate, TSub
 	}
 }
 
+void APWPlayerController::CS_ApplyEffect_Implementation(bool bApplyEffect, TSubclassOf<class UGameplayEffect> EffectClassToApply)
+{
+	APWPlayerCharacter* TargetPlayerCharacter = Cast<APWPlayerCharacter>(GetPawn());
+	if (IsValid(TargetPlayerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	UAbilitySystemComponent* TargetCharacterASC = TargetPlayerCharacter->GetAbilitySystemComponent();
+	if (IsValid(TargetCharacterASC) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (bApplyEffect == true)
+	{
+        // EffectClassToApply를 플레이어에게 적용
+        FGameplayEffectContextHandle EffectContext = TargetCharacterASC->MakeEffectContext();
+        FGameplayEffectSpecHandle EffectSpecHandle = TargetCharacterASC->MakeOutgoingSpec(EffectClassToApply, 1.0f, EffectContext);
+        
+        if (EffectSpecHandle.IsValid())
+        {
+            // 게임플레이 효과 적용
+            TargetCharacterASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
+        }
+	}
+	else
+	{
+		TargetCharacterASC->RemoveActiveGameplayEffectBySourceEffect(EffectClassToApply, TargetCharacterASC);
+	}
+}
+
 void APWPlayerController::SM_GameStart_Implementation()
 {
 	if (IsLocalPlayerController() == true)

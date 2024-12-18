@@ -25,6 +25,7 @@ protected:
 public:
 
 	void SpawnEquipmentActor(ECharacterType OwnerCharacterType);
+	class APWEquipmentActorBase* GetSpawnedEquipmentActor() const { return SpawnedEquipmentActor; }
 
 	void Execute_Main_Triggered();
 	void Execute_Main_Completed();
@@ -34,8 +35,8 @@ public:
 
 	void OnAliveStateChanged(bool bAlive);
 
-private:
-
+	bool IsMainTriggered() const { return bMainTriggered; }
+	bool IsSubTriggered() const { return bSubTriggered; }
 
 private:
 
@@ -44,4 +45,10 @@ private:
 
 	UPROPERTY(Transient)
 	class APWEquipmentActorBase* SpawnedEquipmentActor;
+
+	UPROPERTY(Transient)
+	bool bMainTriggered = false;
+
+	UPROPERTY(Transient)
+	bool bSubTriggered = false;
 };

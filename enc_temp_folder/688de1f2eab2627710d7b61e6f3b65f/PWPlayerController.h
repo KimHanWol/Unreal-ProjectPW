@@ -47,6 +47,10 @@ public:
 	void CS_ActivateAbility(bool bActivate, TSubclassOf<class UGameplayAbility> AbilityClassToActivate);
 	void CS_ActivateAbility_Implementation(bool bActivate, TSubclassOf<class UGameplayAbility> AbilityClassToActivate);
 
+	UFUNCTION(Server, Reliable)
+	void CS_ApplyEffect(bool bApplyEffect, TSubclassOf<class UGameplayEffect> EffectClassToApply);
+	void CS_ApplyEffect_Implementation(bool bApplyEffect, TSubclassOf<class UGameplayEffect> EffectClassToApply);
+
 	//Game start
 	UFUNCTION(NetMulticast, Reliable)
 	void SM_GameStart();

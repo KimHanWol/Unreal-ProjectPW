@@ -31,28 +31,39 @@ public:
 
 	virtual void InitializeEquipmentActor(AActor* OwnerActor);
 
-	virtual void Execute_Main_Triggered() {};
-	virtual void Execute_Main_Completed() {};
+	virtual void Execute_Main_Triggered();
+	virtual void Execute_Main_Completed();
 
-	virtual void Execute_Sub_Triggered() {};
-	virtual void Execute_Sub_Completed() {};
+	virtual void Execute_Sub_Triggered();
+	virtual void Execute_Sub_Completed();
 
 	class UMeshComponent* GetMesh() { return MeshComponent; }
 
 protected:
 
-	virtual bool EquipmentActorHitTest(float InMaxRange, ECollisionChannel TargetChannel,  FHitResult& OutHitResult, FRotator& OutViewPointRotation);
 	virtual bool IsInteractableActor(AActor* TargetActor) { return true; }
+	virtual bool EquipmentActorHitTest(float InMaxRange, ECollisionChannel TargetChannel, FHitResult& OutHitResult, FRotator& OutViewPointRotation);
 
 private:
 	
 	void CheckTargetOnCrosshair();
 	void OnPlayerPossesssed(APawn* PossessedPawn, bool bIsCommander);
 
+	void TryExecute_Action_Internal(bool bExecute, TSubclassOf<class UPWGameplayAbilityBase> TargetAbility);
+
 protected:
 
 	UPROPERTY(EditAnywhere)
-	float MaxRange = 1000.f;
+	TSubclassOf<class UPWGameplayAbilityBase> MainTriggerAbilityClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UPWGameplayAbilityBase> MainCompleteAbilityClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UPWGameplayAbilityBase> SubTriggerAbilityClass;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UPWGameplayAbilityBase> SubCompleteAbilityClass;
 
 private:
 
@@ -63,4 +74,9 @@ private:
 	UPROPERTY(Transient)
 	bool bIsTargetOn = false;
 
+	UPROPERTY(Transient)
+	bool bIsMainActionActivated = false;
+
+	UPROPERTY(Transient)
+	bool bIsSubActionActivated = false;
 };
