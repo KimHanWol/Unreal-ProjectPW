@@ -1,7 +1,7 @@
 ﻿// LINK
 
 //Default
-#include "GA_AimDownSide.h"
+#include "GA_AimDownSight.h"
 
 //Engine
 
@@ -14,7 +14,7 @@
 
 
 
-void UGA_AimDownSide::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
+void UGA_AimDownSight::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
 
@@ -57,7 +57,7 @@ void UGA_AimDownSide::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 	}
 }
 
-void UGA_AimDownSide::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
+void UGA_AimDownSight::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
 	if (ActorInfo == nullptr)
 	{

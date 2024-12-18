@@ -9,11 +9,11 @@
 #include "AbilitySystem/Ability/PWGameplayAbilityBase.h"
 
 //Default
-#include "GA_AimDownSide.generated.h"
+#include "GA_AimDownSight.generated.h"
 
 
 UCLASS()
-class PROJECTPW_API UGA_AimDownSide : public UPWGameplayAbilityBase
+class PROJECTPW_API UGA_AimDownSight : public UPWGameplayAbilityBase
 {
 	GENERATED_BODY()
 
