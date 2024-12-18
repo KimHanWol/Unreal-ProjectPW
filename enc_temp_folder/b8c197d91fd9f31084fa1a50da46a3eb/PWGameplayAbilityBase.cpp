@@ -9,8 +9,6 @@
 #include "AbilitySystem/Task/PWAbilityTask_Tick.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
-#include "Actor/Equipments/PWEquipmentActorBase.h"
-#include "Component/PWEquipmentComponent.h"
 #include "Core/PWPlayerState.h"
 
 void UPWGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
@@ -42,20 +40,6 @@ bool UPWGameplayAbilityBase::EquipmentActorHitTest(float InMaxRange, ECollisionC
 	{
 		return false;
 	}
-
-	UPWEquipmentComponent* PWEquipmentComponent = OwnerCharacter->GetComponentByClass<UPWEquipmentComponent>();
-	if (IsValid(PWEquipmentComponent) == false)
-	{
-		ensure(false);
-		return false;
-	}
-
-	APWEquipmentActorBase* SpawnedEquipmentActor = PWEquipmentComponent->GetSpawnedEquipmentActor();
-	if (IsValid(SpawnedEquipmentActor) == false)
-	{
-		ensure(false);
-		return false;
-	}
 		
 	AController* OwnerController = OwnerCharacter->GetController();
 	if (IsValid(OwnerController) == false)
@@ -73,7 +57,6 @@ bool UPWGameplayAbilityBase::EquipmentActorHitTest(float InMaxRange, ECollisionC
 	{
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(OwnerCharacter);
-		Params.AddIgnoredActor(SpawnedEquipmentActor);
 
 		TArray<AActor*> ChildActors;
 		OwnerCharacter->GetAllChildActors(ChildActors);
@@ -84,6 +67,11 @@ bool UPWGameplayAbilityBase::EquipmentActorHitTest(float InMaxRange, ECollisionC
 		}
 
 		bHitSuccess = GetWorld()->LineTraceSingleByChannel(OutHitResult, ViewPointLocation, EndLocation, TargetChannel, Params);
+
+		if (bHitSuccess == true && IsValid(OutHitResult.GetActor()) == true)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *OutHitResult.GetActor()->GetName());
+		}
 	}
 
 	return bHitSuccess;
