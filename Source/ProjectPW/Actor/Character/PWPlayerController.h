@@ -43,10 +43,6 @@ public:
 	void CS_RequestNextTurn();
 	void CS_RequestNextTurn_Implementation();
 
-	UFUNCTION(Server, Reliable)
-	void CS_ActivateAbility(bool bActivate, TSubclassOf<class UGameplayAbility> AbilityClassToActivate);
-	void CS_ActivateAbility_Implementation(bool bActivate, TSubclassOf<class UGameplayAbility> AbilityClassToActivate);
-
 	//Game start
 	UFUNCTION(NetMulticast, Reliable)
 	void SM_GameStart();

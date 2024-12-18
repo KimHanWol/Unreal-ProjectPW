@@ -37,5 +37,4 @@ public:
 private:
 
 	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) = 0;
-	virtual void ApplyHealth_Internal(class UAbilitySystemComponent* InstigatorASC, float ChangedAmount);
 };

@@ -74,10 +74,6 @@ public:
 	void InitializeCharacter(class APWPlayerController* OwnerPlayerController, ETeamSide NewTeamSide, ECharacterType NewCharacterType);
 	const struct FPWCharacterDataTableRow* GetCharacterData() const;
 
-	UFUNCTION(Server, Reliable)
-	void CS_GiveDamage(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
-	void CS_GiveDamage_Implementation(const TScriptInterface<class IPWDamageableInterface>& Victim, float Damage);
-
 	UFUNCTION(NetMulticast, Reliable)
 	void SM_ApplySnapshotTransform(const FTransform& NewTransform);
 	void SM_ApplySnapshotTransform_Implementation(const FTransform& NewTransform);

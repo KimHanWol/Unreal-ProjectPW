@@ -34,14 +34,25 @@ void UGA_HammerSmash::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 	bool bHitSuccess = EquipmentActorHitTest(MaxRange, ECollisionChannel::ECC_GameTraceChannel1, HitResult, ViewPointRotation);
 	if (bHitSuccess == true)
 	{
-		const FVector& ShotDirection = -ViewPointRotation.Vector();
-
-		if (IsInteractableActor(HitResult.GetActor()) == true)
+		//Apply Damage
+		if (OwnerCharacter->HasAuthority() == true)
 		{
+			float Damage = 0.f;
 			UPWAttributeSet_Attackable* OwnerAttribute_Attackable = OwnerCharacter->GetPWAttributeSet_Attackable();
 			if (IsValid(OwnerAttribute_Attackable) == true)
 			{
-				OwnerCharacter->CS_GiveDamage(TScriptInterface<IPWDamageableInterface>(HitResult.GetActor()), OwnerAttribute_Attackable->GetDamage());
+				Damage = OwnerAttribute_Attackable->GetDamage();
+			}
+
+			AActor* VictimActor = HitResult.GetActor();
+			if (IsValid(VictimActor) == true && IsInteractableActor(VictimActor) == true)
+			{
+				IPWDamageableInterface* VictimActorInterface = Cast<IPWDamageableInterface>(VictimActor);
+				IPWAttackableInterface* AttackerActorInterface = Cast<IPWAttackableInterface>(OwnerCharacter);
+				if (VictimActorInterface != nullptr && AttackerActorInterface != nullptr)
+				{
+					VictimActorInterface->ApplyDamage(AttackerActorInterface, Damage);
+				}
 			}
 		}
 	}

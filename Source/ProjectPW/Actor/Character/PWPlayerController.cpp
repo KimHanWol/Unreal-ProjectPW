@@ -195,38 +195,6 @@ void APWPlayerController::CS_Possess_Implementation(APawn* PossessablePawn, floa
 	}
 }
 
-void APWPlayerController::CS_ActivateAbility_Implementation(bool bActivate, TSubclassOf<class UGameplayAbility> AbilityClassToActivate)
-{
-	APWPlayerCharacter* TargetPlayerCharacter = Cast<APWPlayerCharacter>(GetPawn());
-	if (IsValid(TargetPlayerCharacter) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	UAbilitySystemComponent* TargetCharacterASC = TargetPlayerCharacter->GetAbilitySystemComponent();
-	if (IsValid(TargetCharacterASC) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	if (bActivate == true)
-	{
-		TargetCharacterASC->TryActivateAbilityByClass(AbilityClassToActivate);
-	}
-	else
-	{
-		for (const FGameplayAbilitySpec& AbilitySpec : TargetCharacterASC->GetActivatableAbilities())
-		{
-		    if (AbilitySpec.IsActive() && IsValid(AbilitySpec.Ability) == true && AbilitySpec.Ability->GetClass() == AbilityClassToActivate)
-		    {
-		        TargetCharacterASC->CancelAbility(AbilitySpec.Ability);
-		    }
-		}
-	}
-}
-
 void APWPlayerController::SM_GameStart_Implementation()
 {
 	if (IsLocalPlayerController() == true)

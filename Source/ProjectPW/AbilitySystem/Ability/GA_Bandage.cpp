@@ -64,12 +64,26 @@ void UGA_Bandage::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const
 	//Hit Success
 	if (bHitSuccess == true)
 	{
-		if (IsInteractableActor(HitResult.GetActor()) == true)
+		//Apply Heal
+		if (OwnerCharacter->HasAuthority() == true)
 		{
-			const UPWAttributeSet_Healable* OwnerAttributeSet_Healable = OwnerCharacter->GetPWAttributeSet_Healable();
-			if (IsValid(OwnerAttributeSet_Healable) == true)
+			float HealAmount = 0.f;
+			UPWAttributeSet_Healable* OwnerAttribute_Healable = OwnerCharacter->GetPWAttributeSet_Healable();
+			if (IsValid(OwnerAttribute_Healable) == true)
 			{
-				OwnerCharacter->CS_GiveDamage(TScriptInterface<IPWDamageableInterface>(HitResult.GetActor()), -OwnerAttributeSet_Healable->GetHealAmount());
+				HealAmount = OwnerAttribute_Healable->GetHealAmount();
+			}
+
+			AActor* TargetActor = HitResult.GetActor();
+			if (IsValid(TargetActor) == true && IsInteractableActor(TargetActor) == true)
+			{
+				IPWDamageableInterface* VictimActorInterface = Cast<IPWDamageableInterface>(TargetActor);
+				IPWHealableInterface* HealerActorInterface = Cast<IPWHealableInterface>(OwnerCharacter);
+				if (VictimActorInterface != nullptr && HealerActorInterface != nullptr)
+				{
+					//Apply Damage
+					VictimActorInterface->ApplyHeal(HealerActorInterface, HealAmount);
+				}
 			}
 		}
 	}

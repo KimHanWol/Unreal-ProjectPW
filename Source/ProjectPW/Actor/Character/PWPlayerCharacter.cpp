@@ -443,19 +443,6 @@ const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const
 	return nullptr;
 }
 
-void APWPlayerCharacter::CS_GiveDamage_Implementation(const TScriptInterface<IPWDamageableInterface>& Victim, float Damage)
-{
-	IPWDamageableInterface* VictimActor = Cast<IPWDamageableInterface>(Victim.GetObject());
-	if (VictimActor == nullptr)
-	{
-		ensure(false);
-		return;
-	}
-
-	//Apply Damage
-	VictimActor->ApplyDamage(this, Damage);
-}
-
 void APWPlayerCharacter::ApplyAttributeData()
 {
 	if (IsValid(PWAttributeSet_Damageable) == true)
