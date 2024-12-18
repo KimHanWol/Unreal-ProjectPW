@@ -8,10 +8,30 @@
 
 //Game
 #include "Abilities/GameplayAbility.h"
+#include "Actor/Character/PWPlayerCharacter.h"
 
 void UGA_BuildWall_Preview::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData)
 {
 	Super::ActivateAbility(Handle, ActorInfo, ActivationInfo, TriggerEventData);
+
+	if (ActorInfo == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	APWPlayerCharacter* TargetPlayerCharacter = Cast<APWPlayerCharacter>(ActorInfo->AvatarActor);
+	if (IsValid(TargetPlayerCharacter) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	//only for local
+	if (TargetPlayerCharacter->IsLocallyControlled() == false)
+	{
+		return;
+	}
 
 	if (BuildPreivewObjectClass == nullptr)
 	{
@@ -36,8 +56,6 @@ void UGA_BuildWall_Preview::ActivateAbility(const FGameplayAbilitySpecHandle Han
 			}
 		}
 	}
-
-	GetAbilitySystemComponentFromActorInfo()->PrimaryComponentTick.bCanEverTick = true;
 
 	bBuildPreviewMode = true;
 }
