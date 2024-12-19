@@ -55,7 +55,7 @@ struct FSnapshotBuildableWallData
 public:
 
 	UPROPERTY(Transient)
-	class APWBuildableWall* BuildableWall;
+	FTransform BuildableWallTransform;
 
 	UPROPERTY(Transient)
 	float CurrentHelath;

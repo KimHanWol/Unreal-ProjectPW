@@ -118,8 +118,5 @@ public:
 	TSubclassOf<class APWPlayerCharacter> PlayerCharacterClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSubclassOf<class APWBuildableWall> BuildableWallClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<class UMaterialInstance> SpawnPreviewMI;
 };

@@ -317,14 +317,7 @@ void UPWTurnManageSubsystem::ApplyPrevSnapshot(APWPlayerController* PlayerContro
 			continue;
 		}
 
-		const UPWGameData* PWGameData = UPWGameData::Get(this);
-		if (IsValid(PWGameData) == false)
-		{
-			ensure(false);
-			continue;
-		}
-
-		AActor* BuildableWall = GetWorld()->SpawnActor<APWBuildableWall>(PWGameData->BuildableWallClass);
+		AActor* BuildableWall = GetWorld()->SpawnActor<APWBuildableWall>(APWBuildableWall::StaticClass());
 		if (IsValid(BuildableWall) == true)
 		{
 			BuildableWall->SetActorTransform(SnapshotBuildableWallData.BuildableWallTransform);

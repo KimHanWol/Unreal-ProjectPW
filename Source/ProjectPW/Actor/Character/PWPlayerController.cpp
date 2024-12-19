@@ -355,7 +355,7 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum, bool bIsForReset)
 		}
 	}
 
-	if (IsValid(PossessablePawn) == true)
+	if (IsValid(PossessablePawn) == false)
 	{
 		return;
 	}
