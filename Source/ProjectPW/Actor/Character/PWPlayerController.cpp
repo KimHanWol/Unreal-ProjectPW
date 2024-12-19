@@ -355,6 +355,11 @@ void APWPlayerController::LP_SelectCharacter(int32 SelectNum, bool bIsForReset)
 		}
 	}
 
+	if (IsValid(PossessablePawn) == true)
+	{
+		return;
+	}
+
 	CS_Possess(PossessablePawn, PWPlayerState->GetCurrentTurnActivePoint());
 	LP_OnPossess(PossessablePawn);
 }
