@@ -449,22 +449,49 @@ void APWPlayerController::Tick_ShowSpawnPreviewMesh()
 	    const FVector& StartLostion = WorldLocation;
 	    const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
 
-	    FHitResult HitResult;
-		bool bIsHitSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility);
+	    TArray<FHitResult> HitResultList;
+		bool bIsHitSuccess = GetWorld()->LineTraceMultiByChannel(HitResultList, StartLostion, EndLocation, ECC_Visibility);
 
 		bool bSpawnAreaFound = false;
-	 	APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
-		if (IsValid(PWSpawnAreaActor) == true)
+		if (bIsHitSuccess == true)
 		{
-			if (PWSpawnAreaActor->GetTeamSide() == GetTeamSide())
+			for (const FHitResult& HitResult : HitResultList)
 			{
-				bSpawnAreaFound = true;
+				APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
+				if (IsValid(PWSpawnAreaActor) == true)
+				{
+					if (PWSpawnAreaActor->GetTeamSide() == GetTeamSide())
+					{
+						bSpawnAreaFound = true;
+						break;
+					}
+				}
 			}
 		}
 
-	    if (bIsHitSuccess == true && bSpawnAreaFound == true)
+	    if (bSpawnAreaFound == true)
 	    {
-	        FVector NewSpawnLocation = HitResult.ImpactPoint;
+			//스폰 가능 히트 테스트
+			FHitResult SpawnHitResult;
+			for (const FHitResult& HitResult : HitResultList)
+			{
+				APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
+				if (IsValid(PWSpawnAreaActor) == true)
+				{
+					continue;
+				}
+
+				SpawnHitResult = HitResult;
+				break;
+			}
+
+			if (IsValid(SpawnHitResult.GetActor()) == false)
+			{
+				ensure(false);
+				return;
+			}
+
+	        FVector NewSpawnLocation = SpawnHitResult.ImpactPoint;
 			NewSpawnLocation += FVector(0.f, 0.f, 1.f); //Offset
 			SpawnPreviewActor->SetActorLocation(NewSpawnLocation);
 

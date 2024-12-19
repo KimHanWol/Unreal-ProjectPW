@@ -138,27 +138,47 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
         const FVector& StartLostion = WorldLocation;
         const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
 
-        FHitResult HitResult;
-		bool bIsHitSuccess = GetWorld()->LineTraceSingleByChannel(HitResult, StartLostion, EndLocation, ECC_Visibility);
+        TArray<FHitResult> HitResultList;
+		bool bIsHitSuccess = GetWorld()->LineTraceMultiByChannel(HitResultList, StartLostion, EndLocation, ECC_Visibility);
 
 		bool bSpawnAreaFound = false;
-		APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
-		if (IsValid(PWSpawnAreaActor) == true)
+		if (bIsHitSuccess == true)
 		{
-			if (PWSpawnAreaActor->GetTeamSide() == PWPlayerState->GetTeamSide())
+			for (const FHitResult& HitResult : HitResultList)
 			{
-				bSpawnAreaFound = true;
+				APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
+				if (IsValid(PWSpawnAreaActor) == true)
+				{
+					if (PWSpawnAreaActor->GetTeamSide() == PWPlayerState->GetTeamSide())
+					{
+						bSpawnAreaFound = true;
+						break;
+					}
+				}
 			}
 		}
 
-        if (bIsHitSuccess == true && bSpawnAreaFound == true)
+        if (bSpawnAreaFound == true)
         {
+			FHitResult SpawnHitResult;
+			for (const FHitResult& HitResult : HitResultList)
+			{	
+				APWSpawnAreaActor* PWSpawnAreaActor = Cast<APWSpawnAreaActor>(HitResult.GetActor());
+				if (IsValid(PWSpawnAreaActor) == true)
+				{
+					continue;
+				}
+
+				SpawnHitResult = HitResult;
+				break;
+			}
+
 			APawn* CommanderPawn = PWPlayerState->GetCommanderPawn();
 			if (IsValid(CommanderPawn) == true)
 			{
 				FRotator CommanderPawnRotator = CommanderPawn->GetActorRotation();
 				FTransform Transform;
-				Transform.SetLocation(HitResult.ImpactPoint);
+				Transform.SetLocation(SpawnHitResult.ImpactPoint);
 				Transform.SetRotation(FQuat(CommanderPawnRotator));
 
 				PWPlayerController->CS_SpawnCharacter(SelectedCharacterType, Transform);
