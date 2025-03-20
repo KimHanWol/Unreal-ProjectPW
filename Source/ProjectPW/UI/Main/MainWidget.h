@@ -57,7 +57,7 @@ protected:
 	class UButton* Btn_ReturnMainMenu;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UTextBlock* Text_Crosshair;
+	class UImage* Image_Crosshair;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UProgressBar* ProgressBar_TurnPoint;

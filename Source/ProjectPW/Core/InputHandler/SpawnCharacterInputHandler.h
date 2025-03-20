@@ -31,12 +31,9 @@ private:
 	void Select_2(const struct FInputActionValue& Value);
 	void Select_3(const struct FInputActionValue& Value);
 
+	void PlaySelectAnimation();
+
 	void TrySpawn(const struct FInputActionValue& Value);
-
-public:
-
-	DECLARE_MULTICAST_DELEGATE_OneParam(FSelectedCharacterTypeChanged, ECharacterType NewCharacterType)
-	FSelectedCharacterTypeChanged SelectedCharacterTypeChangedDelegate;
 
 protected:
 

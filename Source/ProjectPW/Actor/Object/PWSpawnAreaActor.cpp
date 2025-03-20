@@ -18,8 +18,8 @@ APWSpawnAreaActor::APWSpawnAreaActor()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	SetRootComponent(RootComponent);
 
-	StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
-	StaticMeshComponent->SetupAttachment(RootComponent);
+	//StaticMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMeshComponent"));
+	//StaticMeshComponent->SetupAttachment(RootComponent);
 }
 
 void APWSpawnAreaActor::BeginPlay()

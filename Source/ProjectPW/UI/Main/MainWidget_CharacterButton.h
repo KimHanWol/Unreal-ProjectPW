@@ -60,15 +60,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UTextBlock* Text_Name;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UTextBlock* Text_Damage;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UTextBlock* Text_Health;
-
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	UTextBlock* Text_HealAmount;
-
 private:
 
 	UPROPERTY(Transient)

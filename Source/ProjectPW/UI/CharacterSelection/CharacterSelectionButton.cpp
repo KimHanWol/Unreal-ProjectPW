@@ -28,8 +28,8 @@ void UCharacterSelectionButton::InitializeSelectionWidget(int32 CharacterNum, co
 		Text_Desc->SetText(CharacterData->Description);
 	}
 
-	if (ensure(IsValid(Image_Portrait) == true))
+	if (ensure(IsValid(Image_Icon) == true))
 	{
-		Image_Portrait->SetBrushFromSoftTexture(CharacterData->Portrait);
+		Image_Icon->SetBrushFromSoftTexture(CharacterData->Icon);
 	}
 }

@@ -32,5 +32,5 @@ protected:
 	UTextBlock* Text_Desc;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UImage* Image_Portrait;
+	class UImage* Image_Icon;
 };

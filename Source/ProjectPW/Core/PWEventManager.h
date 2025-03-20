@@ -13,6 +13,7 @@
 
 enum class ETeamSide : uint8;
 enum class EWidgetType : uint8;
+enum class ECharacterType : uint8;
 
 UCLASS()
 class PROJECTPW_API UPWEventManager : public UObject
@@ -42,6 +43,9 @@ public:
 	FTeamCharacterAllSpawned TeamCharacterAllSpawnedDelegate;
 
 	//Player
+	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSelectedForSpawn, ECharacterType SelectedCharacterType);
+	FCharacterSelectedForSpawn CharacterSelectedForSpawnDelegate;
+
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSelected, int32 CharacterNum);
 	FCharacterSelected CharacterSelectedDelegate;
 

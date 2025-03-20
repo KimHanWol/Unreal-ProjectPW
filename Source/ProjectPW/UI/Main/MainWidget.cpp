@@ -5,6 +5,7 @@
 
 //Engine
 #include "Components/Button.h"
+#include "Components/Image.h"
 #include "Components/ProgressBar.h"
 
 //Game
@@ -157,18 +158,18 @@ void UMainWidget::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPla
 
 void UMainWidget::OnTargetIsOnCrosshair(APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair)
 {
-	if (IsValid(Text_Crosshair) == false)
+	if (IsValid(Image_Crosshair) == false)
 	{
 		return;
 	}
 	
 	if (bIsOnCrosshair == true)
 	{
-		Text_Crosshair->SetColorAndOpacity(FSlateColor(FColor::Red));
+		Image_Crosshair->SetColorAndOpacity(FColor::Red);
 	}
 	else
 	{
-		Text_Crosshair->SetColorAndOpacity(FSlateColor(FColor::White));
+		Image_Crosshair->SetColorAndOpacity(FColor::White);
 	}
 }
 

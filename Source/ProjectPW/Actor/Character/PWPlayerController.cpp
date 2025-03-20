@@ -28,7 +28,6 @@
 
 APWPlayerController::APWPlayerController()
 {
-	CurrentSelectedCharacterType = ECharacterType::Soldier;
 	bShowMouseCursor = true;
 
 	PlayerInputComponent = CreateDefaultSubobject<UPWPlayerInputComponent>(TEXT("PlayerInputComponent"));
@@ -135,19 +134,7 @@ void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController*
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->TeamCharacterAllSpawnedDelegate.RemoveAll(this);
-	}
-
-	if (IsLocalPlayerController() == true)
-	{
-		if (IsValid(PlayerInputComponent) == true)
-		{
-			PlayerInputComponent->SetSpawnCharacterInputEnabled(false);
-			USpawnCharacterInputHandler* SpawnCharacterInputHandler = PlayerInputComponent->GetSpawnCharacterInputHandler();
-			if (ensure(IsValid(SpawnCharacterInputHandler) == true))
-			{
-				SpawnCharacterInputHandler->SelectedCharacterTypeChangedDelegate.RemoveAll(this);
-			}
-		}
+		PWEventManager->CharacterSelectedForSpawnDelegate.RemoveAll(this);
 	}
 
 	bIsCharacterSpawning = false;
@@ -555,21 +542,20 @@ void APWPlayerController::TryEnableCharacterSpawn()
 	bIsCharacterSpawning = true;
 
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
+	if (IsValid(PWEventManager) == false)
 	{
-		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
+		ensure(false);
+		return;
 	}
+
+	PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWPlayerController::OnPlayerCharacterAllSpawned);
 
 	if (IsLocalPlayerController() == true)
 	{
 		//Activate character spawn input
 		PlayerInputComponent->SetSpawnCharacterInputEnabled(true);
 
-		USpawnCharacterInputHandler* SpawnCharacterInputHandler = PlayerInputComponent->GetSpawnCharacterInputHandler();
-		if (ensure(IsValid(SpawnCharacterInputHandler) == true))
-		{
-			SpawnCharacterInputHandler->SelectedCharacterTypeChangedDelegate.AddUObject(this, &APWPlayerController::OnSelectedCharacterTypeChanged);
-		}
+		PWEventManager->CharacterSelectedForSpawnDelegate.AddUObject(this, &APWPlayerController::OnSelectedCharacterTypeChanged);
 
 		//Spawn preview actor
 		SpawnPreviewActor = GetWorld()->SpawnActor<AActor>();
@@ -579,15 +565,43 @@ void APWPlayerController::TryEnableCharacterSpawn()
 			SpawnPreviewComponent = Cast<USkeletalMeshComponent>(MeshActorComponent);
 			if (IsValid(SpawnPreviewComponent) == true)
 			{
-				OnSelectedCharacterTypeChanged(CurrentSelectedCharacterType);
+				OnSelectedCharacterTypeChanged(0);
 			}
 		}
 	}
 }
 
-void APWPlayerController::OnSelectedCharacterTypeChanged(ECharacterType NewCharacterType)
+void APWPlayerController::OnSelectedCharacterTypeChanged(ECharacterType SelectedCharacterType)
 {
-	CurrentSelectedCharacterType = NewCharacterType;
+	const UPWGameData* PWGameData = UPWGameData::Get(this);
+	if (IsValid(PWGameData) == true)
+	{
+		if (const FPWCharacterDataTableRow* CharacterData = PWGameData->FindCharacterTableRow(this, SelectedCharacterType))
+		{
+			OnSelectedCharacterTypeChanged_Internal(CharacterData);
+		}
+	}
+}
+
+void APWPlayerController::OnSelectedCharacterTypeChanged(int32 SelectedCharacterIndex)
+{
+	const UPWGameData* PWGameData = UPWGameData::Get(this);
+	if (IsValid(PWGameData) == true)
+	{
+		const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
+		if(CharacterDataList.Num() > SelectedCharacterIndex)
+		{
+			OnSelectedCharacterTypeChanged_Internal(CharacterDataList[SelectedCharacterIndex]);
+		}
+	}
+}
+
+void APWPlayerController::OnSelectedCharacterTypeChanged_Internal(const FPWCharacterDataTableRow* CharacterData)
+{
+	if (CharacterData->CharacterType == CurrentSelectedCharacterType)
+	{
+		return;
+	}
 
 	if (IsValid(SpawnPreviewComponent) == false)
 	{
@@ -596,32 +610,34 @@ void APWPlayerController::OnSelectedCharacterTypeChanged(ECharacterType NewChara
 	}
 
 	const UPWGameData* PWGameData = UPWGameData::Get(this);
-	if (IsValid(PWGameData) == true)
+	if (IsValid(PWGameData) == false)
 	{
-		const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
-		for (const FPWCharacterDataTableRow* CharacterData : CharacterDataList)
+		ensure(false);
+		return;
+	}
+
+	if (ensure(CharacterData != nullptr))
+	{
+		CurrentSelectedCharacterType = CharacterData->CharacterType;
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *UPWGameplayStatics::ConvertEnumToString(this, CurrentSelectedCharacterType));
+
+		if (CharacterData->Mesh.IsNull() == false)
 		{
-			if (CharacterData->CharacterType == CurrentSelectedCharacterType)
+			//Mesh setting
+			SpawnPreviewComponent->SetSkeletalMesh(CharacterData->Mesh.LoadSynchronous());
+
+			//Set material
+			if (ensure(PWGameData->SpawnPreviewMI.IsNull() == false))
 			{
-				if (CharacterData->Mesh.IsNull() == false)
+				int32 MaterialNum = SpawnPreviewComponent->GetNumMaterials();
+				for (int32 i = 0; i < MaterialNum; i++)
 				{
-					//Mesh setting
-					SpawnPreviewComponent->SetSkeletalMesh(CharacterData->Mesh.LoadSynchronous());
-
-					//Set material
-					if (ensure(PWGameData->SpawnPreviewMI.IsNull() == false))
-					{
-						int32 MaterialNum = SpawnPreviewComponent->GetNumMaterials();
-						for (int32 i = 0; i < MaterialNum; i++)
-						{
-							SpawnPreviewComponent->SetMaterial(i, PWGameData->SpawnPreviewMI.LoadSynchronous());
-						}
-					}
-
-					SpawnPreviewComponent->PlayAnimation(UPWAnimDataAsset::GetAnimation(this, CharacterData->CharacterType, EAnimationType::Idle).LoadSynchronous(), true);
-					SpawnPreviewComponent->SetCastShadow(false);
+					SpawnPreviewComponent->SetMaterial(i, PWGameData->SpawnPreviewMI.LoadSynchronous());
 				}
 			}
+
+			SpawnPreviewComponent->PlayAnimation(UPWAnimDataAsset::GetAnimation(this, CharacterData->CharacterType, EAnimationType::Idle).LoadSynchronous(), true);
+			SpawnPreviewComponent->SetCastShadow(false);
 		}
 	}
 }

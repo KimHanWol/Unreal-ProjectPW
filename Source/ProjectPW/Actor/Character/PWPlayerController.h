@@ -93,7 +93,10 @@ private:
 
 	void Tick_ShowSpawnPreviewMesh();
 	void TryEnableCharacterSpawn();
-	void OnSelectedCharacterTypeChanged(ECharacterType NewCharacterType);
+	void OnSelectedCharacterTypeChanged(ECharacterType SelectedCharacterType);
+	void OnSelectedCharacterTypeChanged(int32 SelectedCharacterIndex);
+
+	void OnSelectedCharacterTypeChanged_Internal(const struct FPWCharacterDataTableRow* CharacterData);
 
 public:
 

@@ -40,7 +40,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	ETeamSide TeamSide;
 
-	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* StaticMeshComponent;
+	//UPROPERTY(EditAnywhere)
+	//class UStaticMeshComponent* StaticMeshComponent;
 
 };

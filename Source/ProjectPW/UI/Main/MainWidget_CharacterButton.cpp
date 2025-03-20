@@ -104,21 +104,6 @@ void UMainWidget_CharacterButton::InvalidateWidget()
 	{
 		Image_Portrait->SetBrushFromSoftTexture(CharacterDataTableRow->Portrait);
 	}
-
-	if (IsValid(Text_Damage) == true)
-	{
-		Text_Damage->SetText(FText::FromString(TEXT("공격력 : ") + FString::FromInt(CharacterDataTableRow->Damage)));
-	}
-
-	if (IsValid(Text_Health) == true)
-	{
-		Text_Health->SetText(FText::FromString(TEXT("총 체력 : ") + FString::FromInt(CharacterDataTableRow->Health)));
-	}
-
-	if (IsValid(Text_HealAmount) == true)
-	{
-		Text_HealAmount->SetText(FText::FromString(TEXT("아군 회복량 : ") + FString::FromInt(CharacterDataTableRow->HealAmount)));
-	}
 }
 
 void UMainWidget_CharacterButton::OnHealthChanged(AActor* TargetActor, float InMaxHealth, float InCurrentHealth)

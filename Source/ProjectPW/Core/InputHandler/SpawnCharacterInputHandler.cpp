@@ -10,6 +10,7 @@
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
 #include "Actor/Object/PWSpawnAreaActor.h"
+#include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameData.h"
@@ -44,6 +45,41 @@ void USpawnCharacterInputHandler::Select_1(const struct FInputActionValue& Value
 		return;
 	}
 
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	const UPWGameData* PWGameData = UPWGameData::Get(this);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
+	if (ensure(CharacterDataList.Num() > 0))
+	{
+		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterDataList[0]->CharacterType);
+	}
+}
+
+void USpawnCharacterInputHandler::Select_2(const struct FInputActionValue& Value)
+{
+	if (IsInputEnabled() == false)
+	{
+		return;
+	}
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == false)
+	{
+		ensure(false);
+		return;
+	}
+
 	const UPWGameData* PWGameData = UPWGameData::Get(this);
 	if (IsValid(PWGameData) == false)
 	{
@@ -54,33 +90,8 @@ void USpawnCharacterInputHandler::Select_1(const struct FInputActionValue& Value
 	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
 	if (ensure(CharacterDataList.Num() > 0))
 	{
-		SelectedCharacterType = CharacterDataList[0]->CharacterType;
-		SelectedCharacterTypeChangedDelegate.Broadcast(SelectedCharacterType);
+		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterDataList[1]->CharacterType);
 	}
-
-}
-
-void USpawnCharacterInputHandler::Select_2(const struct FInputActionValue& Value)
-{
-	if (IsInputEnabled() == false)
-	{
-		return;
-	}
-
-	const UPWGameData* PWGameData = UPWGameData::Get(this);
-	if (IsValid(PWGameData) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
-	if (ensure(CharacterDataList.Num() > 1))
-	{
-		SelectedCharacterType = CharacterDataList[1]->CharacterType;
-		SelectedCharacterTypeChangedDelegate.Broadcast(SelectedCharacterType);
-	}
-
 }
 
 void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value)
@@ -90,6 +101,13 @@ void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value
 		return;
 	}
 
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == false)
+	{
+		ensure(false);
+		return;
+	}
+
 	const UPWGameData* PWGameData = UPWGameData::Get(this);
 	if (IsValid(PWGameData) == false)
 	{
@@ -98,10 +116,9 @@ void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value
 	}
 
 	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
-	if (ensure(CharacterDataList.Num() > 2))
+	if (ensure(CharacterDataList.Num() > 0))
 	{
-		SelectedCharacterType = CharacterDataList[2]->CharacterType;
-		SelectedCharacterTypeChangedDelegate.Broadcast(SelectedCharacterType);
+		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterDataList[2]->CharacterType);
 	}
 }
 
@@ -135,12 +152,13 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
     {
         PWPlayerController->DeprojectScreenPositionToWorld(ScreenX, ScreenY, WorldLocation, WorldDirection);
 
-        const FVector& StartLostion = WorldLocation;
+        const FVector& StartLocation = WorldLocation;
         const FVector& EndLocation = WorldLocation + (WorldDirection * 10000.0f);
 
         TArray<FHitResult> HitResultList;
-		bool bIsHitSuccess = GetWorld()->LineTraceMultiByChannel(HitResultList, StartLostion, EndLocation, ECC_Visibility);
-
+		bool bIsHitSuccess = GetWorld()->LineTraceMultiByChannel(HitResultList, StartLocation, EndLocation, ECC_Visibility);
+		
+		// 스폰 구역 찾기
 		bool bSpawnAreaFound = false;
 		if (bIsHitSuccess == true)
 		{
@@ -157,7 +175,8 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 				}
 			}
 		}
-
+		
+		// 스폰 구역에서 땅 찾기
         if (bSpawnAreaFound == true)
         {
 			FHitResult SpawnHitResult;
