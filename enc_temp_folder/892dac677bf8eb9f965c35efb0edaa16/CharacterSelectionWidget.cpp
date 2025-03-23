@@ -78,6 +78,17 @@ void UCharacterSelectionWidget::InitializeCharacterSelectionWidget()
 
 void UCharacterSelectionWidget::OnSelectedCharacterChanged(ECharacterType SelectedChracterType)
 {
+	// 기존 실행중인 애니메이션 정지
+	for (FTimerHandle SelectAnimationTimerHandle : SelectAnimationTimerHandleList)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(SelectAnimationTimerHandle);
+	}
+
+	for (FTimerHandle DeselectAnimationTimerHandle : DeselectAnimationTimerHandleList)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DeselectAnimationTimerHandle);
+	}
+
 	for (int32 i = 0; i < ChildrenCharacterDataList.Num(); i++)
 	{
 		const FPWCharacterDataTableRow* CharacterData = &ChildrenCharacterDataList[i];
@@ -85,91 +96,67 @@ void UCharacterSelectionWidget::OnSelectedCharacterChanged(ECharacterType Select
 		{
 			if (CurrentSelectedIndex != i)
 			{
-				PlaySelectAnimation(i);
+				CurrentSelectedIndex = i;
+				PlaySelectAnimation(CurrentSelectedIndex);
 			}
-			break;
+		}
+		else
+		{
+			PlayDeselectAnimation(i);
 		}
 	}
 }
 
 void UCharacterSelectionWidget::PlaySelectAnimation(int32 NewSelectIndex)
 {
-	GetWorld()->GetTimerManager().ClearTimer(SelectAnimationTimerHandle);
-	for (int32 i = 0; i < SelectionWidgetList.Num(); i++)
+	if (NewSelectIndex >= 0 && ensure(SelectionWidgetList.Num() > NewSelectIndex))
 	{
-		GetWorld()->GetTimerManager().ClearTimer(DeselectAnimationTimerHandleMap.FindOrAdd(i));
-	}
-
-	if (NewSelectIndex < 0 || SelectionWidgetList.Num() <= NewSelectIndex)
-	{
-		ensure(false);
-		return;
-	}
-
-	// 다른 건 전부 제자리로
-	for (int32 i = 0; i < SelectionWidgetList.Num(); i++)
-	{
-		if (i != NewSelectIndex)
-		{
-			PlayDeselectAnimation(i);
-		}
-	}
-	CurrentSelectedIndex = NewSelectIndex;
-
-	UWidget* ChildWidget = SelectionWidgetList[NewSelectIndex];
-	if (IsValid(ChildWidget) == true)
-	{
-		float TimeElapsed = 0.0f;
-		FVector2D StartPosition = ChildWidget->GetRenderTransform().Translation;
-		FVector2D TargetPosition = FVector2D(70.f, 0.f);
-
-		GetWorld()->GetTimerManager().SetTimer(SelectAnimationTimerHandle, FTimerDelegate::CreateLambda([this, NewSelectIndex, ChildWidget, StartPosition, TargetPosition, TimeElapsed]() mutable
-			{
-				TimeElapsed += 0.01f;
-				float Alpha = FMath::Clamp(TimeElapsed / SlideAnimaionDuration, 0.0f, 1.0f);
-				FVector NewPos = UKismetMathLibrary::VLerp(FVector(StartPosition, 0.f), FVector(TargetPosition, 0.f), Alpha);
-				FWidgetTransform NewTransform = ChildWidget->GetRenderTransform();
-				NewTransform.Translation = FVector2D(NewPos);
-				ChildWidget->SetRenderTransform(NewTransform);
-
-				if (Alpha >= 1.0f || CurrentSelectedIndex != NewSelectIndex)
-				{
-					GetWorld()->GetTimerManager().ClearTimer(SelectAnimationTimerHandle);
-				}
-
-			}), 0.01f, true);
-	}
-}
-
-void UCharacterSelectionWidget::PlayDeselectAnimation(int32 TargetIndex)
-{
-	if (TargetIndex >= 0 && ensure(SelectionWidgetList.Num() > TargetIndex))
-	{
-		UWidget* ChildWidget = SelectionWidgetList[TargetIndex];
+		UWidget* ChildWidget = SelectionWidgetList[NewSelectIndex];
 		if (IsValid(ChildWidget) == true)
 		{
 			float TimeElapsed = 0.0f;
-			FVector2D StartPosition = ChildWidget->GetRenderTransform().Translation;
+			FVector2D TargetPosition = ChildWidget->GetRenderTransform().Translation + FVector2D(70.f, 0.f);
 
-			if (StartPosition.IsNearlyZero() == true)
-			{
-				return;
-			}
-
-			FVector2D TargetPosition = FVector2D(0.f, 0.f);
-
-			GetWorld()->GetTimerManager().SetTimer(DeselectAnimationTimerHandleMap.FindOrAdd(TargetIndex), FTimerDelegate::CreateLambda([this, TargetIndex, ChildWidget, StartPosition, TargetPosition, TimeElapsed]() mutable
+			GetWorld()->GetTimerManager().SetTimer(SelectAnimationTimerHandleList[NewSelectIndex], FTimerDelegate::CreateLambda([this, NewSelectIndex, ChildWidget, TargetPosition, &TimeElapsed]() mutable
 				{
 					TimeElapsed += 0.01f;
 					float Alpha = FMath::Clamp(TimeElapsed / SlideAnimaionDuration, 0.0f, 1.0f);
-					FVector NewPos = UKismetMathLibrary::VLerp(FVector(StartPosition, 0.f), FVector(TargetPosition, 0.f), Alpha);
+					FVector NewPos = UKismetMathLibrary::VLerp(FVector(ChildWidget->GetRenderTransform().Translation, 0.f), FVector(TargetPosition, 0.f), Alpha);
 					FWidgetTransform NewTransform = ChildWidget->GetRenderTransform();
 					NewTransform.Translation = FVector2D(NewPos);
 					ChildWidget->SetRenderTransform(NewTransform);
 
-					if (Alpha >= 1.0f)
+					if (Alpha >= 1.0f || CurrentSelectedIndex != NewSelectIndex)
 					{
-						GetWorld()->GetTimerManager().ClearTimer(DeselectAnimationTimerHandleMap.FindOrAdd(TargetIndex));
+						GetWorld()->GetTimerManager().ClearTimer(SelectAnimationTimerHandleList[NewSelectIndex]);
+					}
+				}), 0.01f, true);
+		}
+	}
+}
+
+void UCharacterSelectionWidget::PlayDeselectAnimation(int32 SelectIndex)
+{
+	if (SelectIndex >= 0 && ensure(SelectionWidgetList.Num() > SelectIndex))
+	{
+		UWidget* ChildWidget = SelectionWidgetList[SelectIndex];
+		if (IsValid(ChildWidget) == true)
+		{
+			float TimeElapsed = 0.0f;
+			FVector2D TargetPosition = FVector2D(0.f, 0.f);
+
+			GetWorld()->GetTimerManager().SetTimer(DeselectAnimationTimerHandleList[SelectIndex], FTimerDelegate::CreateLambda([this, SelectIndex, ChildWidget, TargetPosition, &TimeElapsed]() mutable
+				{
+					TimeElapsed += 0.01f;
+					float Alpha = FMath::Clamp(TimeElapsed / SlideAnimaionDuration, 0.0f, 1.0f);
+					FVector NewPos = UKismetMathLibrary::VLerp(FVector(ChildWidget->GetRenderTransform().Translation, 0.f), FVector(TargetPosition, 0.f), Alpha);
+					FWidgetTransform NewTransform = ChildWidget->GetRenderTransform();
+					NewTransform.Translation = FVector2D(NewPos);
+					ChildWidget->SetRenderTransform(NewTransform);
+
+					if (Alpha >= 1.0f || CurrentSelectedIndex == SelectIndex)
+					{
+						GetWorld()->GetTimerManager().ClearTimer(DeselectAnimationTimerHandleList[SelectIndex]);
 					}
 				}), 0.01f, true);
 		}

@@ -29,9 +29,7 @@ private:
 	void OnSelectedCharacterChanged(ECharacterType SelectedChracterType);
 
 	void PlaySelectAnimation(int32 SelectIndex);
-	void PlayDeselectAnimation(int32 TargetIndex);
-
-	FTimerHandle GetDeselectTimerHandle(int32 TargetIndex);
+	void PlayDeselectAnimation(int32 SelectIndex);
 
 protected:
 
@@ -56,6 +54,6 @@ protected:
 	UPROPERTY(Transient)
 	int32 CurrentSelectedIndex = -1;
 
-	FTimerHandle SelectAnimationTimerHandle;
-	TMap<int32, FTimerHandle> DeselectAnimationTimerHandleMap;
+	TArray<FTimerHandle> SelectAnimationTimerHandleList;
+	TArray<FTimerHandle> DeselectAnimationTimerHandleList;
 };
