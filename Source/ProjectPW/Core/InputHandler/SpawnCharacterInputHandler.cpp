@@ -112,6 +112,12 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 		return;
 	}
 
+	// 현재 팀이 정해지지 않은 상태
+	if (PWPlayerState->GetTeamSide() == ETeamSide::None)
+	{
+		return;
+	}
+
     FVector WorldLocation;
 	FVector WorldDirection;
 
