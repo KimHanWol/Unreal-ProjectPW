@@ -45,25 +45,7 @@ void USpawnCharacterInputHandler::Select_1(const struct FInputActionValue& Value
 		return;
 	}
 
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	const UPWGameData* PWGameData = UPWGameData::Get(this);
-	if (IsValid(PWGameData) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
-	if (ensure(CharacterDataList.Num() > 0))
-	{
-		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterDataList[0]->CharacterType);
-	}
+	Select_Internal(0);
 }
 
 void USpawnCharacterInputHandler::Select_2(const struct FInputActionValue& Value)
@@ -73,25 +55,7 @@ void USpawnCharacterInputHandler::Select_2(const struct FInputActionValue& Value
 		return;
 	}
 
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	const UPWGameData* PWGameData = UPWGameData::Get(this);
-	if (IsValid(PWGameData) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
-	if (ensure(CharacterDataList.Num() > 0))
-	{
-		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterDataList[1]->CharacterType);
-	}
+	Select_Internal(1);
 }
 
 void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value)
@@ -101,6 +65,11 @@ void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value
 		return;
 	}
 
+	Select_Internal(2);
+}
+
+void USpawnCharacterInputHandler::Select_Internal(int32 SelectIndex)
+{
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == false)
 	{
@@ -118,7 +87,8 @@ void USpawnCharacterInputHandler::Select_3(const struct FInputActionValue& Value
 	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
 	if (ensure(CharacterDataList.Num() > 0))
 	{
-		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterDataList[2]->CharacterType);
+		SelectedCharacterType = CharacterDataList[SelectIndex]->CharacterType;
+		PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(SelectedCharacterType);
 	}
 }
 

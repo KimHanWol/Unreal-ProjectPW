@@ -31,7 +31,7 @@ private:
 	void Select_2(const struct FInputActionValue& Value);
 	void Select_3(const struct FInputActionValue& Value);
 
-	void PlaySelectAnimation();
+	void Select_Internal(int32 SelectIndex);
 
 	void TrySpawn(const struct FInputActionValue& Value);
 
