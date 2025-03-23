@@ -67,9 +67,9 @@ void UGA_BuildWall::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		}
 
 		FVector LookVector = PWPlayerCharacter->GetActorLocation() - HitResult.Location;
-		LookVector.Z = 0.f;
-
 		PWPlayerController->CS_SpawnActor(BuildObjectClass, HitResult.Location, LookVector.Rotation());
+
+		UE_LOG(LogTemp, Warning, TEXT("%s, %s"), *HitResult.Location.ToString(), *LookVector.Rotation().ToString());
 	}
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, true, false);

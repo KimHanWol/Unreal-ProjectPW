@@ -110,10 +110,10 @@ void UGA_BuildWall_Preview::OnTick(UPWAbilityTask_Tick* AbilityTask_Tick, float 
 	if (bHitSuccess == true)
 	{
 		BuildPreviewObject->SetActorLocation(HitResult.Location);
-
 		FVector LookVector = AvatarActor->GetActorLocation() - HitResult.Location;
-		LookVector.Z = 0.f;
 		BuildPreviewObject->SetActorRotation(LookVector.Rotation());
+
+		UE_LOG(LogTemp, Warning, TEXT("Preivew %s, %s"), *HitResult.Location.ToString(), *LookVector.Rotation().ToString());
 
 		StaticMeshComponent->SetVisibility(true);
 	}

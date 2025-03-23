@@ -253,11 +253,7 @@ void APWPlayerController::CS_SpawnActor_Implementation(TSubclassOf<AActor> Spawn
 		return;
 	}
 
-	FTransform SpawnTransform;
-	SpawnTransform.SetLocation(Location);
-	SpawnTransform.SetRotation(FQuat(Rotation));
-
-	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, SpawnTransform);
+	AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(SpawnActorClass, FTransform(Location));
 	if (ensure(IsValid(SpawnedActor) == true))
 	{
 		SpawnedActor->SetReplicates(true);

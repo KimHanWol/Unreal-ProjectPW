@@ -124,7 +124,4 @@ void UPWEquipmentComponent::SpawnEquipmentActor(ECharacterType OwnerCharacterTyp
 		}
 		SpawnedEquipmentActor->InitializeEquipmentActor(GetOwner());
 	}
-
-
-
 }
