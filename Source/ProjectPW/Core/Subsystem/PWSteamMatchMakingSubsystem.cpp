@@ -10,7 +10,9 @@
 
 //Game
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWEventManager.h"
 #include "Core/PWGameInstance.h"
+#include "Core/PWPlayerState.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -64,7 +66,13 @@ void UPWSteamMatchMakingSubsystem::CreateGameSession()
 	SessionSettings->Set(FName("MatchType"), FString("FreeForAll"), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	
     const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
-	if (ensure(IsValid(LocalPlayer) == true))
+	if (IsValid(LocalPlayer) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (OnlineSessionInterface.IsValid())
 	{
 		OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *SessionSettings);
 	}
@@ -90,6 +98,19 @@ void UPWSteamMatchMakingSubsystem::LeaveGameSession()
 	if (IsValid(PWPlayerController) == true)
 	{
 		PWPlayerController->ClientTravel(PWGameSetting->MainMenuLevelPath.ToString(), ETravelType::TRAVEL_Absolute);
+	}
+}
+
+void UPWSteamMatchMakingSubsystem::ClientTravelToSessionLevel(FName SessionName)
+{
+	FString ConnectInfo;
+	if (OnlineSessionInterface->GetResolvedConnectString(SessionName, ConnectInfo))
+	{
+		APlayerController* LocalPlayerController = UGameplayStatics::GetPlayerController(this, 0);
+		if (ensure(IsValid(LocalPlayerController) == true))
+		{
+			LocalPlayerController->ClientTravel(ConnectInfo, TRAVEL_Absolute);
+		}
 	}
 }
 
@@ -132,9 +153,6 @@ void UPWSteamMatchMakingSubsystem::JoinGameSession()
 		return;
 	}
 
-	const FOnJoinSessionCompleteDelegate& JoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &UPWSteamMatchMakingSubsystem::OnJoinSessionComplete);
-	OnlineSessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
-
 	for (const FOnlineSessionSearchResult& Result : SessionSearch->SearchResults)
 	{
 		FString Id = Result.GetSessionIdStr();
@@ -175,29 +193,21 @@ void UPWSteamMatchMakingSubsystem::DestroyGameSession()
 
 void UPWSteamMatchMakingSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
 {
-	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
-	if (IsValid(PWGameSetting) == false)
-	{
-		ensure(false);
-		return;
-	}
-
 	if (bWasSuccessful == true)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Create game session success"));
-
-		UWorld* world = GetWorld();
-		if (IsValid(world) == true)
-		{
-			world->ServerTravel(PWGameSetting->MainLevelPath.ToString() + FString("?listen"));
-		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Log, TEXT("Create game session failed"));
 	}
 
-	OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteHandle);
+
+	if (OnlineSessionInterface.IsValid() == true)
+	{
+		OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteHandle);
+	}
+
 	OnCreateSessionCompleteDelegate.Broadcast(bWasSuccessful);
 }
 
@@ -236,12 +246,6 @@ void UPWSteamMatchMakingSubsystem::OnJoinSessionComplete(FName SessionName, EOnJ
 	if (bWasSuccessful == true)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Join game session success, session address : %s"), *SessionAddress);
-
-		APlayerController* PlayerController = GetGameInstance()->GetFirstLocalPlayerController();
-		if (ensure(IsValid(PlayerController) == true))
-		{
-			PlayerController->ClientTravel(SessionAddress, ETravelType::TRAVEL_Absolute);
-		}
 	}
 	else
 	{
@@ -249,6 +253,9 @@ void UPWSteamMatchMakingSubsystem::OnJoinSessionComplete(FName SessionName, EOnJ
 	}
 
 	OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteHandle);
+
+	ClientTravelToSessionLevel(SessionName);
+
 	OnJoinSessionCompleteDelegate.Broadcast(bWasSuccessful);
 }
 
@@ -270,5 +277,6 @@ void UPWSteamMatchMakingSubsystem::OnDestroySessionComplete(FName SessionName, b
 	}
 
 	OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteHandle);
+
 	OnDestroySessionCompleteDelegate.Broadcast(bWasSuccessful);
 }

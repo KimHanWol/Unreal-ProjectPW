@@ -26,7 +26,8 @@ public:
 
 private:
 
-	void OnSelectedCharacterChanged(ECharacterType SelectedChracterType);
+	void OnAllPlayerReadyToStart();
+	void OnSelectedCharacterChanged(ECharacterType SelectedChracterType);\
 
 	void PlaySelectAnimation(int32 SelectIndex);
 	void PlayDeselectAnimation(int32 TargetIndex);

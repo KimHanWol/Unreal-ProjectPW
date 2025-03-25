@@ -74,6 +74,12 @@ void APWGameState::OnEntireGameOver()
 	}
 }
 
+//TODO: 게임 시작 이벤트로 바꿔서 바인딩
+void APWGameState::SetSelectedLevelKey(FName InSelectedLevelKey)
+{
+	SelectedLevelKey = InSelectedLevelKey;
+}
+
 void APWGameState::OnCharacterAliveStateChanged(APWPlayerCharacter* TargetCharacter, bool bIsAlive)
 {
 	if(PlayerCharacterAliveDataMap.Contains(TargetCharacter) == true)

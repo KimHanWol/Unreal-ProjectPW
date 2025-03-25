@@ -42,12 +42,19 @@ public:
 	void OnPlayerGameOver(class APWPlayerController* PlayerController, bool bLose);
 	void OnEntireGameOver();
 
+	FName GetSelectedLevelKey() const { return SelectedLevelKey; };
+	void SetSelectedLevelKey(FName InSelectedLevelKey);
+
 public:
 
 	DECLARE_MULTICAST_DELEGATE(FGameStateCharacterAliveStateChanged)
 	FGameStateCharacterAliveStateChanged GameStateCharacterAliveStateChangedDelegate;
 
 private:
+
+	// 선택된 레벨
+	UPROPERTY(Transient)
+	FName SelectedLevelKey;
 
 	// 플레이어 차례
 	UPROPERTY(Transient)

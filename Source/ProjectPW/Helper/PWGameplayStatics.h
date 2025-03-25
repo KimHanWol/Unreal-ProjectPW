@@ -27,6 +27,7 @@ public:
 	static class TArray<class APWPlayerCharacter*> GetAllPlayerCharacter(const UObject* WorldContextObj);
 	static class APWPlayerState* GetLocalPlayerState(const UObject* WorldContextObj);
 
+	static FName GetSelectedLevelKey(const UObject* WorldContextObj);
 	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);
 
 	static const struct FPWCharacterDataTableRow* FindCharacterData(const UObject* WorldContextObj, const ECharacterType TargetCharacterType);

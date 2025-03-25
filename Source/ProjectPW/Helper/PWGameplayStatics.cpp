@@ -10,10 +10,11 @@
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
+#include "Core/PWGameMode_MainMenu.h"
+#include "Core/PWGameState.h"
 #include "Core/PWPlayerState.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
-#include "Data/PWGameEnum.h"
 
 APWPlayerController* UPWGameplayStatics::GetLocalPlayerController(const UObject* WorldContextObj)
 {
@@ -118,6 +119,27 @@ APWPlayerState* UPWGameplayStatics::GetLocalPlayerState(const UObject* WorldCont
 	}
 
 	return nullptr;
+}
+
+FName UPWGameplayStatics::GetSelectedLevelKey(const UObject* WorldContextObj)
+{
+	if (IsValid(WorldContextObj) == false || IsValid(WorldContextObj->GetWorld()) == false)
+	{
+		ensure(false);
+		return FName();
+	}
+
+	APWGameMode_MainMenu* MainMenuGameMode = Cast<APWGameMode_MainMenu>(WorldContextObj->GetWorld()->GetAuthGameMode());
+	check(MainMenuGameMode);
+
+	const APWGameState* PWGameState = MainMenuGameMode->GetGameState<APWGameState>();
+	if (IsValid(PWGameState) == false)
+	{
+		ensure(false);
+		return FName();
+	}
+
+	return PWGameState->GetSelectedLevelKey();
 }
 
 ETeamSide UPWGameplayStatics::GetLocalPlayerTeamSide(const UObject* WorldContextObj)

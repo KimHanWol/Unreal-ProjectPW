@@ -43,6 +43,9 @@ public:
 	FTeamCharacterAllSpawned TeamCharacterAllSpawnedDelegate;
 
 	//Player
+	DECLARE_MULTICAST_DELEGATE(FClientTeamSideInitialized);
+	FClientTeamSideInitialized ClientTeamSideInitializedDelegate;
+
 	DECLARE_MULTICAST_DELEGATE_OneParam(FCharacterSelectedForSpawn, ECharacterType SelectedCharacterType);
 	FCharacterSelectedForSpawn CharacterSelectedForSpawnDelegate;
 
@@ -56,6 +59,9 @@ public:
 	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;
 
 	//Turn
+	DECLARE_MULTICAST_DELEGATE(FAllPlayerReadyToStart);
+	FAllPlayerReadyToStart AllPlayerReadyToStartDelegate; // Team Side 및 Commander 스폰 까지 다 된 상태
+
 	DECLARE_MULTICAST_DELEGATE(FRequestNextTurn);
 	FRequestNextTurn RequestNextTurnDelegate;
 
@@ -68,4 +74,8 @@ public:
 	//UI
 	DECLARE_MULTICAST_DELEGATE_OneParam(FShowWidget, EWidgetType TargetWidgetType);
 	FShowWidget ShowWidgetDelegate;
+
+	//MatchMaking
+	DECLARE_MULTICAST_DELEGATE(FMatchMakingSuccess);
+	FMatchMakingSuccess MatchMakingSuccessDelegate;
 };

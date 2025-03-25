@@ -50,6 +50,9 @@ public:
 	UFUNCTION()
 	void OnRep_TeamCharacterList();
 
+	UFUNCTION()
+	void OnRep_TeamSide();
+
 	void GameOver() { bGameOver = true; }
 	bool IsGameOver() const { return bGameOver; }
 
@@ -63,7 +66,7 @@ private:
 	UPROPERTY(Transient, Replicated)
 	bool bIsMyTurn;
 
-	UPROPERTY(Transient, Replicated)
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamSide)
 	ETeamSide TeamSide;
 
 	UPROPERTY(transient, Replicated)

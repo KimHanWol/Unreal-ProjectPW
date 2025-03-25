@@ -54,6 +54,13 @@ void APWGameMode::BeginPlay()
 		PWEventManager->ClientTeamSideInitializedDelegate.AddUObject(this, &APWGameMode::OnClientTeamSideInitialized);
 		PWEventManager->MatchMakingSuccessDelegate.AddUObject(this, &APWGameMode::OnMatchMakingSuccess);
 	}
+
+	// TODO: 테이블 값 참조해서 가져오기
+	APWGameState* PWGameState = GetGameState<APWGameState>();
+	if (ensure(IsValid(PWGameState) == true))
+	{
+		PWGameState->SetSelectedLevelKey(FName("Main"));
+	}
 }
 
 void APWGameMode::OnPostLogin(AController* NewPlayer)

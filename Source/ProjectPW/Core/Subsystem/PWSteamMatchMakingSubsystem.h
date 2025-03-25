@@ -29,6 +29,8 @@ public:
 
 private:
 
+	void ClientTravelToSessionLevel(FName SessionName);
+
 	void FindGameSession();
 	void JoinGameSession();
 	void DestroyGameSession();

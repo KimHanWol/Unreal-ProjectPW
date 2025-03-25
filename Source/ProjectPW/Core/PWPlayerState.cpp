@@ -165,3 +165,12 @@ void APWPlayerState::OnRep_TeamCharacterList()
 		}
 	}
 }
+
+void APWPlayerState::OnRep_TeamSide()
+{
+	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(LocalPlayerController) == true)
+	{
+		LocalPlayerController->CS_TeamSideInitialized();
+	}
+}

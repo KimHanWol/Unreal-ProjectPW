@@ -7,7 +7,9 @@
 
 //Game
 #include "Core/PWEventManager.h"
+#include "Helper/PWGameplayStatics.h"
 #include "UI/CharacterSelection/CharacterSelectionWidget.h"
+#include "UI/Loading/LoadingWidget.h"
 #include "UI/Main/MainWidget.h"
 
 void UMasterWidget::NativeConstruct()
@@ -75,6 +77,16 @@ void UMasterWidget::ShowWidget(EWidgetType TargetWidgetType)
 			if (ensure(IsValid(MainWidget) == true))
 			{
 				MainWidget->SetVisibility(ESlateVisibility::Visible);
+			}
+			break;
+		}
+		case EWidgetType::LoadingWidget:
+		{
+			if (ensure(IsValid(LoadingWidget) == true))
+			{
+				LoadingWidget->SetVisibility(ESlateVisibility::Visible);
+				FName SelectedLevelKey = UPWGameplayStatics::GetSelectedLevelKey(this);
+				LoadingWidget->InitializeLoadingWidget(SelectedLevelKey);
 			}
 			break;
 		}

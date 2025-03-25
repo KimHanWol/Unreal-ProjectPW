@@ -34,6 +34,10 @@ public:
 
 	ETeamSide GetTeamSide() const;
 
+	UFUNCTION(Server, Reliable)
+	void CS_TeamSideInitialized();
+	void CS_TeamSideInitialized_Implementation();
+
 	//Turn changed
 	UFUNCTION(Client, Reliable)
 	void SC_TurnChanged(bool bMyTurn);

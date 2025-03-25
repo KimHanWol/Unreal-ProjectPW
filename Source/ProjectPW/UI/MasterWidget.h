@@ -17,6 +17,7 @@ enum class EWidgetType : uint8
 	None,
 	MainWidget,
 	CharacterSelection,
+	LoadingWidget,
 };
 
 /**
@@ -47,6 +48,9 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UCharacterSelectionWidget* CharacterSelectionWidget;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class ULoadingWidget* LoadingWidget;
 
 private:
 

@@ -17,6 +17,7 @@
 #include "Core/InputHandler/SpawnCharacterInputHandler.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWEventManager.h"
+#include "Core/PWGameMode.h"
 #include "Core/PWPlayerState.h"
 #include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
@@ -123,6 +124,15 @@ ETeamSide APWPlayerController::GetTeamSide() const
 	return TeamSide;
 }
 
+void APWPlayerController::CS_TeamSideInitialized_Implementation()
+{
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (ensure(IsValid(PWEventManager) == true))
+	{
+		PWEventManager->ClientTeamSideInitializedDelegate.Broadcast();
+	}
+}
+
 void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<APWPlayerCharacter*>& TeamCharacterList)
 {
 	if(TargetPlayerController != this)
@@ -189,7 +199,7 @@ void APWPlayerController::SM_GameStart_Implementation()
 		const UPWEventManager* EventManager = UPWEventManager::Get(this);
 		if (IsValid(EventManager) == true)
 		{
-			EventManager->ShowWidgetDelegate.Broadcast(EWidgetType::MainWidget);
+			EventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
 		}
 	}
 }
@@ -623,7 +633,7 @@ void APWPlayerController::OnSelectedCharacterTypeChanged_Internal(const FPWChara
 	if (ensure(CharacterData != nullptr))
 	{
 		CurrentSelectedCharacterType = CharacterData->CharacterType;
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *UPWGameplayStatics::ConvertEnumToString(this, CurrentSelectedCharacterType));
+		UE_LOG(LogTemp, Log, TEXT("%s selected for spawn"), *UPWGameplayStatics::ConvertEnumToString(this, CurrentSelectedCharacterType));
 
 		if (CharacterData->Mesh.IsNull() == false)
 		{

@@ -10,6 +10,7 @@
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Data/DataTable/PWLevelDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 
 UPWGameData* UPWGameData::Instance = nullptr;
@@ -65,7 +66,7 @@ const FPWCharacterDataTableRow* UPWGameData::FindCharacterTableRow(const UObject
 		return nullptr;
 	}
 
-	const FPWCharacterDataTableRow* CharacterData;
+	const FPWCharacterDataTableRow* CharacterData = nullptr;
 	const TArray<FPWCharacterDataTableRow*>& CharacterDataList = PWGameData->GetAllTableRow<FPWCharacterDataTableRow>(EDataTableType::Character);
 	for (const FPWCharacterDataTableRow* InCharacterData : CharacterDataList)
 	{
@@ -76,6 +77,25 @@ const FPWCharacterDataTableRow* UPWGameData::FindCharacterTableRow(const UObject
 	}
 
 	return nullptr;
+}
+
+const FPWLevelDataTableRow* UPWGameData::FindLevelTableRow(const UObject* WorldContextObj, FName LevelDataKey)
+{
+	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	TSoftObjectPtr<class UDataTable> LevelDataTable = PWGameData->DataTableMap[EDataTableType::Level];
+	if (LevelDataTable.IsNull() == true)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	return LevelDataTable.Get()->FindRow<FPWLevelDataTableRow>(LevelDataKey, "");
 }
 
 TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject* WorldContextObj)
