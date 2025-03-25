@@ -317,6 +317,8 @@ void UMainMenu::UpdateLevelData()
 		return;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Data %d"), CurrentSelectedLevelIndex);
+
  	const TArray<FPWLevelDataTableRow*>& LevelDataList = PWGameData->GetAllTableRow<FPWLevelDataTableRow>(EDataTableType::Level);
 
 	if (ensure(IsValid(Image_BG_Prev) == true))
@@ -325,6 +327,7 @@ void UMainMenu::UpdateLevelData()
 		if (ensure(LevelDataList.Num() > PrevLevelIndex))
 		{
 			Image_BG_Prev->SetBrushFromSoftTexture(LevelDataList[PrevLevelIndex]->LevelImage);		
+			UE_LOG(LogTemp, Warning, TEXT("Prev %d"), PrevLevelIndex);
 		}
 	}
 
@@ -332,17 +335,21 @@ void UMainMenu::UpdateLevelData()
 	{
 		if (ensure(LevelDataList.Num() > CurrentSelectedLevelIndex))
 		{
-			Image_BG->SetBrushFromSoftTexture(LevelDataList[CurrentSelectedLevelIndex]->LevelImage);
+			Image_BG_Prev->SetBrushFromSoftTexture(LevelDataList[CurrentSelectedLevelIndex]->LevelImage);
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Curr %d"), CurrentSelectedLevelIndex);
 	}
 
-	if (ensure(IsValid(Image_BG_Next) == true))
+	if (ensure(IsValid(Image_BG) == true))
 	{
 		int32 NextLevelIndex = GetNextLevelIndex();
 		if (ensure(LevelDataList.Num() > NextLevelIndex))
 		{
-			Image_BG_Next->SetBrushFromSoftTexture(LevelDataList[NextLevelIndex]->LevelImage);
+			Image_BG_Prev->SetBrushFromSoftTexture(LevelDataList[NextLevelIndex]->LevelImage);
 		}
+
+		UE_LOG(LogTemp, Warning, TEXT("Next %d"), NextLevelIndex);
 	}
 
 	UpdateLevelName();

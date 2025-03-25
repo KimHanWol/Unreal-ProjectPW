@@ -18,10 +18,17 @@ class PROJECTPW_API UMainMenu: public UPWUserWidget
 
 protected:
 
+	virtual void NativeOnInitialized() override;
 	virtual void BindEvents() override;
 	virtual void UnbindEvents() override;
 
 private:
+
+	UFUNCTION()
+	void OnPreviousButtonPressed();
+
+	UFUNCTION()
+	void OnNextButtonPressed();
 
 	UFUNCTION()
 	void OnCreateButtonPressed();
@@ -36,13 +43,37 @@ private:
 	void OnFindSessionComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(bool bWasSuccessful);
 
+	void UpdateLevelName(); // 애니메이션 중간에 바꿔야 해서 따로 분리
+	void UpdateLevelData();
+
+	int32 GetPrevLevelIndex();
+	int32 GetNextLevelIndex();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UButton* Btn_CreateServer;
+	class UImage* Image_BG_Prev;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UButton* Btn_SearchServer;
+	class UImage* Image_BG;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UImage* Image_BG_Next;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	UTextBlock* Text_LevelName;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UButton* Btn_Previous;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UButton* Btn_Next;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UButton* Btn_CreateSession;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UButton* Btn_SearchSession;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UButton* Btn_Quit;
@@ -56,6 +87,12 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UUserWidget* MainMenuPopUp;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_LevelSlide_Prev;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_LevelSlide_Next;
+
 	UPROPERTY(EditDefaultsOnly)
 	FText SessionCreatingText;
 
@@ -64,4 +101,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	FText SessionJoiningText;
+
+	UPROPERTY(Transient)
+	bool bIsAnimationPlaying = false;
+
+	UPROPERTY(Transient)
+	int32 CurrentSelectedLevelIndex = 0;
 };
