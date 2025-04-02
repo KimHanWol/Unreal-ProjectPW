@@ -58,6 +58,9 @@ private:
 	UPROPERTY(Transient)
 	int32 TotalPlayerCount;
 
+	UPROPERTY(Transient)
+	bool bIsBattleStarted = false;
+
 	//각자 스폰을 마치고 게임 시작 준비가 된 컨트롤러
 	UPROPERTY(Transient)
 	TMap<class APWPlayerController*, bool> PlayerControllerMap;

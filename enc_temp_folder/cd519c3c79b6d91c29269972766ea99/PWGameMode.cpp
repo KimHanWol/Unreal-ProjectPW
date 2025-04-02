@@ -199,6 +199,7 @@ AActor* APWGameMode::GetCommanderPointActor(ETeamSide TeamSide) const
 		{
 			if (TeamSide == CommanderPointActor->GetTeamSide()) 
 			{
+				UE_LOG(LogTemp, Warning, TEXT("%s is %s"), *CommanderPointActor->GetName(), *UPWGameplayStatics::ConvertEnumToString<ETeamSide>(this, TeamSide));
 				return InCommanderPointActor;
 			}
 		}
@@ -218,6 +219,7 @@ void APWGameMode::TransformCommanderPawns()
 		{
 			CommanderPawn->SetReplicates(true);
 			CommanderPawn->SetActorTransform(CommanderPointActor->GetActorTransform());
+			UE_LOG(LogTemp, Warning, TEXT("%s (%s) : %s"), *PlayerController->GetName(), *UPWGameplayStatics::ConvertEnumToString<ETeamSide>(this, PlayerController->GetTeamSide()), *CommanderPointActor->GetName());
 		}
 	}
 }

@@ -77,8 +77,9 @@ void ULoadingWidget::InitializeLoadingWidget(FName LevelKey)
 
 		if (CurrentLoadingDuration >= MinLoadingDuration)
 		{
-			GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
 			OnLoadingFinished();
+			GetWorld()->GetTimerManager().ClearTimer(LoadingTimerHandle);
+			return;
 		}
 
 		// 모든 플레이어가 준비 되기 전에는 중간에 멈추게 함
