@@ -18,8 +18,7 @@ void UMasterWidget::NativeConstruct()
 
 	WidgetList.Add(MainWidget);
 	WidgetList.Add(CharacterSelectionWidget);
-
-	ShowWidget(EWidgetType::CharacterSelection);
+	WidgetList.Add(LoadingWidget);
 }
 
 void UMasterWidget::BindEvents()

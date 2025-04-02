@@ -43,6 +43,12 @@ public:
 	class UPWTurnManageSubsystem* GetPWTurnManageSubsystem() const;
 	class UPWSteamMatchMakingSubsystem* GetPWSteamMatchMakingSubsystem() const;
 
+public:
+
+	// TODO: GameInstance 말고 다른 곳으로 옮기기
+	UPROPERTY(Transient)
+	FName SelectedInGameLevelKey;
+
 protected:
 
 	//내부에서 또 비동기 로딩을 해야 하고 Init 시점에 초기화 하기 때문에

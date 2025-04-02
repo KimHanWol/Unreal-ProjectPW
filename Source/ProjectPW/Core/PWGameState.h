@@ -42,7 +42,7 @@ public:
 	void OnPlayerGameOver(class APWPlayerController* PlayerController, bool bLose);
 	void OnEntireGameOver();
 
-	FName GetSelectedLevelKey() const { return SelectedLevelKey; };
+	FName GetSelectedLevelKey() const;
 	void SetSelectedLevelKey(FName InSelectedLevelKey);
 
 public:

@@ -6,6 +6,7 @@
 //Engine
 
 //Game
+#include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWEventManager.h"
 
@@ -72,6 +73,25 @@ void APWGameState::OnEntireGameOver()
 		PWEventManager->GameOverDelegate.RemoveAll(this);
 		PWEventManager->CharacterAliveStateChangedDelegate.RemoveAll(this);
 	}
+}
+
+FName APWGameState::GetSelectedLevelKey() const
+{
+#if WITH_EDITOR
+
+	// 에디터에서 바로 Dev 맵 열었을 때
+	if (SelectedLevelKey.IsNone() == true)
+	{
+		const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(GetWorld());
+		if (ensure(IsValid(PWGameSetting) == true))
+		{
+			return PWGameSetting->InGameDevMapName;
+		}
+	}
+
+#endif
+
+	return SelectedLevelKey;
 }
 
 //TODO: 게임 시작 이벤트로 바꿔서 바인딩

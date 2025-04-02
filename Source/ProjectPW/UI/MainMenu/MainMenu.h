@@ -39,6 +39,9 @@ private:
 	UFUNCTION()
 	void OnQuitButtonPressed();
 
+	UFUNCTION()
+	void OnStopMatchMakingButtonPressed();
+
 	void OnCreateSessionComplete(bool bWasSuccessful);
 	void OnFindSessionComplete(bool bWasSuccessful);
 	void OnJoinSessionComplete(bool bWasSuccessful);
@@ -50,6 +53,9 @@ private:
 	int32 GetNextLevelIndex();
 
 protected:
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Main;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UImage* Image_BG_Prev;
@@ -79,10 +85,13 @@ protected:
 	class UButton* Btn_Quit;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Waiting;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UTextBlock* Text_Process;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UOverlay* Overlay_Btn;
+	class UButton* Btn_StopMatchMaking;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	UUserWidget* MainMenuPopUp;
@@ -92,6 +101,9 @@ protected:
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	class UWidgetAnimation* Anim_LevelSlide_Next;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	class UWidgetAnimation* Anim_MatchMaking;
 
 	UPROPERTY(EditDefaultsOnly)
 	FText SessionCreatingText;
@@ -107,4 +119,7 @@ protected:
 
 	UPROPERTY(Transient)
 	int32 CurrentSelectedLevelIndex = 0;
+
+	UPROPERTY(Transient)
+	bool bIsMatchMaking = false;
 };

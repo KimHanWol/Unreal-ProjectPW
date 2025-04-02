@@ -49,6 +49,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	FName MainLevelPath;
 
+	//Dev Map 이름
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debugv")
+	FName InGameDevMapName;
+
 	//BuildableWall 체력
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Object")
 	float BuildableWallDefaultHealth = 60.f;

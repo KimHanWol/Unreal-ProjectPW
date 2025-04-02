@@ -59,8 +59,9 @@ public:
 	FTargetIsOnCrosshair TargetIsOnCrosshairDelegate;
 
 	//Turn
-	DECLARE_MULTICAST_DELEGATE(FAllPlayerReadyToStart);
-	FAllPlayerReadyToStart AllPlayerReadyToStartDelegate; // Team Side 및 Commander 스폰 까지 다 된 상태
+
+	DECLARE_MULTICAST_DELEGATE(FBattleLevelSettingFinished);
+	FBattleLevelSettingFinished BattleLevelSettingFinished; // Team Side 및 Commander 스폰 까지 다 된 상태
 
 	DECLARE_MULTICAST_DELEGATE(FRequestNextTurn);
 	FRequestNextTurn RequestNextTurnDelegate;

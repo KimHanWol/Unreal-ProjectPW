@@ -28,7 +28,7 @@ public:
 
 private:
 
-	void OnAllPlayerReadyToStart();
+	void OnBattleLevelSettingFinished();
 	void OnLoadingFinished();
 
 protected:
@@ -54,6 +54,6 @@ protected:
 	FTimerHandle LoadingTimerHandle;
 
 	UPROPERTY(Transient)
-	bool bIsAllPlayerReadyToStart = false;
+	bool bIsBattleLevelSettingFinished = false;
 
 };

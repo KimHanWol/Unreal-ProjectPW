@@ -81,6 +81,12 @@ const FPWCharacterDataTableRow* UPWGameData::FindCharacterTableRow(const UObject
 
 const FPWLevelDataTableRow* UPWGameData::FindLevelTableRow(const UObject* WorldContextObj, FName LevelDataKey)
 {
+	if (LevelDataKey.IsNone() == true)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
 	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
 	if (IsValid(PWGameData) == false)
 	{
@@ -95,7 +101,7 @@ const FPWLevelDataTableRow* UPWGameData::FindLevelTableRow(const UObject* WorldC
 		return nullptr;
 	}
 
-	return LevelDataTable.Get()->FindRow<FPWLevelDataTableRow>(LevelDataKey, "");
+	return LevelDataTable.LoadSynchronous()->FindRow<FPWLevelDataTableRow>(LevelDataKey, "");
 }
 
 TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject* WorldContextObj)
@@ -116,4 +122,15 @@ TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject*
 
 	int32 RandIndex = FMath::RandRange(0, VolumeActorListNum - 1);
 	return UPWGameData::Get(WorldContextObj)->VolumeActorList[RandIndex];
+}
+
+const TSoftObjectPtr<class UDataTable> UPWGameData::GetDataTable(EDataTableType DataTableType) const
+{
+	if (DataTableMap.Contains(DataTableType) == false)
+	{
+		ensure(false);
+		return TSoftObjectPtr<class UDataTable>();
+	}
+
+	return DataTableMap[DataTableType];
 }

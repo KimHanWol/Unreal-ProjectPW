@@ -28,14 +28,8 @@ void APWGameMode_MainMenu::OnPostLogin(AController* NewPlayer)
 
 	if (bSessionCreated == true && UGameplayStatics::GetNumPlayerControllers(this) > 1)
 	{
-		// TODO: 테이블 값 참조해서 가져오기
-		APWGameState* PWGameState = GetGameState<APWGameState>();
-		if (ensure(IsValid(PWGameState) == true))
-		{
-			PWGameState->SetSelectedLevelKey(FName("Main"));
-		}
+		UE_LOG(LogTemp, Log, TEXT("All client login. Load next level..."));
 
-		UE_LOG(LogTemp, Log, TEXT("Client login : %s"), *NewPlayer->GetName());
 		TravelInGameLevel();
 	}
 }

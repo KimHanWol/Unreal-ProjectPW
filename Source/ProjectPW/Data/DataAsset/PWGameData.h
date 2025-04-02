@@ -101,6 +101,8 @@ public:
 
 	static TSubclassOf<class APWVolumeActorBase> GetVolumeActorRandom(const UObject* WorldContextObj);
 
+	const TSoftObjectPtr<class UDataTable> GetDataTable(EDataTableType DataTableType) const;
+
 protected:
 
 	static UPWGameData* Instance;

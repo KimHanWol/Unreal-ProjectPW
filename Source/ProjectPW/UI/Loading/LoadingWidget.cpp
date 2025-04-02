@@ -20,7 +20,7 @@ void ULoadingWidget::BindEvents()
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
-		PWEventManager->AllPlayerReadyToStartDelegate.AddUObject(this, &ULoadingWidget::OnAllPlayerReadyToStart);
+		PWEventManager->BattleLevelSettingFinished.AddUObject(this, &ULoadingWidget::OnBattleLevelSettingFinished);
 	}
 }
 
@@ -31,7 +31,7 @@ void ULoadingWidget::UnbindEvents()
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
-		PWEventManager->AllPlayerReadyToStartDelegate.RemoveAll(this);
+		PWEventManager->BattleLevelSettingFinished.RemoveAll(this);
 	}
 }
 
@@ -49,7 +49,11 @@ void ULoadingWidget::InitializeLoadingWidget(FName LevelKey)
 		return;
 	}
 
-	bIsAllPlayerReadyToStart = false;
+#if WITH_EDITOR
+	bIsBattleLevelSettingFinished = true;
+#else 
+	bIsBattleLevelSettingFinished = false;
+#endif //WITH_EDITOR
 
 	if (ensure(IsValid(Text_MapName) == true))
 	{
@@ -78,7 +82,7 @@ void ULoadingWidget::InitializeLoadingWidget(FName LevelKey)
 		}
 
 		// 모든 플레이어가 준비 되기 전에는 중간에 멈추게 함
-		if (Progress < WaitingOtherPlayerReadyPoint || bIsAllPlayerReadyToStart == true)
+		if (Progress < WaitingOtherPlayerReadyPoint || bIsBattleLevelSettingFinished == true)
 		{
 			CurrentLoadingDuration += 0.01f;
 		}
@@ -86,9 +90,9 @@ void ULoadingWidget::InitializeLoadingWidget(FName LevelKey)
 		}), 0.01f, true);
 }
 
-void ULoadingWidget::OnAllPlayerReadyToStart()
+void ULoadingWidget::OnBattleLevelSettingFinished()
 {
-	bIsAllPlayerReadyToStart = true;
+	bIsBattleLevelSettingFinished = true;
 }
 
 void ULoadingWidget::OnLoadingFinished()

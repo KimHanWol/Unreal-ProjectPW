@@ -22,11 +22,15 @@
 
 bool APWGameMode::IsAllPlayerReadyToStart() const
 {
+#if WITH_EDITOR
+	//
+#else
 	// 모든 로컬 컨트롤러에 팀이 세팅 되어야 시작 가능
 	if (TeamInitializedPlayerCount < PlayerControllerMap.Num())
 	{
 		return false;
 	}
+#endif //WITH_EDITOR
 
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
 	if (IsValid(PWGameSetting) == false)
@@ -52,15 +56,12 @@ void APWGameMode::BeginPlay()
 	if (ensure(IsValid(PWEventManager) == true))
 	{
 		PWEventManager->ClientTeamSideInitializedDelegate.AddUObject(this, &APWGameMode::OnClientTeamSideInitialized);
-		PWEventManager->MatchMakingSuccessDelegate.AddUObject(this, &APWGameMode::OnMatchMakingSuccess);
 	}
 }
 
 void APWGameMode::OnPostLogin(AController* NewPlayer)
 {
 	Super::OnPostLogin(NewPlayer);
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *NewPlayer->GetName());
 
 	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(NewPlayer);
 	if (IsValid(PWPlayerController) == true)
@@ -80,13 +81,6 @@ void APWGameMode::Logout(AController* ExitPlayer)
 	{
 		MatchMakingSubsystem->LeaveGameSession();
 	}
-}
-
-void APWGameMode::PostLogin(APlayerController* NewPlayer)
-{
-	Super::PostLogin(NewPlayer);
-
-	UE_LOG(LogTemp, Warning, TEXT("Player Login"));
 }
 
 void APWGameMode::OnInitialPossess(APWPlayerController* SelfPlayerController)
@@ -153,11 +147,6 @@ void APWGameMode::OnEntireGameOver()
 		PWGameState->GameStateCharacterAliveStateChangedDelegate.RemoveAll(this);
 		PWGameState->OnEntireGameOver();
 	}
-}
-
-void APWGameMode::OnMatchMakingSuccess()
-{
-	StartGame();
 }
 
 void APWGameMode::OnClientTeamSideInitialized()
@@ -273,7 +262,7 @@ void APWGameMode::StartGame()
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWGameMode::OnTeamCharacterAllSpawned);
-		PWEventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
+		PWEventManager->BattleLevelSettingFinished.Broadcast();
 	}
 }
 
@@ -283,12 +272,6 @@ void APWGameMode::TryGameReady()
 	if (IsAllPlayerReadyToStart() == false)
 	{
 		return;
-	}
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->AllPlayerReadyToStartDelegate.Broadcast();
 	}
 
 	StartGame();
@@ -306,7 +289,10 @@ void APWGameMode::PlayBattle()
 	TArray<APWPlayerController*> PlayerControllerList = UPWGameplayStatics::GetAllPlayerController(this);
 	for (APWPlayerController* PlayerController : PlayerControllerList)
 	{
-		PlayerController->SM_GameStart();
+		if (IsValid(PlayerController) == true)
+		{
+			PlayerController->SC_SpawnCharacterFinished();
+		}
 	}
 
 	//서버만 운용

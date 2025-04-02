@@ -28,7 +28,6 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void OnPostLogin(AController* NewPlayer) override;
 	virtual void Logout(AController* ExitPlayer) override;
-	virtual void PostLogin(class APlayerController* NewPlayer) override;
 
 private:
 
@@ -41,7 +40,6 @@ private:
 
 	void CheckGameOver();
 	void OnEntireGameOver(); // 게임 종료
-	void OnMatchMakingSuccess();
 	void OnClientTeamSideInitialized();
 	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);

@@ -56,12 +56,13 @@ void APWPlayerController::BeginPlay()
 		}
 	}
 
-	TryEnableCharacterSpawn();
-
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->CharacterSelectedDelegate.AddUObject(this, &APWPlayerController::OnCharacterSelected);
+		PWEventManager->BattleLevelSettingFinished.AddUObject(this, &APWPlayerController::BattleLevelSettingFinished);
+
+		PWEventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
 	}
 }
 
@@ -124,6 +125,15 @@ ETeamSide APWPlayerController::GetTeamSide() const
 	return TeamSide;
 }
 
+void APWPlayerController::SC_SpawnCharacterFinished_Implementation()
+{
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (ensure(IsValid(PWEventManager) == true))
+	{
+		PWEventManager->ShowWidgetDelegate.Broadcast(EWidgetType::MainWidget);
+	}
+}
+
 void APWPlayerController::CS_TeamSideInitialized_Implementation()
 {
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
@@ -155,6 +165,13 @@ void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController*
 		SpawnPreviewComponent = nullptr;
 	}
 
+
+}
+
+void APWPlayerController::BattleLevelSettingFinished()
+{
+	// 로딩이 완료되면 스폰 시작
+	TryEnableCharacterSpawn();
 }
 
 void APWPlayerController::SC_TurnChanged_Implementation(bool bMyTurn)
@@ -188,18 +205,6 @@ void APWPlayerController::CS_Possess_Implementation(APawn* PossessablePawn, floa
 		if (IsValid(PWTurnManageSubsystem) == true)
 		{
 			PWTurnManageSubsystem->UploadSnapshotDataDelegate.Broadcast(PossessablePawn, CurrentTurnActivePointForSnapshot);
-		}
-	}
-}
-
-void APWPlayerController::SM_GameStart_Implementation()
-{
-	if (IsLocalPlayerController() == true)
-	{
-		const UPWEventManager* EventManager = UPWEventManager::Get(this);
-		if (IsValid(EventManager) == true)
-		{
-			EventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
 		}
 	}
 }

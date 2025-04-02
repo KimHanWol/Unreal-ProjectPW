@@ -34,6 +34,10 @@ public:
 
 	ETeamSide GetTeamSide() const;
 
+	UFUNCTION(Client, Reliable)
+	void SC_SpawnCharacterFinished();
+	void SC_SpawnCharacterFinished_Implementation();
+
 	UFUNCTION(Server, Reliable)
 	void CS_TeamSideInitialized();
 	void CS_TeamSideInitialized_Implementation();
@@ -46,11 +50,6 @@ public:
 	UFUNCTION(Server, Reliable)
 	void CS_RequestNextTurn();
 	void CS_RequestNextTurn_Implementation();
-
-	//Game start
-	UFUNCTION(NetMulticast, Reliable)
-	void SM_GameStart();
-	void SM_GameStart_Implementation();
 
 	//Game over
 	UFUNCTION(NetMulticast, Reliable)
@@ -85,6 +84,7 @@ public:
 private:
 
 	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
+	void BattleLevelSettingFinished();
 
 	UFUNCTION(Server, Reliable)
 	void CS_Possess(APawn* PossessablePawn, float CurrentTurnActivePointForSnapshot);
