@@ -112,7 +112,7 @@ void APWPlayerCharacter::PossessedBy(class AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	bIsPossessed = true;
+	bIsPossessed = false;
 
 	SM_EnableCharacterAnimation(true);
 }

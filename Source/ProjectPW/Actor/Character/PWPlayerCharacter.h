@@ -122,6 +122,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Replicated)
 	bool bIsDead = false;
 
+	UPROPERTY(BlueprintReadOnly, Replicated)
+	bool bIsPossessed = false;
+
 private:
 
 	//Data
