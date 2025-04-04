@@ -81,7 +81,7 @@ void APWSpawnAreaActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-void APWSpawnAreaActor::OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TargetCharacterList)
+void APWSpawnAreaActor::OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList)
 {
 	if (IsValid(TargetPlayerController) == false)
 	{

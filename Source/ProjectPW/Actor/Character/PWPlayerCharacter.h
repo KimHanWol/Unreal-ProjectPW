@@ -117,10 +117,6 @@ private:
 	//기본적인 움직임이 아닌 캐릭터의 모션을 완전히 멈춤
 	void EnableCharacterAnimation(bool bEnabled);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void SM_EnableCharacterSpotLight(bool bEnabled);
-	void SM_EnableCharacterSpotLight_Implementation(bool bEnabled);
-
 protected:
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
@@ -148,9 +144,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UPWCharacterHUDComponent* CharacterHUDComponent;
-
-	UPROPERTY(VisibleAnywhere)
-	class UPWCharacterSightComponent* CharacterSightComponent;
 
 	//AttributeSet
 	UPROPERTY(Transient)

@@ -29,7 +29,7 @@ public:
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
 
-	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TargetCharacterList);
+	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
 
 public:
 

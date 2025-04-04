@@ -41,7 +41,7 @@ private:
 	void CheckGameOver();
 	void OnEntireGameOver(); // 게임 종료
 	void OnClientTeamSideInitialized();
-	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
+	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
 	void OnInitialPossess(class APWPlayerController* SelfPlayerController);
 
 	AActor* GetCommanderPointActor(ETeamSide TeamSide) const;

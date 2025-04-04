@@ -5,6 +5,7 @@
 
 //Engine
 #include "AbilitySystemComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 
@@ -12,7 +13,6 @@
 #include "AbilitySystem/Ability/PWGameplayAbilityBase.h"
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Object/PWSpawnAreaActor.h"
-#include "Components/CapsuleComponent.h"
 #include "Component/PWPlayerInputComponent.h"
 #include "Core/InputHandler/SpawnCharacterInputHandler.h"
 #include "Core/PWAssetLoadManager.h"
@@ -125,6 +125,11 @@ ETeamSide APWPlayerController::GetTeamSide() const
 	return TeamSide;
 }
 
+bool APWPlayerController::IsMyController() const
+{
+	return this == UPWGameplayStatics::GetLocalPlayerController(this);
+}
+
 void APWPlayerController::SC_SpawnCharacterFinished_Implementation()
 {
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
@@ -143,7 +148,7 @@ void APWPlayerController::CS_TeamSideInitialized_Implementation()
 	}
 }
 
-void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<APWPlayerCharacter*>& TeamCharacterList)
+void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList)
 {
 	if(TargetPlayerController != this)
 	{
@@ -164,8 +169,6 @@ void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController*
 		SpawnPreviewActor = nullptr;
 		SpawnPreviewComponent = nullptr;
 	}
-
-
 }
 
 void APWPlayerController::BattleLevelSettingFinished()

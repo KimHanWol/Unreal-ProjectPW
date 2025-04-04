@@ -32,7 +32,7 @@ private:
 	
 	void OnGameOver(class APWPlayerController* PlayerController, bool bLose);
 	void OnTeamCharacterMoved(float CurrentTurnActivePoint);
-	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharcterList);
+	void OnTeamCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
 	void OnTargetIsOnCrosshair(class APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair);
 	void OnPlayerPossessed(APawn* PossessedPawn, bool bIsCommander);
 	void OnTurnChanged();
@@ -48,6 +48,9 @@ protected:
 	UTextBlock* Text_Turn;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	UTextBlock* Text_TeamSide;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UOverlay* Overlay_Result;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
@@ -60,7 +63,10 @@ protected:
 	class UImage* Image_Crosshair;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
-	class UProgressBar* ProgressBar_TurnPoint;
+	class UProgressBar* ProgressBar_TurnPoint_Commander;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UProgressBar* ProgressBar_TurnPoint_Character;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UOverlay* Overlay_Commander;

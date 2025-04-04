@@ -36,7 +36,7 @@ public:
 	//Getter
 	APawn* GetCommanderPawn() const;
 	class APWPlayerCharacter* GetTeamCharacter(int32 CharacterNum) const;
-	TArray<class APWPlayerCharacter*> GetTeamCharacterList() const;
+	TArray<TWeakObjectPtr<class APWPlayerCharacter>> GetTeamCharacterList() const;
 	int32 GetAliveTeamCharacterNum() const;
 
 	ETeamSide GetTeamSide() const { return TeamSide; }
@@ -73,7 +73,7 @@ private:
 	class APawn* CommanderPawn;
 
 	UPROPERTY(Transient, ReplicatedUsing = OnRep_TeamCharacterList)
-	TArray<class APWPlayerCharacter*> TeamCharacterList;
+	TArray<TWeakObjectPtr<class APWPlayerCharacter>> TeamCharacterList;
 
 	UPROPERTY(Transient)
 	class APWPlayerController* OwningPlayerController;

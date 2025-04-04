@@ -18,7 +18,16 @@ class PROJECTPW_API UCharacterSelectionButton : public UPWUserWidget
 
 public:
 
-	void InitializeSelectionWidget(int32 CharacterNum, const struct FPWCharacterDataTableRow* CharacterData);
+	void InitializeSelectionWidget(int32 InCharacterNum, const struct FPWCharacterDataTableRow* CharacterData);
+
+protected:
+
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+
+public:
+
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnWidgetClicked, int32 CharacterNum);
+	FOnWidgetClicked WidgetClickedDelegate;
 
 protected:
 
@@ -33,4 +42,7 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UImage* Image_Icon;
+
+	UPROPERTY(Transient)
+	int32 CharacterNum;
 };

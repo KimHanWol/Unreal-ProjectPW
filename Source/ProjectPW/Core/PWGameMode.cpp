@@ -159,7 +159,7 @@ void APWGameMode::OnClientTeamSideInitialized()
 	TryGameReady();
 }
 
-void APWGameMode::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList)
+void APWGameMode::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList)
 {
 	if (PlayerControllerMap.Contains(TargetPlayerController) == true)
 	{

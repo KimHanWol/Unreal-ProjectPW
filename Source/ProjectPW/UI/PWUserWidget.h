@@ -3,11 +3,11 @@
 #pragma once
 
 //Engine
-#include "Blueprint/UserWidget.h"
-#include "Components/TextBlock.h"
 #include "CoreMinimal.h"
 
 //Game
+#include "Blueprint/UserWidget.h"
+#include "Components/TextBlock.h"
 
 //Default
 #include "PWUserWidget.generated.h"

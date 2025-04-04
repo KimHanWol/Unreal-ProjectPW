@@ -6,12 +6,12 @@
 //Engine
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Components/Overlay.h"
 #include "Components/ProgressBar.h"
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Actor/Character/PWPlayerController.h"
-#include "Components/Overlay.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
 #include "Core/Subsystem/PWSteamMatchMakingSubsystem.h"
@@ -133,13 +133,18 @@ void UMainWidget::OnTeamCharacterMoved(float CurrentTurnActivePoint)
 		return;
 	}
 
-	if (IsValid(ProgressBar_TurnPoint) == true)
+	if (IsValid(ProgressBar_TurnPoint_Commander) == true)
 	{
-		ProgressBar_TurnPoint->SetPercent(CurrentTurnActivePoint / MaxTurnActivePoint);
+		ProgressBar_TurnPoint_Commander->SetPercent(CurrentTurnActivePoint / MaxTurnActivePoint);
+	}
+
+	if (IsValid(ProgressBar_TurnPoint_Character) == true)
+	{
+		ProgressBar_TurnPoint_Character->SetPercent(CurrentTurnActivePoint / MaxTurnActivePoint);
 	}
 }
 
-void UMainWidget::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharcterList)
+void UMainWidget::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList)
 {
 	if (UPWGameplayStatics::GetLocalPlayerController(this) != TargetPlayerController)
 	{
@@ -149,9 +154,23 @@ void UMainWidget::OnTeamCharacterAllSpawned(const APWPlayerController* TargetPla
 	for (int32 i = 0; i < CharacterButtonList.Num(); i++)
 	{
 		UMainWidget_CharacterButton* MainWidget_CharacterButton = CharacterButtonList[i];
-		if (TeamCharcterList.Num() > i)
+		if (TargetCharacterList.Num() > i)
 		{
-			MainWidget_CharacterButton->InitializeCharacterButton(TeamCharcterList[i]);
+			MainWidget_CharacterButton->InitializeCharacterButton(TargetCharacterList[i].Get());
+		}
+	}
+
+	if (ensure(IsValid(Text_TeamSide) == true))
+	{
+		if (TargetPlayerController->GetTeamSide() == ETeamSide::Red)
+		{
+			Text_TeamSide->SetText(FText::FromString(TEXT("Red Team")));
+			Text_TeamSide->SetColorAndOpacity(FLinearColor(1.f, 0.f, 0.f));
+		}
+		else if(TargetPlayerController->GetTeamSide() == ETeamSide::Blue)
+		{
+			Text_TeamSide->SetText(FText::FromString(TEXT("Blue Team")));
+			Text_TeamSide->SetColorAndOpacity(FLinearColor(0.f, 0.f, 1.f));
 		}
 	}
 }
@@ -205,7 +224,7 @@ void UMainWidget::OnTurnChanged()
 	const APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
 	if (IsValid(PWPlayerState) == true)
 	{
-		bMyTurn = PWPlayerState->IsMyTurn();		
+		bMyTurn = PWPlayerState->IsMyTurn();
 	}
 
 	if (IsValid(Text_Turn) == true)

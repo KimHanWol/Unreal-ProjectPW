@@ -158,6 +158,11 @@ void APWPlayerState::OnRep_TeamCharacterList()
 {
 	if (TeamCharacterList.Num() >= 5)
 	{
+		if (HasAuthority() == false)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Client"));
+		}
+
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (IsValid(PWEventManager) == true)
 		{

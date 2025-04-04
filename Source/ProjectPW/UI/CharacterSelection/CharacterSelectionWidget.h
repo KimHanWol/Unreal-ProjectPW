@@ -18,7 +18,10 @@ class PROJECTPW_API UCharacterSelectionWidget : public UPWUserWidget
 {
 	GENERATED_BODY()
 
-	void virtual NativeConstruct() override;
+protected:
+
+	void virtual BindEvents() override;
+	void virtual UnbindEvents() override;
 
 public:
 
@@ -26,13 +29,13 @@ public:
 
 private:
 
-	void OnAllPlayerReadyToStart();
-	void OnSelectedCharacterChanged(ECharacterType SelectedChracterType);\
+	void OnSelectedCharacterChanged(ECharacterType SelectedChracterType);
+	void OnPlayerCharacterAllSpawned(const class APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
+
+	void OnSelectionWidgetClicked(int32 SelectedWidgetNum);
 
 	void PlaySelectAnimation(int32 SelectIndex);
 	void PlayDeselectAnimation(int32 TargetIndex);
-
-	FTimerHandle GetDeselectTimerHandle(int32 TargetIndex);
 
 protected:
 
@@ -44,6 +47,15 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UVerticalBox* VBox_CharacterClass;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Selection;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_Complete;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UTextBlock* Text_TeamSide;
 
 	UPROPERTY(EditDefaultsOnly)
 	float SlideAnimaionDuration = 0.3f;

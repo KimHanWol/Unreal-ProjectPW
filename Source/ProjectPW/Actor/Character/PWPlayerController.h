@@ -33,6 +33,7 @@ protected:
 public:
 
 	ETeamSide GetTeamSide() const;
+	bool IsMyController() const;
 
 	UFUNCTION(Client, Reliable)
 	void SC_SpawnCharacterFinished();
@@ -83,7 +84,7 @@ public:
 
 private:
 
-	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<class APWPlayerCharacter*>& TeamCharacterList);
+	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
 	void BattleLevelSettingFinished();
 
 	UFUNCTION(Server, Reliable)

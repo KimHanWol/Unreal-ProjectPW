@@ -36,9 +36,6 @@ APWPlayerCharacter::APWPlayerCharacter(const FObjectInitializer& ObjectInitializ
 	CharacterHUDComponent = CreateDefaultSubobject<UPWCharacterHUDComponent>(TEXT("CharacterHUDComponent"));
 	CharacterHUDComponent->SetupAttachment(GetRootComponent());
 
-	CharacterSightComponent = CreateDefaultSubobject<UPWCharacterSightComponent>(TEXT("CharacterSightComponent"));
-	CharacterSightComponent->SetupAttachment(GetRootComponent());
-
 	PWAttributeSet_Attackable = CreateDefaultSubobject<UPWAttributeSet_Attackable>(TEXT("AttributeSet_Attackable"));
 	AbilitySystemComponent->AddAttributeSetSubobject(PWAttributeSet_Attackable);
 
@@ -222,16 +219,6 @@ void APWPlayerCharacter::SM_InitializeCharacter_Implementation(APWPlayerControll
 	}
 }
 
-void APWPlayerCharacter::SM_EnableCharacterSpotLight_Implementation(bool bEnabled)
-{
-	if(bIsLocalCharacter == false) 
-	{
-		return;
-	}
-
-	CharacterSightComponent->EnableSpotLight(bEnabled);
-}
-
 void APWPlayerCharacter::SM_HideActorByAliveState_Implementation(bool bHide)
 {
 	if (HasAuthority() == true)
@@ -356,7 +343,6 @@ void APWPlayerCharacter::OnFullyDamaged(IPWAttackableInterface* Killer)
 	bIsDead = true;
 
 	SM_EnableCharacterAnimation(true);
-	SM_EnableCharacterSpotLight(false);
 
 	//LookAt
 	LastRotationBeforeDeath = GetActorRotation();
@@ -396,7 +382,6 @@ void APWPlayerCharacter::OnRevived()
 
 	SM_EnableCharacterAnimation(false);
 	SM_HideActorByAliveState(false);
-	SM_EnableCharacterSpotLight(true);
 
 	const UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (IsValid(PWEventManager) == true)
@@ -419,7 +404,6 @@ void APWPlayerCharacter::InitializeCharacter(class APWPlayerController* OwnerPla
 	ApplyAttributeData();
 
 	SM_InitializeCharacter(OwnerPlayerController, NewCharacterType);
-	SM_EnableCharacterSpotLight(true);
 }
 
 const FPWCharacterDataTableRow* APWPlayerCharacter::GetCharacterData() const

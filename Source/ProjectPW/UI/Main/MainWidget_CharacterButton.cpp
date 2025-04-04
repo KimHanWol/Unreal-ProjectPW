@@ -5,6 +5,7 @@
 
 //Engine
 #include "Components/Image.h"
+#include "Components/Overlay.h"
 #include "Components/ProgressBar.h"
 
 //Game
@@ -27,29 +28,6 @@ void UMainWidget_CharacterButton::NativeConstruct()
 			UPWAssetLoadManager::AsyncLoad(this, CharacterDataTableRow->Portrait);
 		}
 	}
-}
-
-void UMainWidget_CharacterButton::InitializeCharacterButton(APWPlayerCharacter* InOwnedPlayerCharacter)
-{
-	OwnedPlayerCharacter = InOwnedPlayerCharacter;
-	InvalidateWidget();
-}
-
-FReply UMainWidget_CharacterButton::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
-{
-	const APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
-	if (PWPlayerState->IsMyTurn() == false)
-	{
-		return FReply::Unhandled();
-	}
-
-	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
-	if (IsValid(PWEventManager) == true)
-	{
-		PWEventManager->CharacterSelectedDelegate.Broadcast(ButtonIndex + 1);
-	}
-
-	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 void UMainWidget_CharacterButton::BindEvents()
@@ -106,6 +84,29 @@ void UMainWidget_CharacterButton::InvalidateWidget()
 	}
 }
 
+void UMainWidget_CharacterButton::InitializeCharacterButton(APWPlayerCharacter* InOwnedPlayerCharacter)
+{
+	OwnedPlayerCharacter = InOwnedPlayerCharacter;
+	InvalidateWidget();
+}
+
+FReply UMainWidget_CharacterButton::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	const APWPlayerState* PWPlayerState = UPWGameplayStatics::GetLocalPlayerState(this);
+	if (PWPlayerState->IsMyTurn() == false)
+	{
+		return FReply::Unhandled();
+	}
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->CharacterSelectedDelegate.Broadcast(ButtonIndex + 1);
+	}
+
+	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
+}
+
 void UMainWidget_CharacterButton::OnHealthChanged(AActor* TargetActor, float InMaxHealth, float InCurrentHealth)
 {
 	if (IsValid(OwnedPlayerCharacter) == false || OwnedPlayerCharacter != TargetActor)
@@ -116,5 +117,20 @@ void UMainWidget_CharacterButton::OnHealthChanged(AActor* TargetActor, float InM
 	if (IsValid(PBar_Health) == true)
 	{
 		PBar_Health->SetPercent(InCurrentHealth / InMaxHealth);
+	}
+
+	if (InCurrentHealth <= 0.f)
+	{
+		if (ensure(IsValid(Overlay_Dead) == true))
+		{
+			Overlay_Dead->SetVisibility(ESlateVisibility::HitTestInvisible);
+		}
+	}
+	else
+	{
+		if (ensure(IsValid(Overlay_Dead) == true))
+		{
+			Overlay_Dead->SetVisibility(ESlateVisibility::Collapsed);
+		}
 	}
 }

@@ -4,26 +4,43 @@
 #include "CharacterSelectionWidget.h"
 
 //Engine
+#include "Components/Overlay.h"
 #include "Components/Spacer.h"
+#include "Components/VerticalBox.h"
 #include "Kismet/KismetMathLibrary.h"
 
 //Game
 #include "Actor/Character/PWPlayerController.h"
 #include "CharacterSelectionButton.h"
-#include "Components/VerticalBox.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWGameInstance.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataAsset/PWGameData.h"
+#include "Data/PWGameEnum.h"
+#include "Helper/PWGameplayStatics.h"
 
-void UCharacterSelectionWidget::NativeConstruct()
+
+void UCharacterSelectionWidget::BindEvents()
 {
-	Super::NativeConstruct();
+	Super::BindEvents();
 
 	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 	if (ensure(IsValid(PWEventManager) == true))
 	{
 		PWEventManager->CharacterSelectedForSpawnDelegate.AddUObject(this, &UCharacterSelectionWidget::OnSelectedCharacterChanged);
+		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &UCharacterSelectionWidget::OnPlayerCharacterAllSpawned);
+	}
+}
+
+void UCharacterSelectionWidget::UnbindEvents()
+{
+	Super::UnbindEvents();
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (ensure(IsValid(PWEventManager) == true))
+	{
+		PWEventManager->CharacterSelectedForSpawnDelegate.RemoveAll(this);
+		PWEventManager->TeamCharacterAllSpawnedDelegate.RemoveAll(this);
 	}
 }
 
@@ -51,6 +68,7 @@ void UCharacterSelectionWidget::InitializeCharacterSelectionWidget()
 			if (IsValid(NewSelectionWidget) == true)
 			{
 				NewSelectionWidget->InitializeSelectionWidget(i + 1, CharacterData);
+				NewSelectionWidget->WidgetClickedDelegate.AddUObject(this, &UCharacterSelectionWidget::OnSelectionWidgetClicked);
 				VBox_CharacterClass->AddChildToVerticalBox(NewSelectionWidget);
 				SelectionWidgetList.Add(NewSelectionWidget);
 			}
@@ -74,6 +92,25 @@ void UCharacterSelectionWidget::InitializeCharacterSelectionWidget()
 			}
 		}
 	}
+
+	
+	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+	if (IsValid(LocalPlayerController) == true)
+	{
+		ETeamSide TeamSide = LocalPlayerController->GetTeamSide();
+		if (ensure(IsValid(Text_TeamSide) == true))
+		{
+			if (TeamSide == ETeamSide::Red)
+			{
+				Text_TeamSide->SetColorAndOpacity(FLinearColor(1.f, 0.f, 0.f));
+			}
+			else
+			{
+				Text_TeamSide->SetColorAndOpacity(FLinearColor(0.f, 0.f, 1.f));
+			}
+			Text_TeamSide->SetText(FText::FromString(UPWGameplayStatics::ConvertEnumToString<ETeamSide>(this, LocalPlayerController->GetTeamSide()) + FString(" Team")));
+		}
+	}
 }
 
 void UCharacterSelectionWidget::OnSelectedCharacterChanged(ECharacterType SelectedChracterType)
@@ -88,6 +125,43 @@ void UCharacterSelectionWidget::OnSelectedCharacterChanged(ECharacterType Select
 				PlaySelectAnimation(i);
 			}
 			break;
+		}
+	}
+}
+
+void UCharacterSelectionWidget::OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList)
+{
+	if (IsValid(TargetPlayerController) == false || TargetPlayerController->IsMyController() == false)
+	{
+		return;
+	}
+
+	if (ensure(IsValid(Overlay_Selection) == true))
+	{
+		Overlay_Selection->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (ensure(IsValid(Overlay_Complete) == true))
+	{
+		Overlay_Complete->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+}
+
+void UCharacterSelectionWidget::OnSelectionWidgetClicked(int32 SelectedWidgetNum)
+{
+	if (CurrentSelectedIndex == SelectedWidgetNum - 1)
+	{
+		return;
+	}
+
+	PlaySelectAnimation(SelectedWidgetNum - 1);
+
+	if (const FPWCharacterDataTableRow* CharacterData = &ChildrenCharacterDataList[SelectedWidgetNum - 1])
+	{
+		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+		if (IsValid(PWEventManager) == true)
+		{
+			PWEventManager->CharacterSelectedForSpawnDelegate.Broadcast(CharacterData->CharacterType);
 		}
 	}
 }
