@@ -10,7 +10,7 @@
 #include "Core/PWAssetLoadManager.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
-#include "Helper/PWGameplayStatics.h"
+
 
 
 
@@ -26,13 +26,6 @@ void UGA_AimDownSight::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 
 	APWPlayerCharacter* OwnerCharacter = Cast<APWPlayerCharacter>(ActorInfo->AvatarActor);
 	if (IsValid(OwnerCharacter) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	APlayerCameraManager* PlayerCameraManager = UPWGameplayStatics::GetPlayerCameraManager(this, 0);
-	if (IsValid(PlayerCameraManager) == false)
 	{
 		ensure(false);
 		return;
@@ -62,18 +55,6 @@ void UGA_AimDownSight::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 	{
 		OwnerCharacter->PlayMontage(MontageADS);
 	}
-
-	DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
-
-	GetWorld()->GetTimerManager().SetTimer(ADSTimerHandle, [this, PlayerCameraManager](){
-			PlayerCameraManager->SetFOV(FMath::Lerp(DefaultCameraFOV, AimCameraFOV, CurrentTime / AimCameraFOVDuration));
-			if (CurrentTime >= AimCameraFOVDuration)
-			{
-				GetWorld()->GetTimerManager().ClearTimer(ADSTimerHandle);
-				return;
-			}
-			CurrentTime += GetWorld()->GetDeltaSeconds();
-		}, 0.01f, true);
 }
 
 void UGA_AimDownSight::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -95,31 +76,10 @@ void UGA_AimDownSight::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 		return;
 	}
 
-	APlayerCameraManager* PlayerCameraManager = UPWGameplayStatics::GetPlayerCameraManager(this, 0);
-	if (IsValid(PlayerCameraManager) == false)
-	{
-		ensure(false);
-
-		Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
-		return;
-	}
-
 	if (ensure(IsValid(MontageADS) == true))
 	{
 		OwnerCharacter->StopMontage(MontageADS);
 	}
-
-	GetWorld()->GetTimerManager().ClearTimer(ADSTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(ADSCancelTimerHandle, [this, PlayerCameraManager]() {
-		PlayerCameraManager->SetFOV(FMath::Lerp(DefaultCameraFOV, AimCameraFOV, CurrentTime / AimCameraFOVDuration));
-		CurrentTime -= GetWorld()->GetDeltaSeconds();
-		if (CurrentTime <= 0)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(ADSCancelTimerHandle);
-			return;
-		}
-		CurrentTime -= GetWorld()->GetDeltaSeconds();
-		}, 0.01f, true);
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }

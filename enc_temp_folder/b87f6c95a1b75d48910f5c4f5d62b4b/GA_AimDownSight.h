@@ -26,19 +26,4 @@ private:
 
 	UPROPERTY(Transient)
 	UAnimMontage* MontageADS;
-
-	UPROPERTY(Transient)
-	float DefaultCameraFOV;
-
-	UPROPERTY(EditAnywhere)
-	float AimCameraFOV;
-
-	UPROPERTY(EditAnywhere)
-	float AimCameraFOVDuration = 0.3f;
-
-	UPROPERTY(Transient)
-	float CurrentTime = 0.f;
-
-	FTimerHandle ADSTimerHandle;
-	FTimerHandle ADSCancelTimerHandle;
 };
