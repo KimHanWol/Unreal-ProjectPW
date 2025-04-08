@@ -23,6 +23,7 @@
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Data/DataTable/PWEquipmentDataTableRow.h"
 #include "Engine/SpotLight.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWPlayerController.h"
@@ -220,7 +221,7 @@ void APWPlayerCharacter::SM_InitializeCharacter_Implementation(APWPlayerControll
 
 		if (IsValid(PWEquipmentComponent) == true)
 		{
-			PWEquipmentComponent->SpawnEquipmentActor(CharacterType);
+			PWEquipmentComponent->SpawnEquipmentActor();
 		}
 	}
 }
@@ -300,36 +301,45 @@ UAbilitySystemComponent* APWPlayerCharacter::GetAbilitySystemComponent() const
 
 void APWPlayerCharacter::LoadCharacterDefaultStats()
 {
-	if (const FPWCharacterDataTableRow* PWCharacterDataTableRow = GetCharacterData())
-	{
-		FString LogString;
-
-		LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *UPWGameplayStatics::ConvertEnumToString(this, CharacterType)));
-		if (IsValid(PWAttributeSet_Damageable) == true)
-		{
-			float Health = PWCharacterDataTableRow->Health;
-			PWAttributeSet_Damageable->InitHealth(Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), Health));
-			PWAttributeSet_Damageable->InitMaxHealth(Health);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), Health));
-		}
-		if (IsValid(PWAttributeSet_Attackable) == true)
-		{
-			PWAttributeSet_Attackable->InitDamage(PWCharacterDataTableRow->Damage);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Attackable Damage :%f \n"), PWCharacterDataTableRow->Damage));
-		}
-		if (IsValid(PWAttributeSet_Healable) == true)
-		{
-			PWAttributeSet_Healable->InitHealAmount(PWCharacterDataTableRow->HealAmount);
-			LogString.Append(FString::Printf(TEXT("\tAttributeSet_Healable HealAmount :%f \n"), PWCharacterDataTableRow->HealAmount));
-		}
-
-		UE_LOG(LogTemp, Log, TEXT("%s"), *LogString);
-	}
-	else
+	const FPWCharacterDataTableRow* CharacterData = GetCharacterData();
+	if (CharacterData == nullptr)
 	{
 		ensureMsgf(false, TEXT("There's no character data on CharacterDataTable. Check character name on PWPlayerCharacter."));
+		return;
 	}
+
+	const FPWEquipmentDataTableRow* EquipmentData = UPWGameplayStatics::GetEquipmentData(this, CharacterData->EquipmentKey);
+	if (EquipmentData == nullptr)
+	{
+		ensureMsgf(false, TEXT("There's no Equipment (%s) data on EquipmentDataTable."), *CharacterData->EquipmentKey.ToString());
+		return;
+	}
+
+	FString LogString;
+
+	LogString.Append(FString::Printf(TEXT("%s Attribute Initialized with %s data: \n"), *GetName(), *UPWGameplayStatics::ConvertEnumToString(this, CharacterType)));
+	if (IsValid(PWAttributeSet_Damageable) == true)
+	{
+		float Health = CharacterData->Health;
+		PWAttributeSet_Damageable->InitHealth(Health);
+		LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable Health :%f \n"), Health));
+		PWAttributeSet_Damageable->InitMaxHealth(Health);
+		LogString.Append(FString::Printf(TEXT("\tAttributeSet_Damageable MaxHealth :%f \n"), Health));
+	}
+
+	if (IsValid(PWAttributeSet_Attackable) == true)
+	{
+		PWAttributeSet_Attackable->InitDamage(EquipmentData->Damage);
+		LogString.Append(FString::Printf(TEXT("\tAttributeSet_Attackable Damage :%f \n"), EquipmentData->Damage));
+	}
+
+	if (IsValid(PWAttributeSet_Healable) == true)
+	{
+		PWAttributeSet_Healable->InitHealAmount(EquipmentData->HealAmount);
+		LogString.Append(FString::Printf(TEXT("\tAttributeSet_Healable HealAmount :%f \n"), EquipmentData->HealAmount));
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("%s"), *LogString);
 }
 
 UPWAttributeSet_Attackable* APWPlayerCharacter::GetPWAttributeSet_Attackable() const

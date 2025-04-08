@@ -16,6 +16,7 @@
 #include "Core/PWPlayerState.h"
 #include "Core/Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "Data/DataAsset/PWGameSetting.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/PWGameEnum.h"
 #include "Helper/PWGameplayStatics.h"
 #include "UI/Main/MainWidget_CharacterButton.h"

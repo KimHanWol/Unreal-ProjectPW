@@ -49,10 +49,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
 	FName MainLevelPath;
 
-	//캐릭터 움직임에 따른 턴 포인트 소모 비율
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "System")
-	float TurnPointSpendRateForCharacterMove = 1.f;
-
 	//Dev Map 이름
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Debugv")
 	FName InGameDevMapName;

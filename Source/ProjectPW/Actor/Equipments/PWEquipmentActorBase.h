@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 
 //Game
+#include "Data/DataTable/PWEquipmentDataTableRow.h"
 #include "GameFramework/Actor.h"
 
 //Default
@@ -51,18 +52,18 @@ private:
 
 	void TryExecute_Action_Internal(bool bExecute, TSubclassOf<class UPWGameplayAbilityBase> TargetAbility);
 
-protected:
+public:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class UPWGameplayAbilityBase> MainTriggerAbilityClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class UPWGameplayAbilityBase> MainCompleteAbilityClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class UPWGameplayAbilityBase> SubTriggerAbilityClass;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class UPWGameplayAbilityBase> SubCompleteAbilityClass;
 
 private:
@@ -79,4 +80,7 @@ private:
 
 	UPROPERTY(Transient)
 	bool bIsSubActionActivated = false;
+
+	UPROPERTY(Transient)
+	struct FPWEquipmentDataTableRow EquipmentData;
 };

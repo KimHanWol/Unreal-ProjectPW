@@ -13,6 +13,9 @@
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWEventManager.h"
 #include "Core/PWPlayerState.h"
+#include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Data/DataTable/PWEquipmentDataTableRow.h"
+#include "Helper/PWGameplayStatics.h"
 
 APWEquipmentActorBase::APWEquipmentActorBase(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -77,6 +80,22 @@ void APWEquipmentActorBase::InitializeEquipmentActor(AActor* OwnerActor)
 		ensure(false);
 		return;
 	}
+
+	const FPWCharacterDataTableRow* CharacterData = OwnerCharacter->GetCharacterData();
+	if (CharacterData == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	const FPWEquipmentDataTableRow* InEquipmentData = UPWGameplayStatics::GetEquipmentData(this, CharacterData->EquipmentKey);
+	if (InEquipmentData == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	EquipmentData = *InEquipmentData;
 
 	if (IsValid(MainTriggerAbilityClass) == true)
 	{

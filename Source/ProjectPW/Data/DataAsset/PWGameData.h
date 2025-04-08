@@ -25,6 +25,7 @@ enum class EDataTableType : uint8
 	None,
 	Character,
 	Level,
+	Equipment,
 };
 
 enum class ECharacterType : uint8;
@@ -98,6 +99,7 @@ public:
 
 	static const struct FPWCharacterDataTableRow* FindCharacterTableRow(const UObject* WorldContextObj, ECharacterType CharacterType);
 	static const struct FPWLevelDataTableRow* FindLevelTableRow(const UObject* WorldContextObj, FName LevelDataKey);
+	static const struct FPWEquipmentDataTableRow* FindEquipmentTableRow(const UObject* WorldContextObj, FName EquipmentDataKey);
 
 	static TSubclassOf<class APWVolumeActorBase> GetVolumeActorRandom(const UObject* WorldContextObj);
 

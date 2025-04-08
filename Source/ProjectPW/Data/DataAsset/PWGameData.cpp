@@ -10,6 +10,7 @@
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
+#include "Data/DataTable/PWEquipmentDataTableRow.h"
 #include "Data/DataTable/PWLevelDataTableRow.h"
 #include "Helper/PWGameplayStatics.h"
 
@@ -102,6 +103,31 @@ const FPWLevelDataTableRow* UPWGameData::FindLevelTableRow(const UObject* WorldC
 	}
 
 	return LevelDataTable.LoadSynchronous()->FindRow<FPWLevelDataTableRow>(LevelDataKey, "");
+}
+
+const FPWEquipmentDataTableRow* UPWGameData::FindEquipmentTableRow(const UObject* WorldContextObj, FName EquipmentDataKey)
+{
+	if (EquipmentDataKey.IsNone() == true)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	TSoftObjectPtr<class UDataTable> EquipmentDataTable = PWGameData->DataTableMap[EDataTableType::Equipment];
+	if (EquipmentDataTable.IsNull() == true)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	return EquipmentDataTable.LoadSynchronous()->FindRow<FPWEquipmentDataTableRow>(EquipmentDataKey, "");
 }
 
 TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject* WorldContextObj)

@@ -33,11 +33,19 @@ public:
 	float GetTurnActivePointCost() const { return TurnActivePointCost; }
 	float GetMaxRange() const { return MaxRange; }
 
-protected:
+public:
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	FName SkillDisplayName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	TSoftObjectPtr<class UTexture2D> SkillIcon;
 
 	//해당 어빌리티를 쓰는 데 드는 비용
 	UPROPERTY(EditDefaultsOnly, Category = "Spec")
 	float TurnActivePointCost = 0.f;
+
+protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Spec")
 	float MaxRange = 1000.f;

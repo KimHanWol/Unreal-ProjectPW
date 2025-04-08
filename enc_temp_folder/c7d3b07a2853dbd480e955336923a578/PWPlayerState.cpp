@@ -78,14 +78,7 @@ void APWPlayerState::OnCharacterMoved(float Distance)
 		return;
 	}
 
-	const UPWGameSetting* GameSetting = UPWGameSetting::Get(this);
-	if (IsValid(GameSetting) == false)
-	{
-		ensure(false);
-		return;
-	}
-
-	CurrentTurnActivePoint -= Distance * GameSetting->TurnPointSpendRateForCharacterMove;
+	CurrentTurnActivePoint -= Distance;
 	if (CurrentTurnActivePoint <= 0.f && bIsReadyToMove == true)
 	{
 		CurrentTurnActivePoint = 0.f;

@@ -96,26 +96,42 @@ void UPWEquipmentComponent::OnAliveStateChanged(bool bAlive)
 	SpawnedEquipmentActor->SetActorHiddenInGame(bAlive);
 }
 
-void UPWEquipmentComponent::SpawnEquipmentActor(ECharacterType OwnerCharacterType)
+void UPWEquipmentComponent::SpawnEquipmentActor()
 {
-	const FPWCharacterDataTableRow* CharacterData = UPWGameplayStatics::FindCharacterData(this, OwnerCharacterType);
-	if (CharacterData == nullptr)
+	APWPlayerCharacter* PlayerCharacter = Cast<APWPlayerCharacter>(GetOwner());
+	if (IsValid(PlayerCharacter) == false)
 	{
+		ensure(false);
 		return;
 	}
 
-	TSubclassOf<class APWEquipmentActorBase> EquipmentActorClass = CharacterData->EquipmentActorClass;
-	if (IsValid(EquipmentActorClass) == false)
+	const FPWCharacterDataTableRow* CharacterData = PlayerCharacter->GetCharacterData();
+	if (CharacterData == nullptr)
 	{
+		ensure(false);
+		return;
+	}
+
+	const FPWEquipmentDataTableRow* EquipmentData = UPWGameplayStatics::FindEquipmentData(this, CharacterData->CharacterType);
+	if (EquipmentData == nullptr)
+	{
+		ensure(false);
+		return;
+	}
+
+	if (IsValid(EquipmentData->EquipmentActor) == false)
+	{
+		ensure(false);
 		return;
 	}
 
 	if (IsValid(GetWorld()) == false)
 	{
+		ensure(false);
 		return;
 	}
 
-	SpawnedEquipmentActor = GetWorld()->SpawnActor<APWEquipmentActorBase>(EquipmentActorClass);
+	SpawnedEquipmentActor = GetWorld()->SpawnActor<APWEquipmentActorBase>(EquipmentData->EquipmentActor);
 	if (ensure(IsValid(SpawnedEquipmentActor) == true))
 	{
 		if (ensure(IsValid(OwnerSkeletalMesh) == true))

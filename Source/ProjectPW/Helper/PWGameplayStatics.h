@@ -31,6 +31,8 @@ public:
 	static ETeamSide GetLocalPlayerTeamSide(const UObject* WorldContextObj);
 
 	static const struct FPWCharacterDataTableRow* FindCharacterData(const UObject* WorldContextObj, const ECharacterType TargetCharacterType);
+	static const struct FPWEquipmentDataTableRow* GetEquipmentData(const UObject* WorldContextObj, FName EquipmentKey);
+	static const struct FPWEquipmentDataTableRow* FindEquipmentData(const UObject* WorldContextObj, const ECharacterType TargetCharacterType);
 
 	template <typename EnumType> 
 	static FORCEINLINE FString ConvertEnumToString(const UObject* WorldContextObj, const EnumType InValue)

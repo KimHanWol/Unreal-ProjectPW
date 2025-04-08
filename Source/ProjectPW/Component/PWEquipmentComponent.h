@@ -24,7 +24,7 @@ protected:
 
 public:
 
-	void SpawnEquipmentActor(ECharacterType OwnerCharacterType);
+	void SpawnEquipmentActor();
 	class APWEquipmentActorBase* GetSpawnedEquipmentActor() const { return SpawnedEquipmentActor; }
 
 	void Execute_Main_Triggered();

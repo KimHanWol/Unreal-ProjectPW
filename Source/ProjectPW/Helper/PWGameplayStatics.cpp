@@ -158,3 +158,20 @@ const FPWCharacterDataTableRow* UPWGameplayStatics::FindCharacterData(const UObj
 
 	return nullptr;
 }
+
+const FPWEquipmentDataTableRow* UPWGameplayStatics::GetEquipmentData(const UObject* WorldContextObj, FName EquipmentKey)
+{
+	return UPWGameData::Get(WorldContextObj)->FindEquipmentTableRow(WorldContextObj, EquipmentKey);
+}
+
+const FPWEquipmentDataTableRow* UPWGameplayStatics::FindEquipmentData(const UObject* WorldContextObj, const ECharacterType TargetCharacterType)
+{
+	const FPWCharacterDataTableRow* CharacterData = UPWGameplayStatics::FindCharacterData(WorldContextObj, TargetCharacterType);
+	if (CharacterData == nullptr)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	return GetEquipmentData(WorldContextObj, CharacterData->EquipmentKey);
+}
