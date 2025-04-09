@@ -154,15 +154,12 @@ void UGA_Fire::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGamepl
 		return;
 	}
 
-	if (OwnerCharacter->IsLocallyControlled() == true)
+	//TODO: 종속성 수정
+	if (OwnerEquipmentComponent->IsSubTriggered() == false)
 	{
-		//TODO: 종속성 수정
-		if (OwnerEquipmentComponent->IsSubTriggered() == false)
+		if (ensure(IsValid(AimDownSightClass) == true))
 		{
-			if (ensure(IsValid(AimDownSightClass) == true))
-			{
-				OwnerASC->CancelAbility(AimDownSightClass.GetDefaultObject());
-			}
+			OwnerASC->CancelAbility(AimDownSightClass.GetDefaultObject());
 		}
 	}
 
