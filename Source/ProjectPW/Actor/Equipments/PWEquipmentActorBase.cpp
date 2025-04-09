@@ -324,6 +324,12 @@ void APWEquipmentActorBase::TryExecute_Action_Internal(bool bExecute, TSubclassO
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Can't activate %s ability : not enough current turn point."), *TargetAbility->GetName());
 		}
+
+		UPWEventManager* EventManager = UPWEventManager::Get(this);
+		if (IsValid(EventManager) == true)
+		{
+			EventManager->CharacterTriedToUseSkillDelegate.Broadcast(TargetAbilityCDO->GetTurnActivePointCost(), bHasEnoughTurnActivePoint);
+		}
 	}
 	else
 	{

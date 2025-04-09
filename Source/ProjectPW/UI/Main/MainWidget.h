@@ -22,6 +22,7 @@ public:
 
 	virtual void NativeConstruct() override;
 	virtual void InvalidateWidget() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 protected:
 
@@ -36,6 +37,7 @@ private:
 	void OnTargetIsOnCrosshair(class APWPlayerCharacter* AimingCharcter, bool bIsOnCrosshair);
 	void OnPlayerPossessed(APawn* PossessedPawn, bool bIsCommander);
 	void OnTurnChanged();
+	void OnCharacterTriedToUseSkill(float TurnActivePointCost, bool bIsSuccessed);
 
 	UFUNCTION()
 	void OnReturnToMainMenuButtonPressed();
@@ -69,6 +71,9 @@ protected:
 	class UProgressBar* ProgressBar_TurnPoint_Character;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UProgressBar* ProgressBar_TurnPoint_Character_Back;
+
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UOverlay* Overlay_Commander;
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
@@ -89,8 +94,19 @@ protected:
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
 	class UMainWidget_CharacterButton* MainWidget_CharacterButton_5;
 
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
+	class UOverlay* Overlay_TurnPoint_Character;
+
 	UPROPERTY(Transient)
 	TArray<class UMainWidget_CharacterButton*> CharacterButtonList;
 
+	UPROPERTY(Transient)
+	FVector TurnPointProgressBaDefaultPos;
+
 	FTimerHandle WaitCharacterDataInitTimerHandle;
+
+	FTimerHandle TurnPointProgressBarShakeTimerHandle;
+
+	UPROPERTY(Transient)
+	float TurnActivePointDecreaseStartPercent;
 };

@@ -42,6 +42,9 @@ public:
 	DECLARE_MULTICAST_DELEGATE_TwoParams(FTeamCharacterAllSpawned, const class APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
 	FTeamCharacterAllSpawned TeamCharacterAllSpawnedDelegate;
 
+	DECLARE_MULTICAST_DELEGATE_TwoParams(FCharacterTriedToUseSkill, float TurnActivePointCost, bool bIsSuccessed);
+	FCharacterTriedToUseSkill CharacterTriedToUseSkillDelegate;
+
 	//Player
 	DECLARE_MULTICAST_DELEGATE(FClientTeamSideInitialized);
 	FClientTeamSideInitialized ClientTeamSideInitializedDelegate;

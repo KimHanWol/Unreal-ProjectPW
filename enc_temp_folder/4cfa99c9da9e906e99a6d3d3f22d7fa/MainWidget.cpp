@@ -88,8 +88,14 @@ void UMainWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 	float CurrentTurnActivePointPercent = ProgressBar_TurnPoint_Character->GetPercent();
 
 	// 부드럽게 줄어들게 Lerp 또는 Interp
-	TurnActivePointDecreaseStartPercent = FMath::FInterpTo(TurnActivePointDecreaseStartPercent, CurrentTurnActivePointPercent, InDeltaTime, 5.f);
-	ProgressBar_TurnPoint_Character_Back->SetPercent(TurnActivePointDecreaseStartPercent);
+	float BackPercentage = FMath::FInterpTo(TurnActivePointDecreaseStartPercent, CurrentTurnActivePointPercent, InDeltaTime, 0.7f);
+	ProgressBar_TurnPoint_Character_Back->SetPercent(BackPercentage);
+
+	if (FMath::IsNearlyEqual(ProgressBar_TurnPoint_Character->GetPercent(), ProgressBar_TurnPoint_Character_Back->GetPercent()) == true)
+	{
+		ProgressBar_TurnPoint_Character_Back->SetPercent(ProgressBar_TurnPoint_Character->GetPercent());
+		TurnActivePointDecreaseStartPercent = ProgressBar_TurnPoint_Character->GetPercent();
+	}
 }
 
 void UMainWidget::BindEvents()
@@ -282,7 +288,11 @@ void UMainWidget::OnCharacterTriedToUseSkill(float TurnActivePointCost, bool bIs
 	GetWorld()->GetTimerManager().ClearTimer(TurnPointProgressBarShakeTimerHandle);
 	Overlay_TurnPoint_Character->SetRenderTranslation(FVector2D(0.f, 0.f));
 
-	if (bIsSuccessed == false)
+	if (bIsSuccessed == true)
+	{
+		
+	}
+	else
 	{
 		GetWorld()->GetTimerManager().SetTimer(TurnPointProgressBarShakeTimerHandle, FTimerDelegate::CreateWeakLambda(this, [this, Elapsed = 0.f]() mutable
 			{
