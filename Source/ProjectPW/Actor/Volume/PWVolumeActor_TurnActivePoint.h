@@ -18,6 +18,7 @@ class PROJECTPW_API APWVolumeActor_TurnActivePoint : public APWVolumeActorBase
 	
 protected:
 
+	virtual void BeginPlay() override;
 	virtual void Execute_Internal(AActor* OverlappedActor) override;
 
 private:
@@ -25,4 +26,7 @@ private:
 	//추가 되는 행동력
 	UPROPERTY(EditAnywhere)
 	float AddableTurnActivePoint;
+
+	UPROPERTY(EditAnywhere)
+	TSoftObjectPtr<class UNiagaraSystem> ApplyNS;
 };

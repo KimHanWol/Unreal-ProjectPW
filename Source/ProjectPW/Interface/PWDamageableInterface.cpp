@@ -101,15 +101,24 @@ void IPWDamageableInterface::ApplyHealth_Internal(UAbilitySystemComponent* Insti
 	FGameplayEffectContextHandle ContextHandle = FGameplayEffectContextHandle(UAbilitySystemGlobals::Get().AllocGameplayEffectContext());
 	ContextHandle.AddInstigator(Instigator, Instigator);
 
-	UClass* DamageEffectClass = UPWGameData::GetGameplayEffect(Instigator, EGameplayEffectType::AddHealth).Get();
-	if (IsValid(DamageEffectClass) == false)
+	UClass* EffectClass;
+	if (ChangedAmount < 0)
+	{
+		EffectClass = UPWGameData::GetGameplayEffect(Instigator, EGameplayEffectType::AddHealth).Get();
+	}
+	else
+	{
+		EffectClass = UPWGameData::GetGameplayEffect(Instigator, EGameplayEffectType::Heal).Get();
+	}
+
+	if (IsValid(EffectClass) == false)
 	{
 		ensure(false);
 		return;
 	}
 
 	FGameplayEffectSpecHandle SpecHandle = GetAbilitySystemComponent()->MakeOutgoingSpec(
-		DamageEffectClass,
+		EffectClass,
 		-1.f,
 		ContextHandle
 	);
@@ -117,6 +126,7 @@ void IPWDamageableInterface::ApplyHealth_Internal(UAbilitySystemComponent* Insti
 	if (SpecHandle.IsValid() == true && SpecHandle.Data.IsValid() == true)
 	{
 		SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName(TEXT("SetByCaller.Common.Amount"))), ChangedAmount);
+		GetAbilitySystemComponent()->RemoveActiveGameplayEffectBySourceEffect(EffectClass, GetAbilitySystemComponent(), true);
 		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 
 		float ClampHealth = FMath::Clamp(GetPWAttributeSet_Damageable()->GetHealth(), 0.f, GetPWAttributeSet_Damageable()->GetMaxHealth());

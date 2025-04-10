@@ -4,6 +4,7 @@
 #include "PWPlayerState.h"
 
 //Engine
+#include "AbilitySystemComponent.h"
 #include "EngineUtils.h"
 #include "Net/UnrealNetwork.h"
 
@@ -68,6 +69,24 @@ void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint)
 	{
 		PWEventManager->TeamCharacterMovedDelegate.Broadcast(CurrentTurnActivePoint);
 	}
+}
+
+void APWPlayerState::SetCurrentTurnActivePoint(float InCurrentTurnActivePoint, bool bShowEffect)
+{
+	if (bShowEffect == true)
+	{
+		// Turn Active Point 회복 시
+		if (CurrentTurnActivePoint < InCurrentTurnActivePoint)
+		{
+			APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
+			if (IsValid(LocalPlayerController) == true)
+			{
+				LocalPlayerController->CS_RequestGameplayCue(FGameplayTag::RequestGameplayTag(TEXT("GameplayCue.TurnPointHeal")));
+			}
+		}
+	}
+
+	SetCurrentTurnActivePoint(InCurrentTurnActivePoint);
 }
 
 void APWPlayerState::OnCharacterMoved(float Distance)

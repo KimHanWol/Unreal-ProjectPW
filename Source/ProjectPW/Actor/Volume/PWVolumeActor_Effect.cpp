@@ -49,6 +49,7 @@ void APWVolumeActor_Effect::Execute_Internal(AActor* OverlappedActor)
 			const FSetByCallerData& SetbyCallerData = VolumeEffectData.Value;
 			EffectSpecHandle.Data->SetSetByCallerMagnitude(SetbyCallerData.SetByCallerTag, SetbyCallerData.Magnitude);
 
+			TargetASC->RemoveActiveGameplayEffectBySourceEffect(GameplayEffectClass, TargetASC, true);
 	        TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());
 			LogString += GameplayEffectClass->GetName() + TEXT(" effect applied to ") + OverlappedCharacter->GetName() + TEXT(" by ") + GetName() + TEXT("\n");
 	    }

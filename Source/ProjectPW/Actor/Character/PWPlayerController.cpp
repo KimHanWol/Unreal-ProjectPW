@@ -398,6 +398,19 @@ void APWPlayerController::LP_OnPossess(APawn* PossessedPawn)
 	}
 }
 
+void APWPlayerController::CS_RequestGameplayCue_Implementation(const FGameplayTag& CueGameplayTag)
+{
+	APWPlayerCharacter* PlayerCharacter = Cast<APWPlayerCharacter>(GetCharacter());
+	if (ensure(IsValid(PlayerCharacter) == true))
+	{
+		UAbilitySystemComponent* TargetASC = PlayerCharacter->GetAbilitySystemComponent();
+		if (ensure(IsValid(TargetASC) == true))
+		{
+			TargetASC->ExecuteGameplayCue(CueGameplayTag);
+		}
+	}
+}
+
 void APWPlayerController::LP_ChangeInGameInputEnabled(bool bEnableCommander, bool bEnableCharacter)
 {
 	if (IsValid(PlayerInputComponent) == true)

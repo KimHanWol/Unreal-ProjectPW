@@ -82,6 +82,10 @@ public:
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);
 	void LP_OnPossess(APawn* PossessedPawn);
 
+	UFUNCTION(Server, Reliable)
+	void CS_RequestGameplayCue(const FGameplayTag& CueGameplayTag);
+	void CS_RequestGameplayCue_Implementation(const FGameplayTag& CueGameplayTag);
+
 private:
 
 	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);

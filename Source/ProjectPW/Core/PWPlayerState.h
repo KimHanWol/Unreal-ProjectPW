@@ -32,6 +32,7 @@ public:
 	void SetCommanderPawn(APawn* InCommanderPawn);
 	void SetIsMyTurn(bool bInIsMyTurn);
 	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint);
+	void SetCurrentTurnActivePoint(float InCurrentTurnActivePoint, bool bShowEffect);
 
 	//Getter
 	APawn* GetCommanderPawn() const;

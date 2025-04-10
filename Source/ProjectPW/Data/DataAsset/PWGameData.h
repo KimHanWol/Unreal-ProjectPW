@@ -5,6 +5,7 @@
 //Engine
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "GameplayTagContainer.h"
 
 //Game
 
@@ -17,6 +18,7 @@ enum class EGameplayEffectType : uint8
 {
 	None,
 	AddHealth,
+	Heal,
 };
 
 UENUM()
@@ -104,6 +106,7 @@ public:
 	static TSubclassOf<class APWVolumeActorBase> GetVolumeActorRandom(const UObject* WorldContextObj);
 
 	const TSoftObjectPtr<class UDataTable> GetDataTable(EDataTableType DataTableType) const;
+	static const TSoftObjectPtr<class UNiagaraSystem> GetNiagara(const UObject* WorldContextObj, const struct FGameplayTag& GameplayTag);
 
 protected:
 
@@ -114,6 +117,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<EDataTableType, TSoftObjectPtr<class UDataTable>> DataTableMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TMap<struct FGameplayTag, TSoftObjectPtr<class UNiagaraSystem>> NiagaraMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<TSubclassOf<class APWVolumeActorBase>> VolumeActorList;

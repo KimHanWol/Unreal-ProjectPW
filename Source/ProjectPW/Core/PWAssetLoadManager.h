@@ -6,6 +6,7 @@
 #include "CoreMinimal.h"
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
+#include "NiagaraSystem.h"
 
 //Game
 #include "PWGameInstance.h"

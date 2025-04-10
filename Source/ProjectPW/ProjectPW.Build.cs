@@ -14,8 +14,9 @@ public class ProjectPW : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput", 
-			"UMG", 
-			"GameplayAbilities",
+			"UMG",
+            "Niagara",
+            "GameplayAbilities",
             "GameplayTags",
             "OnlineSubsystem", 
 			"GameplayTasks" });

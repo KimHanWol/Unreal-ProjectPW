@@ -29,10 +29,20 @@ const UPWGameData* UPWGameData::Get(const UObject* WorldContextObj)
 
 void UPWGameData::Initialize()
 {
-	TArray<TSoftObjectPtr<UDataTable>> SoftObjectList;
-	DataTableMap.GenerateValueArray(SoftObjectList);
+	//Data Table
+	TArray<TSoftObjectPtr<UDataTable>> SoftDataTableList;
+	DataTableMap.GenerateValueArray(SoftDataTableList);
 
-	for (TSoftObjectPtr<UDataTable> SoftObject : SoftObjectList)
+	for (TSoftObjectPtr<UDataTable> SoftObject : SoftDataTableList)
+	{
+		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
+	}
+
+	//Niagara
+	TArray<TSoftObjectPtr<UNiagaraSystem>> SoftNiagaraList;
+	NiagaraMap.GenerateValueArray(SoftNiagaraList);
+
+	for (TSoftObjectPtr<UNiagaraSystem> SoftObject : SoftNiagaraList)
 	{
 		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
 	}
@@ -150,13 +160,31 @@ TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject*
 	return UPWGameData::Get(WorldContextObj)->VolumeActorList[RandIndex];
 }
 
-const TSoftObjectPtr<class UDataTable> UPWGameData::GetDataTable(EDataTableType DataTableType) const
+const TSoftObjectPtr<UDataTable> UPWGameData::GetDataTable(EDataTableType DataTableType) const
 {
 	if (DataTableMap.Contains(DataTableType) == false)
 	{
 		ensure(false);
-		return TSoftObjectPtr<class UDataTable>();
+		return TSoftObjectPtr<UDataTable>();
 	}
 
 	return DataTableMap[DataTableType];
+}
+
+const TSoftObjectPtr<class UNiagaraSystem> UPWGameData::GetNiagara(const UObject* WorldContextObj, const FGameplayTag& GameplayTag)
+{
+	const UPWGameData* PWGameData = UPWGameData::Get(WorldContextObj);
+	if (IsValid(PWGameData) == false)
+	{
+		ensure(false);
+		return nullptr;
+	}
+
+	if (PWGameData->NiagaraMap.Contains(GameplayTag) == false)
+	{
+		ensure(false);
+		return TSoftObjectPtr<UNiagaraSystem>();
+	}
+
+	return PWGameData->NiagaraMap[GameplayTag];
 }
