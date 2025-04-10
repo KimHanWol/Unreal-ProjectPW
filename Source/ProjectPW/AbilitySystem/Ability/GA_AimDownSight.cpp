@@ -63,9 +63,11 @@ void UGA_AimDownSight::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 		OwnerCharacter->PlayMontage(MontageADS);
 	}
 
-	DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
+	if(OwnerCharacter->IsLocallyControlled() == true)
+	{
+		DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
 
-	GetWorld()->GetTimerManager().SetTimer(ADSTimerHandle, [this, PlayerCameraManager](){
+		GetWorld()->GetTimerManager().SetTimer(ADSTimerHandle, [this, PlayerCameraManager]() {
 			PlayerCameraManager->SetFOV(FMath::Lerp(DefaultCameraFOV, AimCameraFOV, CurrentTime / AimCameraFOVDuration));
 			if (CurrentTime >= AimCameraFOVDuration)
 			{
@@ -73,7 +75,8 @@ void UGA_AimDownSight::ActivateAbility(const FGameplayAbilitySpecHandle Handle, 
 				return;
 			}
 			CurrentTime += GetWorld()->GetDeltaSeconds();
-		}, 0.01f, true);
+			}, 0.01f, true);
+	}
 }
 
 void UGA_AimDownSight::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
@@ -109,17 +112,20 @@ void UGA_AimDownSight::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 		OwnerCharacter->StopMontage(MontageADS);
 	}
 
-	GetWorld()->GetTimerManager().ClearTimer(ADSTimerHandle);
-	GetWorld()->GetTimerManager().SetTimer(ADSCancelTimerHandle, [this, PlayerCameraManager]() {
-		PlayerCameraManager->SetFOV(FMath::Lerp(DefaultCameraFOV, AimCameraFOV, CurrentTime / AimCameraFOVDuration));
-		CurrentTime -= GetWorld()->GetDeltaSeconds();
-		if (CurrentTime <= 0)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(ADSCancelTimerHandle);
-			return;
-		}
-		CurrentTime -= GetWorld()->GetDeltaSeconds();
-		}, 0.01f, true);
+	if (OwnerCharacter->IsLocallyControlled() == true)
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ADSTimerHandle);
+		GetWorld()->GetTimerManager().SetTimer(ADSCancelTimerHandle, [this, PlayerCameraManager]() {
+			PlayerCameraManager->SetFOV(FMath::Lerp(DefaultCameraFOV, AimCameraFOV, CurrentTime / AimCameraFOVDuration));
+			CurrentTime -= GetWorld()->GetDeltaSeconds();
+			if (CurrentTime <= 0)
+			{
+				GetWorld()->GetTimerManager().ClearTimer(ADSCancelTimerHandle);
+				return;
+			}
+			CurrentTime -= GetWorld()->GetDeltaSeconds();
+			}, 0.01f, true);
+	}
 
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 }
