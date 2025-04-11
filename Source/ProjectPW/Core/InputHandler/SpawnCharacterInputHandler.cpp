@@ -172,6 +172,7 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 			if (IsValid(CommanderPawn) == true)
 			{
 				FRotator CommanderPawnRotator = CommanderPawn->GetActorRotation();
+				CommanderPawnRotator.Pitch = 0.f;
 				FTransform Transform;
 				Transform.SetLocation(SpawnHitResult.ImpactPoint);
 				Transform.SetRotation(FQuat(CommanderPawnRotator));

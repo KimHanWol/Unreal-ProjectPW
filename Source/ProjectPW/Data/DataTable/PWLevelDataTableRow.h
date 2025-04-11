@@ -22,6 +22,12 @@ public:
 	FName DisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bIsDevMap = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bIsInDevelopment = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<class UTexture2D> LevelImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
