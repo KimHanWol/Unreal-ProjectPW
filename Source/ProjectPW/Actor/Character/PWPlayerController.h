@@ -62,13 +62,13 @@ public:
 	void CS_LoadPrevSnapshot();
 	void CS_LoadPrevSnapshot_Implementation();
 
-	UFUNCTION(NetMulticast, Reliable)
-	void SM_ApplyTurnActivePoint(float InTurnActivePoint);
-	void SM_ApplyTurnActivePoint_Implementation(float InTurnActivePoint);
+	UFUNCTION(Client, Reliable)
+	void SC_ApplyTurnActivePoint(float InTurnActivePoint);
+	void SC_ApplyTurnActivePoint_Implementation(float InTurnActivePoint);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void SM_PossessBySnapshot(APawn* PossessablePawn);
-	void SM_PossessBySnapshot_Implementation(APawn* PossessablePawn);
+	UFUNCTION(Client, Reliable)
+	void SC_PossessBySnapshot(APawn* PossessablePawn);
+	void SC_PossessBySnapshot_Implementation(APawn* PossessablePawn);
 
 	UFUNCTION(Server, Reliable)
 	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location, const FRotator& Rotation);

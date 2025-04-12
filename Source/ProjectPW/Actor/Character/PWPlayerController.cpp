@@ -235,7 +235,7 @@ void APWPlayerController::CS_LoadPrevSnapshot_Implementation()
 	}
 }
 
-void APWPlayerController::SM_ApplyTurnActivePoint_Implementation(float InTurnActivePoint)
+void APWPlayerController::SC_ApplyTurnActivePoint_Implementation(float InTurnActivePoint)
 {
 	APWPlayerState* PWPlayerState = GetPlayerState<APWPlayerState>();
 	if (IsValid(PWPlayerState) == false)
@@ -255,7 +255,7 @@ void APWPlayerController::CS_RequestNextTurn_Implementation()
 	}
 }
 
-void APWPlayerController::SM_PossessBySnapshot_Implementation(APawn* PossessablePawn)
+void APWPlayerController::SC_PossessBySnapshot_Implementation(APawn* PossessablePawn)
 {
 	if (IsLocalController() == true)
 	{
