@@ -18,11 +18,37 @@
 
 UPWSteamMatchMakingSubsystem::UPWSteamMatchMakingSubsystem()
 {
-	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
-	if (OnlineSubsystem != nullptr)
+	if (IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get())
 	{
 		OnlineSessionInterface = OnlineSubsystem->GetSessionInterface();
 	}
+}
+
+void UPWSteamMatchMakingSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+
+	if (OnlineSessionInterface.IsValid() == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	const FOnSessionUserInviteAcceptedDelegate& UserInviteAcceptedCompleteDelegate = FOnSessionUserInviteAcceptedDelegate::CreateUObject(this, &UPWSteamMatchMakingSubsystem::OnUserInviteAccepted);
+	UserInviteAcceptedHandle = OnlineSessionInterface->AddOnSessionUserInviteAcceptedDelegate_Handle(UserInviteAcceptedCompleteDelegate);
+}
+
+void UPWSteamMatchMakingSubsystem::Deinitialize()
+{
+	Super::Deinitialize();
+
+	if (OnlineSessionInterface.IsValid() == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	OnlineSessionInterface->ClearOnSessionUserInviteAcceptedDelegate_Handle(UserInviteAcceptedHandle);
 }
 
 UPWSteamMatchMakingSubsystem* UPWSteamMatchMakingSubsystem::Get(const UObject* WorldContextObj)
@@ -38,17 +64,27 @@ UPWSteamMatchMakingSubsystem* UPWSteamMatchMakingSubsystem::Get(const UObject* W
 
 void UPWSteamMatchMakingSubsystem::CreateGameSession(FName InSelectedLevelKey)
 {
+	//레벨 등록
+	UPWGameInstance* GameInst = UPWGameInstance::Get(this);
+	check(GameInst);
+
+	GameInst->SelectedInGameLevelKey = InSelectedLevelKey;
+
+	// NetMode 확인, listen Mode로 변환 후 GameMode 에서 다시 CreateGameSession 호출
+	ENetMode NetMode = GetWorld()->GetNetMode();
+	if ((int32)NetMode != 2)
+	{
+		UGameplayStatics::OpenLevel(GetWorld(), FName("MainMenu?listen"), true);
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("NetMode : %d"), (int32)NetMode);
 	UE_LOG(LogTemp, Log, TEXT("Start create game session"));
     if (OnlineSessionInterface.IsValid() == false)
 	{
 		ensure(false);
 		return;
 	}
-
-	UPWGameInstance* GameInst = UPWGameInstance::Get(this);
-	check(GameInst);
-
-	GameInst->SelectedInGameLevelKey = InSelectedLevelKey;
 
 	FNamedOnlineSession* ExistSession = OnlineSessionInterface->GetNamedSession(NAME_GameSession);
 	if (ExistSession != nullptr)
@@ -62,8 +98,9 @@ void UPWSteamMatchMakingSubsystem::CreateGameSession(FName InSelectedLevelKey)
 	
 	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
     SessionSettings->bIsLANMatch = false;
-	SessionSettings->NumPublicConnections = 1;
-	SessionSettings->bAllowJoinInProgress = true;
+	SessionSettings->bAllowInvites = true;
+	SessionSettings->NumPublicConnections = 2;
+	SessionSettings->bAllowJoinInProgress = false;
 	SessionSettings->bAllowJoinViaPresence = true;
 	SessionSettings->bShouldAdvertise = true;
 	SessionSettings->bUsesPresence = true;
@@ -78,9 +115,18 @@ void UPWSteamMatchMakingSubsystem::CreateGameSession(FName InSelectedLevelKey)
 		return;
 	}
 
-
-
 	OnlineSessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *SessionSettings);
+}
+
+void UPWSteamMatchMakingSubsystem::StartGameSession()
+{
+	if (OnlineSessionInterface.IsValid() == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	OnlineSessionInterface->StartSession(NAME_GameSession);
 }
 
 void UPWSteamMatchMakingSubsystem::FindAndJoinGameSession(FName InSelectedLevelKey)
@@ -128,6 +174,7 @@ void UPWSteamMatchMakingSubsystem::ClientTravelToSessionLevel(FName SessionName)
 		APlayerController* LocalPlayerController = UGameplayStatics::GetPlayerController(this, 0);
 		if (ensure(IsValid(LocalPlayerController) == true))
 		{
+			UE_LOG(LogTemp, Log, TEXT("Trying to travel for server level."));
 			LocalPlayerController->PreClientTravel(ConnectInfo, TRAVEL_Absolute, true);
 			LocalPlayerController->ClientTravel(ConnectInfo, TRAVEL_Absolute);
 		}
@@ -155,8 +202,7 @@ void UPWSteamMatchMakingSubsystem::FindGameSession(FName InSelectedLevelKey)
 	SessionSearch->MaxSearchResults = 10000;
 	SessionSearch->bIsLanQuery = false;
 	SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
-	SessionSearch->QuerySettings.Set(FName("MatchType"), FString("FreeForAll"), EOnlineComparisonOp::Equals);
-	SessionSearch->QuerySettings.Set(FName("LevelKey"), InSelectedLevelKey.ToString(), EOnlineComparisonOp::Equals);
+	//SessionSearch->QuerySettings.Set(FName("LevelKey"), InSelectedLevelKey.ToString(), EOnlineComparisonOp::Equals);
 
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (ensure(IsValid(LocalPlayer) == true))
@@ -229,12 +275,12 @@ void UPWSteamMatchMakingSubsystem::OnCreateSessionComplete(FName SessionName, bo
 
 		const FOnStartSessionCompleteDelegate StartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &UPWSteamMatchMakingSubsystem::OnStartSessionComplete);
 		StartSessionCompleteHandle = OnlineSessionInterface->AddOnStartSessionCompleteDelegate_Handle(StartSessionCompleteDelegate);
-
-		OnlineSessionInterface->StartSession(SessionName);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Create game session failed"));
+
+		UGameplayStatics::OpenLevel(GetWorld(), FName("MainMenu"), true);
 	}
 
 	OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteHandle);
@@ -250,6 +296,9 @@ void UPWSteamMatchMakingSubsystem::OnStartSessionComplete(FName SessionName, boo
 		return;
 	}
 
+	UPWGameInstance* GameInst = UPWGameInstance::Get(this);
+	check(GameInst);
+
 	if (bWasSuccessful == true)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Start session success, current state : %s"), EOnlineSessionState::ToString(OnlineSessionInterface->GetSessionState(SessionName)));
@@ -258,77 +307,49 @@ void UPWSteamMatchMakingSubsystem::OnStartSessionComplete(FName SessionName, boo
 	{
 		UE_LOG(LogTemp, Error, TEXT("Start session failed."));
 	}
+
+	OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(StartSessionCompleteHandle);
 }
 
 void UPWSteamMatchMakingSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 {
+	UE_LOG(LogTemp, Log, TEXT("Find session was successful : %s"), bWasSuccessful == true ? *FString("True") : *FString("False"));
 	UE_LOG(LogTemp, Log, TEXT("SearchResults : %d"), SessionSearch->SearchResults.Num());
-	
+
+	TArray<FOnlineSessionSearchResult> SearchResults;
+
+	// 조건 한번 더 체크
 	UPWGameInstance* GameInst = UPWGameInstance::Get(this);
 	check(GameInst);
 
-	// SessionSearch->QuerySettings.Set(FName("MatchType"), FString("FreeForAll"), EOnlineComparisonOp::Equals);
-	// SessionSearch->QuerySettings.Set(FName("LevelKey"), InSelectedLevelKey.ToString(), EOnlineComparisonOp::Equals);
-	// 가 동작하지 않아 여기서 강제로 조건 체크
-	TArray<FOnlineSessionSearchResult> SearchResults;
+	UE_LOG(LogTemp, Warning, TEXT("Searching : LevelKey %s"), *GameInst->SelectedInGameLevelKey.ToString());
+
 	for (const FOnlineSessionSearchResult& SearchResult : SessionSearch->SearchResults)
 	{
-		FString MatchTypeString;
-		SearchResult.Session.SessionSettings.Get(FName("MatchType"), MatchTypeString);
-
 		FString LevelKeyString;
 		SearchResult.Session.SessionSettings.Get(FName("LevelKey"), LevelKeyString);
 
-		if (MatchTypeString == FString("FreeForAll") && LevelKeyString == GameInst->SelectedInGameLevelKey)
+		UE_LOG(LogTemp, Warning, TEXT("SearchResult : LevelKey %s"), *LevelKeyString);
+
+		if (LevelKeyString == GameInst->SelectedInGameLevelKey.ToString())
 		{
 			SearchResults.Add(SearchResult);
 		}
 	}
 
+	UE_LOG(LogTemp, Log, TEXT("SearchResults after condition : %d"), SearchResults.Num());
+
 	JoinRetryCount = JoinRetryMaxCount;
 
-	UE_LOG(LogTemp, Log, TEXT("SearchResults : %d"), SearchResults.Num());
 	bool bFindSessionSuccessful = bWasSuccessful == true && SearchResults.Num() > 0;
 	if(bFindSessionSuccessful == true)
 	{
 		UE_LOG(LogTemp, Log, TEXT("Find game session success"));
 
-		GetWorld()->GetTimerManager().SetTimer(JoinSessionTimerHandle, FTimerDelegate::CreateWeakLambda(this, [this, SearchResults]() 
-		{
-			FString SessionAddress;
-			OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, SessionAddress);
+		JoinGameSession(SearchResults);
 
-			FString LeftString, RightString;
-			SessionAddress.Split(TEXT(":"), &LeftString, &RightString);
-
-			int32 PortNum = FCString::Atoi(*RightString);
-			if (PortNum != 0)
-			{
-				JoinGameSession(SearchResults);
-
-				OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionCompleteHandle);
-				OnFindSessionCompleteDelegate.Broadcast(true);
-
-				GetWorld()->GetTimerManager().ClearTimer(JoinSessionTimerHandle);
-				return;
-			}
-			else if (JoinRetryCount <= 0)
-			{
-				UE_LOG(LogTemp, Error, TEXT("Join game session failed. Session port : %d"), PortNum);
-				JoinRetryCount = JoinRetryMaxCount;
-
-				OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionCompleteHandle);
-				OnFindSessionCompleteDelegate.Broadcast(false);
-
-				GetWorld()->GetTimerManager().ClearTimer(JoinSessionTimerHandle);
-				return;
-			}
-
-			UE_LOG(LogTemp, Warning, TEXT("Join game session failed. Session port : %d. Retry count : %d"), PortNum, JoinRetryCount);
-
-			JoinRetryCount--;
-
-			}), 2.0f, true);
+		OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionCompleteHandle);
+		OnFindSessionCompleteDelegate.Broadcast(true);
 	}
 	else
 	{
@@ -351,14 +372,14 @@ void UPWSteamMatchMakingSubsystem::OnJoinSessionComplete(FName SessionName, EOnJ
 	OnlineSessionInterface->GetResolvedConnectString(NAME_GameSession, SessionAddress);
 
 	int32 NumPublicConnections = OnlineSessionInterface->GetNamedSession(SessionName)->SessionSettings.NumPublicConnections;
-	EOnlineSessionState::Type OnlineSessionState = OnlineSessionInterface->GetSessionState(SessionName);
+	EOnlineSessionState::Type OnlineSessionState = OnlineSessionInterface->GetNamedSession(SessionName)->SessionState;
 
 	UE_LOG(LogTemp, Log, TEXT("[SESSION NAME] %s"), *SessionName.ToString());
 	UE_LOG(LogTemp, Log, TEXT("Public connection : %d"), NumPublicConnections);
 	UE_LOG(LogTemp, Log, TEXT("Session State : %s"), EOnlineSessionState::ToString(OnlineSessionState));
 
 	bool bWasSuccessful =
-		OnlineSessionState == EOnlineSessionState::InProgress &&
+		OnlineSessionState == EOnlineSessionState::Pending &&
 		Result == EOnJoinSessionCompleteResult::Success &&
 		SessionAddress.IsEmpty() == false &&
 		NumPublicConnections > 0;
@@ -414,4 +435,30 @@ void UPWSteamMatchMakingSubsystem::OnDestroySessionComplete(FName SessionName, b
 	OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteHandle);
 
 	OnDestroySessionCompleteDelegate.Broadcast(bWasSuccessful);
+}
+
+void UPWSteamMatchMakingSubsystem::OnUserInviteAccepted(bool bWasSuccessful, const int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& InviteResult)
+{
+	if (bWasSuccessful == true)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Invite accepted. Trying to join session."));
+
+		FString LevelKeyString;
+		InviteResult.Session.SessionSettings.Get(FName("LevelKey"), LevelKeyString);
+
+		UPWGameInstance* GameInst = UPWGameInstance::Get(this);
+		check(GameInst);
+
+		GameInst->SelectedInGameLevelKey = FName(LevelKeyString);
+
+		TArray<FOnlineSessionSearchResult> InviteResults = TArray<FOnlineSessionSearchResult>();
+		InviteResults.Add(InviteResult);
+		JoinGameSession(InviteResults);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Invite accept failed."));
+	}
+
+	OnFindSessionCompleteDelegate.Broadcast(bWasSuccessful);
 }

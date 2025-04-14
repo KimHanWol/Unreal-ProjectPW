@@ -26,6 +26,7 @@ bool APWGameMode::IsAllPlayerReadyToStart() const
 	//
 #else
 	// 모든 로컬 컨트롤러에 팀이 세팅 되어야 시작 가능
+	UE_LOG(LogTemp, Log, TEXT("[READY TO START] Team Initialized Player Count (%d / %d)"), TeamInitializedPlayerCount , PlayerControllerMap.Num());
 	if (TeamInitializedPlayerCount < PlayerControllerMap.Num())
 	{
 		return false;
@@ -40,6 +41,7 @@ bool APWGameMode::IsAllPlayerReadyToStart() const
 	}
 
 	//모두 다 폰이 생겨야 게임 시작 가능
+	UE_LOG(LogTemp, Log, TEXT("[READY TO START] Initial Possessed Count (%d / %d)"), InitialPossessedCount, PWGameSetting->PlayerCount);
 	if (InitialPossessedCount < PWGameSetting->PlayerCount)
 	{
 		return false;
@@ -66,9 +68,22 @@ void APWGameMode::OnPostLogin(AController* NewPlayer)
 	APWPlayerController* PWPlayerController = Cast<APWPlayerController>(NewPlayer);
 	if (IsValid(PWPlayerController) == true)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%s player post login."), *PWPlayerController->GetName());
+
 		PWPlayerController->InitialPossessedDelegate.AddUObject(this, &APWGameMode::OnInitialPossess);
 
 		PlayerControllerMap.Add(TTuple<APWPlayerController*, bool>(PWPlayerController, false));
+	}
+
+	// 다 들어오면 시작 준비
+	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
+	if (ensure(IsValid(PWGameSetting) == true))
+	{
+		if (GetNumPlayers() == PWGameSetting->PlayerCount)
+		{
+			ReadyToStart();
+			TotalPlayerCount = PWGameSetting->PlayerCount;
+		}
 	}
 
 	bIsBattleStarted = false;
@@ -95,6 +110,8 @@ void APWGameMode::OnInitialPossess(APWPlayerController* SelfPlayerController)
 	}
 
 	InitialPossessedCount++;
+
+	UE_LOG(LogTemp, Log, TEXT("[READY TO START] %s Initial Possessed : %d"), *SelfPlayerController->GetName(), InitialPossessedCount);
 	TryGameReady();
 }
 
@@ -156,6 +173,7 @@ void APWGameMode::OnEntireGameOver()
 void APWGameMode::OnClientTeamSideInitialized()
 {
 	TeamInitializedPlayerCount++;
+	UE_LOG(LogTemp, Log, TEXT("[READY TO START] On Team Side Initialized : %d"), TeamInitializedPlayerCount);
 	TryGameReady();
 }
 
@@ -243,7 +261,7 @@ void APWGameMode::ReadyToStart()
 			PWPlayerState->SS_InitializePlayerState(static_cast<ETeamSide>(i+1));
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("PlayerController %d is assigned to %s"), i, *UPWGameplayStatics::ConvertEnumToString(this, static_cast<ETeamSide>(i+1)));
+		UE_LOG(LogTemp, Log, TEXT("[READY TO START] PlayerController %d is assigned to %s"), i, *UPWGameplayStatics::ConvertEnumToString(this, static_cast<ETeamSide>(i+1)));
 	}
 }
 
@@ -256,16 +274,6 @@ void APWGameMode::StartGame()
 
 	bIsBattleStarted = true;
 
-	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
-	if (ensure(IsValid(PWGameSetting) == true))
-	{
-		if (GetNumPlayers() == PWGameSetting->PlayerCount)
-		{
-			ReadyToStart();
-			TotalPlayerCount = PWGameSetting->PlayerCount;
-		}
-	}
-
 	//Move player to commander position
 	TransformCommanderPawns(); 
 
@@ -273,7 +281,12 @@ void APWGameMode::StartGame()
 	if (IsValid(PWEventManager) == true)
 	{
 		PWEventManager->TeamCharacterAllSpawnedDelegate.AddUObject(this, &APWGameMode::OnTeamCharacterAllSpawned);
-		PWEventManager->BattleLevelSettingFinished.Broadcast();
+	}
+
+	TArray<APWPlayerController*> PlayerControllerList = UPWGameplayStatics::GetAllPlayerController(this);
+	for (APWPlayerController* PlayerController : PlayerControllerList)
+	{
+		PlayerController->SC_BattleLevelSettingFinished();
 	}
 }
 
@@ -282,8 +295,11 @@ void APWGameMode::TryGameReady()
 	// 모든 플레이어가 준비가 되면
 	if (IsAllPlayerReadyToStart() == false)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("[READY TO START] All players are not ready."));
 		return;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("[READY TO START] All players are ready. Start game."));
 
 	StartGame();
 }

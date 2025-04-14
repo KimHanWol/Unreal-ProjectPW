@@ -18,12 +18,15 @@ public class ProjectPW : ModuleRules
             "Niagara",
             "GameplayAbilities",
             "GameplayTags",
-            "OnlineSubsystem", 
-			"GameplayTasks" });
+            "OnlineSubsystem",
+            "OnlineSubsystemSteam",
+            "GameplayTasks" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
-		PublicIncludePaths.AddRange(new string[] { "ProjectPW" });
+        //DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");
+
+        PublicIncludePaths.AddRange(new string[] { "ProjectPW" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

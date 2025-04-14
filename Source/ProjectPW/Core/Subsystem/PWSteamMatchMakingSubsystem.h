@@ -19,11 +19,17 @@ class PROJECTPW_API UPWSteamMatchMakingSubsystem : public UGameInstanceSubsystem
 
 	UPWSteamMatchMakingSubsystem();
 
+protected:
+
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+	virtual void Deinitialize() override;
+
 public:
 	
 	static UPWSteamMatchMakingSubsystem* Get(const UObject* WorldContextObj);
 
 	void CreateGameSession(FName InSelectedLevelKey);
+	void StartGameSession();
 	void FindAndJoinGameSession(FName InSelectedLevelKey);
 	void StopMatchMaking();
 	void LeaveGameSession();
@@ -42,6 +48,8 @@ private:
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 
+	void OnUserInviteAccepted(bool bWasSuccessful, const int32 ControllerId, FUniqueNetIdPtr UserId, const FOnlineSessionSearchResult& InviteResult);
+
 public:
 
 	DECLARE_MULTICAST_DELEGATE_OneParam(FSessionStateChanged, bool bWasSuccessful)
@@ -57,6 +65,8 @@ private:
 	FDelegateHandle FindSessionCompleteHandle;
 	FDelegateHandle JoinSessionCompleteHandle;
 	FDelegateHandle DestroySessionCompleteHandle;
+
+	FDelegateHandle UserInviteAcceptedHandle;
 
 	FTimerHandle JoinSessionTimerHandle;
 	

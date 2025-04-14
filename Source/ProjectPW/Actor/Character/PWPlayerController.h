@@ -43,6 +43,10 @@ public:
 	void CS_TeamSideInitialized();
 	void CS_TeamSideInitialized_Implementation();
 
+	UFUNCTION(Client, Reliable)
+	void SC_BattleLevelSettingFinished();
+	void SC_BattleLevelSettingFinished_Implementation();
+
 	//Turn changed
 	UFUNCTION(Client, Reliable)
 	void SC_TurnChanged(bool bMyTurn);

@@ -31,6 +31,7 @@ void APWPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	DOREPLIFETIME(APWPlayerState, TeamSide);
 	DOREPLIFETIME(APWPlayerState, TeamCharacterList);
 	DOREPLIFETIME(APWPlayerState, CommanderPawn);
+	DOREPLIFETIME(APWPlayerState, bIsMyTurn);
 }
 
 void APWPlayerState::SS_InitializePlayerState(ETeamSide InTeamSide)
@@ -198,6 +199,7 @@ void APWPlayerState::OnRep_TeamSide()
 	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
 	if (IsValid(LocalPlayerController) == true)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("%s TeamSide Initialized, Send to Server."), *LocalPlayerController->GetName());
 		LocalPlayerController->CS_TeamSideInitialized();
 	}
 }

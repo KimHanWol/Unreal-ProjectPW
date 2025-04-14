@@ -61,6 +61,14 @@ void UMainMenu::BindEvents()
 	SlideAnimEvent.BindDynamic(this, &UMainMenu::OnLevelSlideAnimFinished);
 	BindToAnimationFinished(Anim_LevelSlide_Prev, SlideAnimEvent);
 	BindToAnimationFinished(Anim_LevelSlide_Next, SlideAnimEvent);
+
+	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
+	if (IsValid(PWSteamMatchMakingSubsystem) == true)
+	{
+		PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.AddUObject(this, &UMainMenu::OnCreateSessionComplete);
+		PWSteamMatchMakingSubsystem->OnFindSessionCompleteDelegate.AddUObject(this, &UMainMenu::OnFindSessionComplete);
+		PWSteamMatchMakingSubsystem->OnJoinSessionCompleteDelegate.AddUObject(this, &UMainMenu::OnJoinSessionComplete);
+	}
 }
 
 void UMainMenu::UnbindEvents()
@@ -84,6 +92,14 @@ void UMainMenu::UnbindEvents()
 
 	UnbindAllFromAnimationFinished(Anim_LevelSlide_Prev);
 	UnbindAllFromAnimationFinished(Anim_LevelSlide_Next);
+
+	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
+	if (IsValid(PWSteamMatchMakingSubsystem) == true)
+	{
+		PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.RemoveAll(this);
+		PWSteamMatchMakingSubsystem->OnFindSessionCompleteDelegate.RemoveAll(this);
+		PWSteamMatchMakingSubsystem->OnJoinSessionCompleteDelegate.RemoveAll(this);
+	}
 }
 
 void UMainMenu::OnPreviousButtonPressed()
@@ -181,28 +197,6 @@ void UMainMenu::OnCreateButtonPressed()
 	if (IsValid(PWSteamMatchMakingSubsystem) == true)
 	{
 		PWSteamMatchMakingSubsystem->CreateGameSession(DataTableKeyList[CurrentSelectedLevelIndex]);
-		PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.AddUObject(this, &UMainMenu::OnCreateSessionComplete);
-	}
-
-	if (IsValid(Text_Process) == true)
-	{
-		Text_Process->SetText(SessionCreatingText);
-		Text_Process->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (ensure(IsValid(Overlay_Main) == true))
-	{
-		Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	if (ensure(IsValid(Overlay_Waiting) == true))
-	{
-		Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (ensure(IsValid(Anim_MatchMaking) == true))
-	{
-		PlayAnimation(Anim_MatchMaking, 0.f, 0);
 	}
 
 	bIsMatchMaking = true;
@@ -248,29 +242,6 @@ void UMainMenu::OnSearchButtonPressed()
 	if (IsValid(PWSteamMatchMakingSubsystem) == true)
 	{
 		PWSteamMatchMakingSubsystem->FindAndJoinGameSession(DataTableKeyList[CurrentSelectedLevelIndex]);
-		PWSteamMatchMakingSubsystem->OnFindSessionCompleteDelegate.AddUObject(this, &UMainMenu::OnFindSessionComplete);
-		PWSteamMatchMakingSubsystem->OnJoinSessionCompleteDelegate.AddUObject(this, &UMainMenu::OnJoinSessionComplete);
-	}
-
-	if (IsValid(Text_Process) == true)
-	{
-		Text_Process->SetText(SessionSearchingText);
-		Text_Process->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (ensure(IsValid(Overlay_Main) == true))
-	{
-		Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	if (ensure(IsValid(Overlay_Waiting) == true))
-	{
-		Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (ensure(IsValid(Anim_MatchMaking) == true))
-	{
-		PlayAnimation(Anim_MatchMaking, 0.f, 0);
 	}
 
 	bIsMatchMaking = true;
@@ -301,10 +272,6 @@ void UMainMenu::OnStopMatchMakingButtonPressed()
 	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
 	if (IsValid(PWSteamMatchMakingSubsystem) == true)
 	{
-		PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.RemoveAll(this);
-		PWSteamMatchMakingSubsystem->OnFindSessionCompleteDelegate.RemoveAll(this);
-		PWSteamMatchMakingSubsystem->OnJoinSessionCompleteDelegate.RemoveAll(this);
-
 		PWSteamMatchMakingSubsystem->StopMatchMaking();
 	}
 
@@ -313,13 +280,29 @@ void UMainMenu::OnStopMatchMakingButtonPressed()
 
 void UMainMenu::OnCreateSessionComplete(bool bWasSuccessful)
 {
-	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
-	if (IsValid(PWSteamMatchMakingSubsystem) == true)
+	if (bWasSuccessful == true)
 	{
-		PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.RemoveAll(this);
-	}
+		if (IsValid(Text_Process) == true)
+		{
+			Text_Process->SetText(SessionCreatingText);
+		}
 
-	if (bWasSuccessful == false)
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Anim_MatchMaking) == true))
+		{
+			PlayAnimation(Anim_MatchMaking, 0.f, 0);
+		}
+	}
+	else
 	{
 		if (IsValid(MainMenuPopUp) == true)
 		{
@@ -342,18 +325,26 @@ void UMainMenu::OnCreateSessionComplete(bool bWasSuccessful)
 
 void UMainMenu::OnFindSessionComplete(bool bWasSuccessful)
 {
-	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
-	if (IsValid(PWSteamMatchMakingSubsystem) == true)
-	{
-		PWSteamMatchMakingSubsystem->OnFindSessionCompleteDelegate.RemoveAll(this);
-	}
-
 	if (bWasSuccessful == true)
 	{
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
+		}
+
 		if (IsValid(Text_Process) == true)
 		{
 			Text_Process->SetText(SessionJoiningText);
-			Text_Process->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Anim_MatchMaking) == true))
+		{
+			PlayAnimation(Anim_MatchMaking, 0.f, 0);
 		}
 	}
 	else
@@ -379,12 +370,6 @@ void UMainMenu::OnFindSessionComplete(bool bWasSuccessful)
 
 void UMainMenu::OnJoinSessionComplete(bool bWasSuccessful)
 {
-	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
-	if (IsValid(PWSteamMatchMakingSubsystem) == true)
-	{
-		PWSteamMatchMakingSubsystem->OnJoinSessionCompleteDelegate.RemoveAll(this);
-	}
-
 	if (bWasSuccessful == false)
 	{
 		if (ensure(IsValid(Overlay_Main) == true))

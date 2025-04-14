@@ -148,6 +148,15 @@ void APWPlayerController::CS_TeamSideInitialized_Implementation()
 	}
 }
 
+void APWPlayerController::SC_BattleLevelSettingFinished_Implementation()
+{
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->BattleLevelSettingFinished.Broadcast();
+	}
+}
+
 void APWPlayerController::OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList)
 {
 	if(TargetPlayerController != this)

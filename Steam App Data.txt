@@ -1,0 +1,7 @@
+Requesting AppID For: Possess War
+Created package "Possess War Developer Comp" with ID 1291409
+Created package "Possess War for Beta Testing" with ID 1291410
+Created package "Possess War" with ID 1291411
+Added auto-grant to publisher KIM HAN WOL
+Created store item '868711'
+Created store package for store item '868711'
