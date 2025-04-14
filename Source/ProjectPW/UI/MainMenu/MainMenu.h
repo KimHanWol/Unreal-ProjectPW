@@ -55,6 +55,8 @@ private:
 	UFUNCTION()
 	void OnLevelSlideAnimFinished();
 
+	void PlayNotificationSound();
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))
@@ -116,6 +118,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	FText SessionJoiningText;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSoftObjectPtr<class USoundBase> SFX_Notification;
 
 	UPROPERTY(Transient)
 	bool bIsAnimationPlaying = false;

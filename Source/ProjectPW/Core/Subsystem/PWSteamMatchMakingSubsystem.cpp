@@ -74,7 +74,12 @@ void UPWSteamMatchMakingSubsystem::CreateGameSession(FName InSelectedLevelKey)
 	ENetMode NetMode = GetWorld()->GetNetMode();
 	if ((int32)NetMode != 2)
 	{
-		UGameplayStatics::OpenLevel(GetWorld(), FName("MainMenu?listen"), true);
+		// 사운드 재생을 위해 레벨이동 딜레이
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateWeakLambda(this, [this]() 
+			{
+				UGameplayStatics::OpenLevel(GetWorld(), FName("MainMenu?listen"), true);
+			}), 0.1f, false);
 		return;
 	}
 
@@ -152,7 +157,12 @@ void UPWSteamMatchMakingSubsystem::StopMatchMaking()
 	//Joining Session
 	OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteHandle);
 
-	DestroyGameSession();
+	// 사운드 재생을 위해 딜레이
+	FTimerHandle DelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateWeakLambda(this, [this]()
+		{
+			DestroyGameSession();
+		}), 0.1f, false);
 }
 
 void UPWSteamMatchMakingSubsystem::LeaveGameSession()

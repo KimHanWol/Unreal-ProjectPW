@@ -8,6 +8,7 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 //Game
@@ -21,6 +22,44 @@ void UMainMenu::NativeOnInitialized()
 
 	bIsAnimationPlaying = false;
 	UpdateLevelData();
+
+	// 세션 생성 중이면
+	ENetMode NetMode = GetWorld()->GetNetMode();
+	if ((int32)NetMode == 2)
+	{
+		if (ensure(IsValid(Btn_CreateSession) == true))
+		{
+			Btn_CreateSession->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (ensure(IsValid(Btn_SearchSession) == true))
+		{
+			Btn_SearchSession->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (ensure(IsValid(Btn_Quit) == true))
+		{
+			Btn_Quit->SetVisibility(ESlateVisibility::Collapsed);
+		}
+	}
+	// 처음 들어왔으면
+	else
+	{
+		if (ensure(IsValid(Btn_CreateSession) == true))
+		{
+			Btn_CreateSession->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Btn_SearchSession) == true))
+		{
+			Btn_SearchSession->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Btn_Quit) == true))
+		{
+			Btn_Quit->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 }
 
 void UMainMenu::BindEvents()
@@ -199,6 +238,13 @@ void UMainMenu::OnCreateButtonPressed()
 		PWSteamMatchMakingSubsystem->CreateGameSession(DataTableKeyList[CurrentSelectedLevelIndex]);
 	}
 
+	if (ensure(IsValid(Overlay_Main) == true))
+	{
+		Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	BP_PlayClickSound();
+
 	bIsMatchMaking = true;
 }
 
@@ -244,11 +290,14 @@ void UMainMenu::OnSearchButtonPressed()
 		PWSteamMatchMakingSubsystem->FindAndJoinGameSession(DataTableKeyList[CurrentSelectedLevelIndex]);
 	}
 
+	BP_PlayClickSound();
+
 	bIsMatchMaking = true;
 }
 
 void UMainMenu::OnQuitButtonPressed()
 {
+	BP_PlayClickSound();
 	FGenericPlatformMisc::RequestExit(false);
 }
 
@@ -274,6 +323,8 @@ void UMainMenu::OnStopMatchMakingButtonPressed()
 	{
 		PWSteamMatchMakingSubsystem->StopMatchMaking();
 	}
+
+	BP_PlayClickSound();
 
 	bIsMatchMaking = false;
 }
@@ -308,6 +359,8 @@ void UMainMenu::OnCreateSessionComplete(bool bWasSuccessful)
 		{
 			MainMenuPopUp->SetVisibility(ESlateVisibility::Visible);
 		}
+
+		PlayNotificationSound();
 
 		if (ensure(IsValid(Overlay_Main) == true))
 		{
@@ -363,6 +416,8 @@ void UMainMenu::OnFindSessionComplete(bool bWasSuccessful)
 		{
 			MainMenuPopUp->SetVisibility(ESlateVisibility::Visible);
 		}
+
+		PlayNotificationSound();
 
 		bIsMatchMaking = false;
 	}
@@ -550,4 +605,12 @@ void UMainMenu::OnLevelSlideAnimFinished()
 {
 	UpdateLevelData();
 	bIsAnimationPlaying = false;
+}
+
+void UMainMenu::PlayNotificationSound()
+{
+	if (ensure(SFX_Notification.IsNull() == false))
+	{
+		UGameplayStatics::PlaySound2D(this, SFX_Notification.LoadSynchronous());
+	}
 }

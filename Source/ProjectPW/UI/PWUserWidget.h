@@ -28,6 +28,12 @@ protected:
 	virtual void BindEvents() {};
 	virtual void UnbindEvents() {};
 
+	UFUNCTION(BlueprintCallable)
+	void BP_PlayHoverSound();
+
+	UFUNCTION(BlueprintCallable)
+	void BP_PlayClickSound();
+
 public:
 
 	virtual void InvalidateWidget() {};
