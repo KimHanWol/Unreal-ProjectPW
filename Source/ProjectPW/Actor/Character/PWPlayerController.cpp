@@ -22,6 +22,7 @@
 #include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
+#include "Data/DataAsset/PWSoundData.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/PWGameEnum.h"
 #include "UI/MasterWidget.h"
@@ -102,6 +103,15 @@ void APWPlayerController::OnPossess(APawn* InPawn)
 		CommanderPawn = InPawn;
 		PWPlayerState->SetCommanderPawn(CommanderPawn);
 		InitialPossessedDelegate.Broadcast(this);
+	}
+
+	if (IsLocalPlayerController() == true)
+	{
+		const UPWSoundData* SoundData = UPWSoundData::Get(this);
+		if (IsValid(SoundData) == true)
+		{
+			UGameplayStatics::PlaySound2D(this, SoundData->PossessSound.LoadSynchronous());
+		}
 	}
 }
 

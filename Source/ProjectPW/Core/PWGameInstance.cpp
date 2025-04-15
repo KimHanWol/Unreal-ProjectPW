@@ -12,6 +12,7 @@
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
 #include "Data/DataAsset/PWGameSetting.h"
+#include "Data/DataAsset/PWSoundData.h"
 #include "PWAssetLoadManager.h"
 #include "PWEventManager.h"
 
@@ -28,6 +29,11 @@ void UPWGameInstance::Init()
 	if (ensure(IsValid(PWGameData) == true))
 	{
 		PWGameData->Initialize();
+	}
+
+	if (ensure(IsValid(PWSoundData) == true))
+	{
+		PWSoundData->Initialize();
 	}
 }
 
@@ -77,6 +83,16 @@ UPWGameSetting* UPWGameInstance::GetGameSetting(const UObject* WorldContextObj)
 UPWGameSetting* UPWGameInstance::GetGameSetting() const
 {
 	return PWGameSetting;
+}
+
+UPWSoundData* UPWGameInstance::GetSoundData(const UObject* WorldContextObj)
+{
+	return UPWGameInstance::Get(WorldContextObj)->GetSoundData();
+}
+
+UPWSoundData* UPWGameInstance::GetSoundData() const
+{
+	return PWSoundData;
 }
 
 UPWEventManager* UPWGameInstance::GetEventManager(const UObject* WorldContextObj)

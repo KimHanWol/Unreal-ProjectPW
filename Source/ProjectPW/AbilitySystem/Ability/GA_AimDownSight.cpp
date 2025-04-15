@@ -112,6 +112,8 @@ void UGA_AimDownSight::EndAbility(const FGameplayAbilitySpecHandle Handle, const
 		OwnerCharacter->StopMontage(MontageADS);
 	}
 
+	PlayGameplayCue();
+
 	if (OwnerCharacter->IsLocallyControlled() == true)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ADSTimerHandle);

@@ -28,6 +28,8 @@ protected:
 	virtual bool EquipmentActorHitTest(float InMaxRange, ECollisionChannel TargetChannel,  FHitResult& OutHitResult, FRotator& OutViewPointRotation);
 	virtual bool IsInteractableActor(AActor* TargetActor) { return true; }
 
+	void PlayGameplayCue();
+
 public:
 
 	float GetTurnActivePointCost() const { return TurnActivePointCost; }
@@ -44,6 +46,9 @@ public:
 	//해당 어빌리티를 쓰는 데 드는 비용
 	UPROPERTY(EditDefaultsOnly, Category = "Spec")
 	float TurnActivePointCost = 0.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Data")
+	struct FGameplayTag GameplayCueTag;
 
 protected:
 

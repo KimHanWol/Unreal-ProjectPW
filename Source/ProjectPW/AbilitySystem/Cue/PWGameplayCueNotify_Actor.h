@@ -22,7 +22,9 @@ protected:
 
 protected:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSoftObjectPtr<class UNiagaraSystem> NiagaraEffectAsset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TSoftObjectPtr<class USoundBase> SoundEffectAsset;
 };

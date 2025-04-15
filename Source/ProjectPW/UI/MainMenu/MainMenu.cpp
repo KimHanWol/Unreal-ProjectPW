@@ -14,6 +14,7 @@
 //Game
 #include "Core/Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "Data/DataAsset/PWGameData.h"
+#include "Data/DataAsset/PWSoundData.h"
 #include "Data/DataTable/PWLevelDataTableRow.h"
 
 void UMainMenu::NativeOnInitialized()
@@ -609,8 +610,9 @@ void UMainMenu::OnLevelSlideAnimFinished()
 
 void UMainMenu::PlayNotificationSound()
 {
-	if (ensure(SFX_Notification.IsNull() == false))
+	const UPWSoundData* SoundData = UPWSoundData::Get(this);
+	if (ensure(SoundData->NotificationWidgetSound.IsNull() == false))
 	{
-		UGameplayStatics::PlaySound2D(this, SFX_Notification.LoadSynchronous());
+		UGameplayStatics::PlaySound2D(this, SoundData->NotificationWidgetSound.LoadSynchronous());
 	}
 }

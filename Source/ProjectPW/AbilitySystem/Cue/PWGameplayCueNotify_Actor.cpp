@@ -4,6 +4,7 @@
 #include "PWGameplayCueNotify_Actor.h"
 
 //Engine
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 
@@ -17,7 +18,7 @@ void APWGameplayCueNotify_Actor::HandleGameplayCue(AActor* MyTarget, EGameplayCu
 
 	if (EventType == EGameplayCueEvent::Executed)
 	{
-		if (ensure(NiagaraEffectAsset.IsNull() == false))
+		if (NiagaraEffectAsset.IsNull() == false)
 		{
 			UNiagaraSystem* NiagaraEffect = NiagaraEffectAsset.LoadSynchronous();
 			if (ensure(IsValid(NiagaraEffect) == true))
@@ -34,6 +35,11 @@ void APWGameplayCueNotify_Actor::HandleGameplayCue(AActor* MyTarget, EGameplayCu
 					true
 				);
 			}
+		}
+
+		if (SoundEffectAsset.IsNull() == false)
+		{
+			UGameplayStatics::PlaySoundAtLocation(MyTarget, SoundEffectAsset.LoadSynchronous(), MyTarget->GetActorLocation());
 		}
 	}
 }

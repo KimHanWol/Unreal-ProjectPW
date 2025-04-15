@@ -4,6 +4,7 @@
 #include "PWGameplayAbilityBase.h"
 
 //Engine
+#include "AbilitySystemComponent.h"
 
 //Game
 #include "AbilitySystem/Task/PWAbilityTask_Tick.h"
@@ -20,6 +21,8 @@ void UPWGameplayAbilityBase::ActivateAbility(const FGameplayAbilitySpecHandle Ha
 	UPWAbilityTask_Tick* AbilityTask_Tick = UPWAbilityTask_Tick::MakeTickTask(this, -1.f);
 	AbilityTask_Tick->OnTick.BindUObject(this, &UPWGameplayAbilityBase::OnTick);
 	AbilityTask_Tick->ReadyForActivation();
+
+	PlayGameplayCue();
 }
 
 bool UPWGameplayAbilityBase::CanActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayTagContainer* SourceTags, const FGameplayTagContainer* TargetTags, OUT FGameplayTagContainer* OptionalRelevantTags) const
@@ -87,4 +90,15 @@ bool UPWGameplayAbilityBase::EquipmentActorHitTest(float InMaxRange, ECollisionC
 	}
 
 	return bHitSuccess;
+}
+
+void UPWGameplayAbilityBase::PlayGameplayCue()
+{
+	if (GameplayCueTag.IsValid() == true)
+	{
+		if (GetCurrentActorInfo()->AbilitySystemComponent.IsValid() == true)
+		{
+			GetCurrentActorInfo()->AbilitySystemComponent->ExecuteGameplayCue(GameplayCueTag);
+		}
+	}
 }

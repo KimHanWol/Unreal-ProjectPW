@@ -126,12 +126,6 @@ protected:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sound")
-	TSoftObjectPtr<class USoundBase> MouseHoverSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sound")
-	TSoftObjectPtr<class USoundBase> MouseClickSound;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TSubclassOf<class APWPlayerCharacter> PlayerCharacterClass;
 

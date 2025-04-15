@@ -7,7 +7,7 @@
 
 //Game
 #include "Actor/Character/PWPlayerController.h"
-#include "Data/DataAsset/PWGameData.h"
+#include "Data/DataAsset/PWSoundData.h"
 #include "Helper/PWGameplayStatics.h"
 
 void UPWUserWidget::NativeConstruct()
@@ -27,24 +27,24 @@ void UPWUserWidget::NativeDestruct()
 
 void UPWUserWidget::BP_PlayHoverSound()
 {
-	const UPWGameData* GameData = UPWGameData::Get(this);
-	if (ensure(IsValid(GameData) == true))
+	const UPWSoundData* SoundData = UPWSoundData::Get(this);
+	if (ensure(IsValid(SoundData) == true))
 	{
-		if (ensure(GameData->MouseHoverSound.IsNull() == false))
+		if (ensure(SoundData->MouseHoverSound.IsNull() == false))
 		{
-			UGameplayStatics::PlaySound2D(this, GameData->MouseHoverSound.LoadSynchronous());
+			UGameplayStatics::PlaySound2D(this, SoundData->MouseHoverSound.LoadSynchronous());
 		}
 	}
 }
 
 void UPWUserWidget::BP_PlayClickSound()
 {
-	const UPWGameData* GameData = UPWGameData::Get(this);
-	if (ensure(IsValid(GameData) == true))
+	const UPWSoundData* SoundData = UPWSoundData::Get(this);
+	if (ensure(IsValid(SoundData) == true))
 	{
-		if (ensure(GameData->MouseClickSound.IsNull() == false))
+		if (ensure(SoundData->MouseClickSound.IsNull() == false))
 		{
-			UGameplayStatics::PlaySound2D(this, GameData->MouseClickSound.LoadSynchronous());
+			UGameplayStatics::PlaySound2D(this, SoundData->MouseClickSound.LoadSynchronous());
 		}
 	}
 }

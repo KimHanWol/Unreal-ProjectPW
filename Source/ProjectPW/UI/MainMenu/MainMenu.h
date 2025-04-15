@@ -119,9 +119,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	FText SessionJoiningText;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSoftObjectPtr<class USoundBase> SFX_Notification;
-
 	UPROPERTY(Transient)
 	bool bIsAnimationPlaying = false;
 
