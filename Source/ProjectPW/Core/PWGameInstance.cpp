@@ -7,6 +7,7 @@
 //Engine
 
 //Game
+#include "Core/Subsystem/PWBGMManageSubsystem.h"
 #include "Core/Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
@@ -113,4 +114,9 @@ UPWTurnManageSubsystem* UPWGameInstance::GetPWTurnManageSubsystem() const
 UPWSteamMatchMakingSubsystem* UPWGameInstance::GetPWSteamMatchMakingSubsystem() const
 {
 	return GetSubsystem<UPWSteamMatchMakingSubsystem>();
+}
+
+UPWBGMManageSubsystem* UPWGameInstance::GetPWBGMManageSubsystem() const
+{
+	return GetSubsystem<UPWBGMManageSubsystem>();
 }

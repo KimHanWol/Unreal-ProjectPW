@@ -78,9 +78,7 @@ public:
 	void CS_SpawnActor(TSubclassOf<AActor> SpawnActorClass, const FVector& Location, const FRotator& Rotation);
 	void CS_SpawnActor_Implementation(TSubclassOf<AActor> SpawnActorClass, const FVector& Location, const FRotator& Rotation);
 
-	UFUNCTION(Server, Reliable)
-	void CS_SpawnCharacter(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
-	void CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, FTransform SpawnTransform);
+	void LP_SpawnCharacter(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
 
 	void OnCharacterSelected(int32 SelectNum);
 	void LP_SelectCharacter(int32 SelectNum, bool bIsForReset);
@@ -91,6 +89,11 @@ public:
 	void CS_RequestGameplayCue_Implementation(const FGameplayTag& CueGameplayTag);
 
 private:
+
+
+	UFUNCTION(Server, Reliable)
+	void CS_SpawnCharacter(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform);
+	void CS_SpawnCharacter_Implementation(ECharacterType SpawnCharacterType, FTransform SpawnTransform);
 
 	void OnPlayerCharacterAllSpawned(const APWPlayerController* TargetPlayerController, const TArray<TWeakObjectPtr<class APWPlayerCharacter>>& TargetCharacterList);
 	void BattleLevelSettingFinished();

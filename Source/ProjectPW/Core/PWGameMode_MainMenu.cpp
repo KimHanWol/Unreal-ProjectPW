@@ -10,6 +10,7 @@
 #include "Core/Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "PWGameInstance.h"
 #include "PWGameState.h"
+#include "Subsystem/PWBGMManageSubsystem.h"
 
 void APWGameMode_MainMenu::BeginPlay()
 {
@@ -22,6 +23,9 @@ void APWGameMode_MainMenu::BeginPlay()
 		return;
 	}
 
+	UPWGameInstance* GameInst = UPWGameInstance::Get(this);
+	check(GameInst);
+
 	PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.RemoveAll(this);
 	PWSteamMatchMakingSubsystem->OnCreateSessionCompleteDelegate.AddUObject(this, &APWGameMode_MainMenu::OnCreateSessionComplete);
 	PWSteamMatchMakingSubsystem->OnDestroySessionCompleteDelegate.RemoveAll(this);
@@ -33,9 +37,14 @@ void APWGameMode_MainMenu::BeginPlay()
 	ENetMode NetMode = GetWorld()->GetNetMode();
 	if ((int32)NetMode == 2)
 	{
-		UPWGameInstance* GameInst = UPWGameInstance::Get(this);
-		check(GameInst);
 		PWSteamMatchMakingSubsystem->CreateGameSession(GameInst->SelectedInGameLevelKey);
+	}
+
+	//Play MainMenu BGM
+	UPWBGMManageSubsystem* BGMManageSubsystem = GameInst->GetPWBGMManageSubsystem();
+	if (ensure(IsValid(BGMManageSubsystem) == true))
+	{
+		BGMManageSubsystem->PlayBGM(EBGMType::MainMenu);
 	}
 }
 

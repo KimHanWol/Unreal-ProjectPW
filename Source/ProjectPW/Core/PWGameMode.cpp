@@ -15,8 +15,10 @@
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWEventManager.h"
+#include "PWGameInstance.h"
 #include "PWGameState.h"
 #include "PWPlayerState.h"
+#include "Subsystem/PWBGMManageSubsystem.h"
 #include "Subsystem/PWSteamMatchMakingSubsystem.h"
 #include "UI/MasterWidget.h"
 
@@ -58,6 +60,17 @@ void APWGameMode::BeginPlay()
 	if (ensure(IsValid(PWEventManager) == true))
 	{
 		PWEventManager->ClientTeamSideInitializedDelegate.AddUObject(this, &APWGameMode::OnClientTeamSideInitialized);
+	}
+
+	//Play InGame BGM
+	UPWGameInstance* GameInst = UPWGameInstance::Get(this);
+	if (ensure(IsValid(GameInst) == true))
+	{
+		UPWBGMManageSubsystem* BGMManageSubsystem = GameInst->GetPWBGMManageSubsystem();
+		if (ensure(IsValid(BGMManageSubsystem) == true))
+		{
+			BGMManageSubsystem->PlayBGM(EBGMType::InGame);
+		}
 	}
 }
 

@@ -45,6 +45,7 @@ public:
 
 	class UPWTurnManageSubsystem* GetPWTurnManageSubsystem() const;
 	class UPWSteamMatchMakingSubsystem* GetPWSteamMatchMakingSubsystem() const;
+	class UPWBGMManageSubsystem* GetPWBGMManageSubsystem() const;
 
 public:
 

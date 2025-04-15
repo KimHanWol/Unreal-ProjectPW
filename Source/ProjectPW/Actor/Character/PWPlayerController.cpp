@@ -19,6 +19,7 @@
 #include "Core/PWEventManager.h"
 #include "Core/PWGameMode.h"
 #include "Core/PWPlayerState.h"
+#include "Core/Subsystem/PWBGMManageSubsystem.h"
 #include "Core/Subsystem/PWTurnManageSubsystem.h"
 #include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataAsset/PWGameData.h"
@@ -64,6 +65,19 @@ void APWPlayerController::BeginPlay()
 		PWEventManager->BattleLevelSettingFinished.AddUObject(this, &APWPlayerController::BattleLevelSettingFinished);
 
 		PWEventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
+	}
+
+	//Play InGame BGM
+	if (IsLocalPlayerController() == true)
+	{
+		const UPWGameInstance* GameInst = UPWGameInstance::Get(this);
+		check(GameInst);
+
+		UPWBGMManageSubsystem* BGMManageSubsystem = GameInst->GetPWBGMManageSubsystem();
+		if (ensure(IsValid(BGMManageSubsystem) == true))
+		{
+			BGMManageSubsystem->PlayBGM(EBGMType::InGame);
+		}
 	}
 }
 
@@ -298,6 +312,20 @@ void APWPlayerController::CS_SpawnActor_Implementation(TSubclassOf<AActor> Spawn
 	if (ensure(IsValid(SpawnedActor) == true))
 	{
 		SpawnedActor->SetReplicates(true);
+	}
+}
+
+void APWPlayerController::LP_SpawnCharacter(ECharacterType SpawnCharacterType, const FTransform& SpawnTransform)
+{
+	CS_SpawnCharacter(SpawnCharacterType, SpawnTransform);
+
+	const UPWSoundData* SoundData = UPWSoundData::Get(this);
+	if (ensure(IsValid(SoundData) == true))
+	{
+		if (ensure(SoundData->CharacterSpawnSound.IsNull() == false))
+		{
+			UGameplayStatics::PlaySound2D(this, SoundData->CharacterSpawnSound.LoadSynchronous());
+		}
 	}
 }
 

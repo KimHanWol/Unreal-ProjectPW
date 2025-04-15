@@ -177,7 +177,7 @@ void USpawnCharacterInputHandler::TrySpawn(const struct FInputActionValue& Value
 				Transform.SetLocation(SpawnHitResult.ImpactPoint);
 				Transform.SetRotation(FQuat(CommanderPawnRotator));
 
-				PWPlayerController->CS_SpawnCharacter(SelectedCharacterType, Transform);
+				PWPlayerController->LP_SpawnCharacter(SelectedCharacterType, Transform);
 			}
         }
     }
