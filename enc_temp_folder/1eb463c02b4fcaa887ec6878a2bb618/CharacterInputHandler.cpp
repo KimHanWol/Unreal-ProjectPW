@@ -117,11 +117,6 @@ void UCharacterInputHandler::Look(const FInputActionValue& Value)
 
 void UCharacterInputHandler::LoadPrevState(const FInputActionValue& Value)
 {
-	if (IsInputEnabled() == false)
-	{
-		return;
-	}
-
 	APWPlayerController* LocalPlayerController = UPWGameplayStatics::GetLocalPlayerController(this);
 	if (IsValid(LocalPlayerController) == true)
 	{
