@@ -121,9 +121,6 @@ public:
 
 private:
 
-	UPROPERTY(EditDefaultsOnly)
-	class UMasterWidget* MasterWidget;
-
 	//Component
 	UPROPERTY(EditAnywhere)
 	class UPWPlayerInputComponent* PlayerInputComponent;

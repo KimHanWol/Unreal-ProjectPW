@@ -26,8 +26,8 @@
 #include "Data/DataAsset/PWSoundData.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/PWGameEnum.h"
-#include "UI/MasterWidget.h"
 #include "Helper/PWGameplayStatics.h"
+#include "UI/MasterWidget.h"
 
 APWPlayerController::APWPlayerController()
 {
@@ -40,18 +40,8 @@ void APWPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Show widget
 	if (IsLocalPlayerController() == true)
 	{
-		const UPWGameData* PWGameData = UPWGameData::Get(this);
-		if (IsValid(PWGameData) == true)
-		{
-			if (IsValid(MasterWidget) == true)
-			{
-				MasterWidget->AddToViewport();
-			}
-		}
-
 		if (IsValid(PlayerInputComponent) == true)
 		{
 			PlayerInputComponent->InitMappingContext();
@@ -63,8 +53,6 @@ void APWPlayerController::BeginPlay()
 	{
 		PWEventManager->CharacterSelectedDelegate.AddUObject(this, &APWPlayerController::OnCharacterSelected);
 		PWEventManager->BattleLevelSettingFinished.AddUObject(this, &APWPlayerController::BattleLevelSettingFinished);
-
-		PWEventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
 	}
 
 	//Play InGame BGM

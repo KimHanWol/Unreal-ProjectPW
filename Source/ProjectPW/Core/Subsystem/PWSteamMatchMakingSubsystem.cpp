@@ -10,11 +10,11 @@
 
 //Game
 #include "Actor/Character/PWPlayerController.h"
-#include "Core/PWEventManager.h"
 #include "Core/PWGameInstance.h"
 #include "Core/PWPlayerState.h"
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
+#include "UI/MasterWidget.h"
 
 UPWSteamMatchMakingSubsystem::UPWSteamMatchMakingSubsystem()
 {

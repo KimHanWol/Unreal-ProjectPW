@@ -9,6 +9,32 @@
 #include "Data/DataAsset/PWGameSetting.h"
 #include "Helper/PWGameplayStatics.h"
 #include "PWEventManager.h"
+#include "UI/MasterWidget.h"
+
+void APWGameState::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//Show widget
+	if (IsValid(MasterWidgetClass) == true)
+	{
+		APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+		if (IsValid(PC))
+		{
+			UMasterWidget* MasterWidgetInstance = CreateWidget<UMasterWidget>(PC, MasterWidgetClass);
+			if (IsValid(MasterWidgetInstance))
+			{
+				MasterWidgetInstance->AddToViewport();
+			}
+		}
+	}
+
+	UPWEventManager* PWEventManager = UPWEventManager::Get(this);
+	if (IsValid(PWEventManager) == true)
+	{
+		PWEventManager->ShowWidgetDelegate.Broadcast(EWidgetType::LoadingWidget);
+	}
+}
 
 void APWGameState::OnStartGame(int32 InMaxPlayerCount)
 {
@@ -73,31 +99,6 @@ void APWGameState::OnEntireGameOver()
 		PWEventManager->GameOverDelegate.RemoveAll(this);
 		PWEventManager->CharacterAliveStateChangedDelegate.RemoveAll(this);
 	}
-}
-
-FName APWGameState::GetSelectedLevelKey() const
-{
-#if WITH_EDITOR
-
-	// 에디터에서 바로 Dev 맵 열었을 때
-	if (SelectedLevelKey.IsNone() == true)
-	{
-		const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(GetWorld());
-		if (ensure(IsValid(PWGameSetting) == true))
-		{
-			return PWGameSetting->InGameDevMapName;
-		}
-	}
-
-#endif
-
-	return SelectedLevelKey;
-}
-
-//TODO: 게임 시작 이벤트로 바꿔서 바인딩
-void APWGameState::SetSelectedLevelKey(FName InSelectedLevelKey)
-{
-	SelectedLevelKey = InSelectedLevelKey;
 }
 
 void APWGameState::OnCharacterAliveStateChanged(APWPlayerCharacter* TargetCharacter, bool bIsAlive)

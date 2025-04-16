@@ -24,9 +24,16 @@ void UMainMenu::NativeOnInitialized()
 	bIsAnimationPlaying = false;
 	UpdateLevelData();
 
-	// 세션 생성 중이면
+	APlayerController* LocalPlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (IsValid(LocalPlayerController) == false)
+	{
+		ensure(false);
+		return;
+	}
+
+	// 세션 생성 중 이거나 게임에 참여해 클라이언트면
 	ENetMode NetMode = GetWorld()->GetNetMode();
-	if ((int32)NetMode == 2)
+	if ((int32)NetMode == 2 || LocalPlayerController->HasAuthority() == false)
 	{
 		if (ensure(IsValid(Btn_CreateSession) == true))
 		{
@@ -519,8 +526,6 @@ void UMainMenu::UpdateLevelData()
 		{
 			Image_BG_Prev->SetBrushFromSoftTexture(LevelDataList[PrevLevelIndex]->LevelImage.LoadSynchronous());		
 		}
-		
-		UE_LOG(LogTemp, Warning, TEXT("Prev %d : %s"), PrevLevelIndex, *LevelDataList[PrevLevelIndex]->LevelImage.GetAssetName());
 	}
 
 	if (ensure(IsValid(Image_BG) == true))
@@ -529,8 +534,6 @@ void UMainMenu::UpdateLevelData()
 		{
 			Image_BG->SetBrushFromSoftTexture(LevelDataList[CurrentSelectedLevelIndex]->LevelImage.LoadSynchronous());
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("%d : %s"), CurrentSelectedLevelIndex, *LevelDataList[CurrentSelectedLevelIndex]->LevelImage.GetAssetName());
 	}
 
 	if (ensure(IsValid(Image_BG_Next) == true))
@@ -540,8 +543,6 @@ void UMainMenu::UpdateLevelData()
 		{
 			Image_BG_Next->SetBrushFromSoftTexture(LevelDataList[NextLevelIndex]->LevelImage.LoadSynchronous());
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Next %d : %s"), NextLevelIndex, *LevelDataList[NextLevelIndex]->LevelImage.GetAssetName());
 	}
 
 	UpdateCurrentLevelData();

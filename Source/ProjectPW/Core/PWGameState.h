@@ -31,6 +31,10 @@ class PROJECTPW_API APWGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 
+protected:
+
+	virtual void BeginPlay() override;
+
 public:
 
 	void OnStartGame(int32 InMaxPlayerCount);
@@ -42,19 +46,17 @@ public:
 	void OnPlayerGameOver(class APWPlayerController* PlayerController, bool bLose);
 	void OnEntireGameOver();
 
-	FName GetSelectedLevelKey() const;
-	void SetSelectedLevelKey(FName InSelectedLevelKey);
-
 public:
 
 	DECLARE_MULTICAST_DELEGATE(FGameStateCharacterAliveStateChanged)
 	FGameStateCharacterAliveStateChanged GameStateCharacterAliveStateChangedDelegate;
 
-private:
+protected:
 
-	// 선택된 레벨
-	UPROPERTY(Transient)
-	FName SelectedLevelKey;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UMasterWidget> MasterWidgetClass;
+
+private:
 
 	// 플레이어 차례
 	UPROPERTY(Transient)
