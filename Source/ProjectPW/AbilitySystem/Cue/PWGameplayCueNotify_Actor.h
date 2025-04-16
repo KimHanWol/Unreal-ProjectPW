@@ -22,9 +22,10 @@ protected:
 
 protected:
 
+	// 어차피 즉시 사용되는 에셋이라 하드 레퍼런스로 가지고 있음
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSoftObjectPtr<class UNiagaraSystem> NiagaraEffectAsset;
+	class UNiagaraSystem* NiagaraEffectAsset;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TSoftObjectPtr<class USoundBase> SoundEffectAsset;
+	class USoundBase* SoundEffectAsset;
 };

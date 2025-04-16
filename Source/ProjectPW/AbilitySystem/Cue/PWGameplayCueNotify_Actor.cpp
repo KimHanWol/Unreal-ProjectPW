@@ -11,35 +11,30 @@
 //Game
 #include "Core/PWAssetLoadManager.h"
 
-
 void APWGameplayCueNotify_Actor::HandleGameplayCue(AActor* MyTarget, EGameplayCueEvent::Type EventType, const FGameplayCueParameters& Parameters)
 {
 	Super::HandleGameplayCue(MyTarget, EventType, Parameters);
 
 	if (EventType == EGameplayCueEvent::Executed)
 	{
-		if (NiagaraEffectAsset.IsNull() == false)
+		if (IsValid(NiagaraEffectAsset) == true)
 		{
-			UNiagaraSystem* NiagaraEffect = NiagaraEffectAsset.LoadSynchronous();
-			if (ensure(IsValid(NiagaraEffect) == true))
-			{
-				UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-					GetWorld(),
-					NiagaraEffect,
-					GetActorTransform().GetLocation(),
-					GetActorTransform().GetRotation().Rotator(),
-					GetActorTransform().GetScale3D(),
-					true,
-					true,
-					ENCPoolMethod::None,
-					true
-				);
-			}
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				NiagaraEffectAsset,
+				GetActorTransform().GetLocation(),
+				GetActorTransform().GetRotation().Rotator(),
+				GetActorTransform().GetScale3D(),
+				true,
+				true,
+				ENCPoolMethod::None,
+				true
+			);
 		}
 
-		if (SoundEffectAsset.IsNull() == false)
+		if (IsValid(SoundEffectAsset) == true)
 		{
-			UGameplayStatics::PlaySoundAtLocation(MyTarget, SoundEffectAsset.LoadSynchronous(), MyTarget->GetActorLocation());
+			UGameplayStatics::PlaySoundAtLocation(MyTarget, SoundEffectAsset, MyTarget->GetActorLocation());
 		}
 	}
 }

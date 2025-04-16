@@ -565,7 +565,7 @@ int32 UMainMenu::GetPrevLevelIndex()
 		NewLevelIndex = NewLevelIndex - 1 < 0 ? LevelDataList.Num() - 1 : NewLevelIndex - 1;
 
 		// Dev 맵은 공개하지 않음
-		if (ensure(LevelDataList.Num() > NewLevelIndex) && LevelDataList[NewLevelIndex]->bIsDevMap == false)
+		if (LevelDataList.Num() > NewLevelIndex && LevelDataList[NewLevelIndex] != nullptr && LevelDataList[NewLevelIndex]->bIsDevMap == false)
 		{
 			break;
 		}

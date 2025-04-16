@@ -4,11 +4,13 @@
 #include "PWGameData.h"
 
 //Engine
+#include "Engine/DataTable.h"
 
 //Game
 #include "Actor/Character/PWPlayerCharacter.h"
 #include "Core/PWAssetLoadManager.h"
 #include "Core/PWGameInstance.h"
+#include "Data/DataAsset/PWAnimDataAsset.h"
 #include "Data/DataTable/PWCharacterDataTableRow.h"
 #include "Data/DataTable/PWEquipmentDataTableRow.h"
 #include "Data/DataTable/PWLevelDataTableRow.h"
@@ -29,25 +31,63 @@ const UPWGameData* UPWGameData::Get(const UObject* WorldContextObj)
 
 void UPWGameData::Initialize()
 {
-	//Data Table
-	TArray<TSoftObjectPtr<UDataTable>> SoftDataTableList;
-	DataTableMap.GenerateValueArray(SoftDataTableList);
+	TArray<TSoftObjectPtr<UObject>> AsyncLoadList;
 
-	for (TSoftObjectPtr<UDataTable> SoftObject : SoftDataTableList)
+	//Data Table
+	if (ensure(IsValid(CharacterDataTable) == true))
 	{
-		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
+		TArray<FPWCharacterDataTableRow*> CharacterDataList;
+		CharacterDataTable->GetAllRows<FPWCharacterDataTableRow>(TEXT(""), CharacterDataList);
+
+		for (FPWCharacterDataTableRow* CharacterData : CharacterDataList)
+		{
+			AsyncLoadList.Add(CharacterData->Portrait);
+			AsyncLoadList.Add(CharacterData->Icon);
+			AsyncLoadList.Add(CharacterData->Mesh); // TODO: Texture 이나 Material 도 같이 불러와지는 지 확인
+			UPWAnimDataAsset* AnimData = CharacterData->AnimDataAsset;
+			if (ensure(IsValid(AnimData) == true))
+			{
+				AnimData->Initialize();
+			}
+		}
+	}
+
+	if (ensure(IsValid(EquipmentDataTable) == true))
+	{
+		TArray<FPWEquipmentDataTableRow*> EquipmentDataList;
+		EquipmentDataTable->GetAllRows< FPWEquipmentDataTableRow>(TEXT(""), EquipmentDataList);
+
+		for (FPWEquipmentDataTableRow* EquipmentData : EquipmentDataList)
+		{
+			AsyncLoadList.Add(EquipmentData->Icon);
+		}
+	}
+
+	if (ensure(IsValid(LevelDataTable) == true))
+	{
+		TArray<FPWLevelDataTableRow*> LevelDataList;
+		LevelDataTable->GetAllRows<FPWLevelDataTableRow>(TEXT(""), LevelDataList);
+
+		for (FPWLevelDataTableRow* LevelData : LevelDataList)
+		{
+			AsyncLoadList.Add(LevelData->LevelImage);
+		}
 	}
 
 	//Niagara
 	TArray<TSoftObjectPtr<UNiagaraSystem>> SoftNiagaraList;
 	NiagaraMap.GenerateValueArray(SoftNiagaraList);
 
-	for (TSoftObjectPtr<UNiagaraSystem> SoftObject : SoftNiagaraList)
+	AsyncLoadList.Append(SoftNiagaraList);
+
+	//Material
+	AsyncLoadList.Add(SpawnPreviewMI);
+
+
+	for (TSoftObjectPtr<UObject> SoftObject : AsyncLoadList)
 	{
 		UPWAssetLoadManager::AsyncLoad(this, SoftObject);
 	}
-
-	UPWAssetLoadManager::AsyncLoad(this, SpawnPreviewMI);
 }
 
 TSubclassOf<UGameplayEffect> UPWGameData::GetGameplayEffect(const UObject* WorldContextObj, EGameplayEffectType GameplayEffectType)
@@ -105,14 +145,13 @@ const FPWLevelDataTableRow* UPWGameData::FindLevelTableRow(const UObject* WorldC
 		return nullptr;
 	}
 
-	TSoftObjectPtr<class UDataTable> LevelDataTable = PWGameData->DataTableMap[EDataTableType::Level];
-	if (LevelDataTable.IsNull() == true)
+	if (IsValid(PWGameData->LevelDataTable) == false)
 	{
 		ensure(false);
 		return nullptr;
 	}
 
-	return LevelDataTable.LoadSynchronous()->FindRow<FPWLevelDataTableRow>(LevelDataKey, "");
+	return PWGameData->LevelDataTable->FindRow<FPWLevelDataTableRow>(LevelDataKey, "");
 }
 
 const FPWEquipmentDataTableRow* UPWGameData::FindEquipmentTableRow(const UObject* WorldContextObj, FName EquipmentDataKey)
@@ -130,14 +169,13 @@ const FPWEquipmentDataTableRow* UPWGameData::FindEquipmentTableRow(const UObject
 		return nullptr;
 	}
 
-	TSoftObjectPtr<class UDataTable> EquipmentDataTable = PWGameData->DataTableMap[EDataTableType::Equipment];
-	if (EquipmentDataTable.IsNull() == true)
+	if (IsValid(PWGameData->EquipmentDataTable) == false)
 	{
 		ensure(false);
 		return nullptr;
 	}
 
-	return EquipmentDataTable.LoadSynchronous()->FindRow<FPWEquipmentDataTableRow>(EquipmentDataKey, "");
+	return PWGameData->EquipmentDataTable->FindRow<FPWEquipmentDataTableRow>(EquipmentDataKey, "");
 }
 
 TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject* WorldContextObj)
@@ -160,15 +198,29 @@ TSubclassOf<APWVolumeActorBase> UPWGameData::GetVolumeActorRandom(const UObject*
 	return UPWGameData::Get(WorldContextObj)->VolumeActorList[RandIndex];
 }
 
-const TSoftObjectPtr<UDataTable> UPWGameData::GetDataTable(EDataTableType DataTableType) const
+const UDataTable* UPWGameData::GetDataTable(EDataTableType DataTableType) const
 {
-	if (DataTableMap.Contains(DataTableType) == false)
+	UDataTable* ResultDataTable = nullptr;
+	switch (DataTableType)
 	{
+	case EDataTableType::None:
 		ensure(false);
-		return TSoftObjectPtr<UDataTable>();
+		break;
+	case EDataTableType::Character:
+		ResultDataTable = CharacterDataTable;
+		break;
+	case EDataTableType::Level:
+		ResultDataTable = LevelDataTable;
+		break;
+	case EDataTableType::Equipment:
+		ResultDataTable = EquipmentDataTable;
+		break;
+	default:
+		ensure(false);
+		break;
 	}
 
-	return DataTableMap[DataTableType];
+	return ResultDataTable;
 }
 
 const TSoftObjectPtr<class UNiagaraSystem> UPWGameData::GetNiagara(const UObject* WorldContextObj, const FGameplayTag& GameplayTag)

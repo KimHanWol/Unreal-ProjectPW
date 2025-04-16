@@ -48,20 +48,7 @@ public:
 	template <typename TRowType>
 	const TRowType* FindTableRow(EDataTableType DataTableType, const FName& KeyName) const
 	{
-		if (DataTableMap.Contains(DataTableType) == false)
-		{
-			ensureMsgf(false, TEXT("There's no data table. You may have forgotten to registor it with DataTableMap."));
-			return nullptr;
-		}
-
-		TSoftObjectPtr<UDataTable> TargetDataTablePtr = DataTableMap[DataTableType];
-		if (TargetDataTablePtr.IsNull() == true)
-		{
-			ensureMsgf(false, TEXT("Data Table is not valid."));
-			return nullptr;
-		}
-
-		UDataTable* TargetDataTable = TargetDataTablePtr.LoadSynchronous();
+		const UDataTable* TargetDataTable = GetDataTable(DataTableType);
 		if (IsValid(TargetDataTable) == false)
 		{
 			ensure(false);
@@ -75,20 +62,7 @@ public:
 	const TArray<TRowType*> GetAllTableRow(EDataTableType DataTableType) const
 	{
 		TArray<TRowType*> RowArray;
-		if (DataTableMap.Contains(DataTableType) == false)
-		{
-			ensureMsgf(false, TEXT("There's no data table. You may have forgotten to registor it with DataTableMap."));
-			return RowArray;
-		}
-
-		TSoftObjectPtr<UDataTable> TargetDataTablePtr = DataTableMap[DataTableType];
-		if (TargetDataTablePtr.IsNull() == true)
-		{
-			ensureMsgf(false, TEXT("Data Table is not valid."));
-			return RowArray;
-		}
-
-		UDataTable* TargetDataTable = TargetDataTablePtr.LoadSynchronous();
+		const UDataTable* TargetDataTable = GetDataTable(DataTableType);
 		if (IsValid(TargetDataTable) == false)
 		{
 			ensure(false);
@@ -105,7 +79,7 @@ public:
 
 	static TSubclassOf<class APWVolumeActorBase> GetVolumeActorRandom(const UObject* WorldContextObj);
 
-	const TSoftObjectPtr<class UDataTable> GetDataTable(EDataTableType DataTableType) const;
+	const class UDataTable* GetDataTable(EDataTableType DataTableType) const;
 	static const TSoftObjectPtr<class UNiagaraSystem> GetNiagara(const UObject* WorldContextObj, const struct FGameplayTag& GameplayTag);
 
 protected:
@@ -116,10 +90,17 @@ protected:
 	TMap<EGameplayEffectType, TSubclassOf<class UGameplayEffect>> GameplayEffectMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TMap<EDataTableType, TSoftObjectPtr<class UDataTable>> DataTableMap;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TMap<struct FGameplayTag, TSoftObjectPtr<class UNiagaraSystem>> NiagaraMap;
+
+	// 내부에서 SoftObjectPtr AsyncLoad 하기 위해서 하드 레퍼런스로 가지기
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DataTable")
+	class UDataTable* CharacterDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DataTable")
+	class UDataTable* EquipmentDataTable;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DataTable")
+	class UDataTable* LevelDataTable;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<TSubclassOf<class APWVolumeActorBase>> VolumeActorList;
