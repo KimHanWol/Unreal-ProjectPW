@@ -121,40 +121,28 @@ void APWPlayerController::AcknowledgePossession(APawn* P)
 
 	if (IsLocalPlayerController() == true)
 	{
+		// FOV 원래대로 설정
 		if (ensure(IsValid(PlayerCameraManager) == true))
 		{
-			if (IsValid(PWPlayerState->GetCommanderPawn()) == true)
+			if (IsValid(PWPlayerState->GetCommanderPawn()) == true && PWPlayerState->GetCommanderPawn() != P)
 			{
-				//캐릭터에 빙의가 되면
-				if (PWPlayerState->GetCommanderPawn() != P)
+				if (DefaultCameraFOV == 0)
 				{
-					// FOV 원래대로 설정
-					if (DefaultCameraFOV == 0)
-					{
-						DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
-					}
-					else
-					{
-						PlayerCameraManager->SetFOV(DefaultCameraFOV);
-					}
+					DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
 				}
+				else
+				{
+					PlayerCameraManager->SetFOV(DefaultCameraFOV);
+				}
+			}
 
-				const UPWSoundData* SoundData = UPWSoundData::Get(this);
-				if (IsValid(SoundData) == true)
-				{
-					UGameplayStatics::PlaySound2D(this, SoundData->PossessSound.LoadSynchronous());
-				}
+			const UPWSoundData* SoundData = UPWSoundData::Get(this);
+			if (IsValid(SoundData) == true)
+			{
+				UGameplayStatics::PlaySound2D(this, SoundData->PossessSound.LoadSynchronous());
 			}
 		}
 	}
-}
-
-void APWPlayerController::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-
-	TryEnableCharacterSpawn();
-	UpdateTurnData();
 }
 
 ETeamSide APWPlayerController::GetTeamSide() const

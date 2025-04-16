@@ -29,7 +29,6 @@ protected:
 
 	virtual void OnPossess(APawn* InPawn) override;
 	virtual void AcknowledgePossession(class APawn* P) override; //Local
-	virtual void OnRep_PlayerState() override;
 
 public:
 
