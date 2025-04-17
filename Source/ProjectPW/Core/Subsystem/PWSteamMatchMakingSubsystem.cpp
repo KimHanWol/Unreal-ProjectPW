@@ -104,7 +104,7 @@ void UPWSteamMatchMakingSubsystem::CreateGameSession(FName InSelectedLevelKey)
 	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
     SessionSettings->bIsLANMatch = false;
 	SessionSettings->bAllowInvites = true;
-	SessionSettings->NumPublicConnections = 2;
+	SessionSettings->NumPublicConnections = 1;
 	SessionSettings->bAllowJoinInProgress = false;
 	SessionSettings->bAllowJoinViaPresence = true;
 	SessionSettings->bShouldAdvertise = true;
