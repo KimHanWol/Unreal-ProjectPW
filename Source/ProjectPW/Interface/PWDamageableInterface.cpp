@@ -126,7 +126,7 @@ void IPWDamageableInterface::ApplyHealth_Internal(UAbilitySystemComponent* Insti
 	if (SpecHandle.IsValid() == true && SpecHandle.Data.IsValid() == true)
 	{
 		SpecHandle.Data->SetSetByCallerMagnitude(FGameplayTag::RequestGameplayTag(FName(TEXT("SetByCaller.Common.Amount"))), ChangedAmount);
-		GetAbilitySystemComponent()->RemoveActiveGameplayEffectBySourceEffect(EffectClass, GetAbilitySystemComponent(), true);
+		GetAbilitySystemComponent()->RemoveActiveGameplayEffectBySourceEffect(EffectClass, GetAbilitySystemComponent());
 		GetAbilitySystemComponent()->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data);
 
 		float ClampHealth = FMath::Clamp(GetPWAttributeSet_Damageable()->GetHealth(), 0.f, GetPWAttributeSet_Damageable()->GetMaxHealth());

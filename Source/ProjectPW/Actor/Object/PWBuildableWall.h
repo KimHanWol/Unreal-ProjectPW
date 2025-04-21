@@ -29,6 +29,8 @@ public:
 	virtual class UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual class UPWAttributeSet_Damageable* GetPWAttributeSet_Damageable() const override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 private:
 
 	virtual void LoadCharacterDefaultStats() override;
@@ -36,6 +38,9 @@ private:
 	virtual void OnFullyDamaged(class IPWAttackableInterface* Killer) override;
 	virtual void OnRevived() override;
 	//~IPWDamageableInterface
+
+	UFUNCTION()
+	void OnRep_IsDestroyed();
 
 private:
 
@@ -45,5 +50,7 @@ private:
 	UPROPERTY(Transient)
 	class UPWAttributeSet_Damageable* PWAttributeSet_Damageable;
 
+	UPROPERTY(ReplicatedUsing = OnRep_IsDestroyed)
+	bool bIsDestroyed = false;
 
 };

@@ -22,9 +22,14 @@ void UGA_BuildWall::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return;
 	}
 
-	//TODO: Local??
 	APWPlayerCharacter* PWPlayerCharacter = Cast<APWPlayerCharacter>(ActorInfo->AvatarActor);
 	if (IsValid(PWPlayerCharacter) == false)
+	{
+		return;
+	}
+
+	//Only for local
+	if (PWPlayerCharacter->IsLocallyControlled() == false)
 	{
 		return;
 	}

@@ -4,6 +4,7 @@
 #include "PWBuildableWall.h"
 
 //Engine
+#include "Net/UnrealNetwork.h"
 
 //Game
 #include "AbilitySystemComponent.h"
@@ -37,6 +38,13 @@ UPWAttributeSet_Damageable* APWBuildableWall::GetPWAttributeSet_Damageable() con
 	return PWAttributeSet_Damageable;
 }
 
+void APWBuildableWall::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APWBuildableWall, bIsDestroyed);
+}
+
 void APWBuildableWall::LoadCharacterDefaultStats()
 {
 	const UPWGameSetting* PWGameSetting = UPWGameSetting::Get(this);
@@ -55,10 +63,18 @@ void APWBuildableWall::LoadCharacterDefaultStats()
 
 void APWBuildableWall::OnFullyDamaged(IPWAttackableInterface* Killer)
 {
-	SetActorHiddenInGame(true);
+	bIsDestroyed = true;
+	OnRep_IsDestroyed();
 }
 
 void APWBuildableWall::OnRevived()
 {
-	SetActorHiddenInGame(false);
+	bIsDestroyed = false;
+	OnRep_IsDestroyed();
+}
+
+void APWBuildableWall::OnRep_IsDestroyed()
+{
+	SetActorHiddenInGame(bIsDestroyed == true);
+	SetActorEnableCollision(bIsDestroyed == false);
 }
