@@ -125,18 +125,14 @@ void APWPlayerController::AcknowledgePossession(APawn* P)
 		{
 			if (IsValid(PWPlayerState->GetCommanderPawn()) == true)
 			{
-				//캐릭터에 빙의가 되면
-				if (PWPlayerState->GetCommanderPawn() != P)
+				if (DefaultCameraFOV == 0)
+				{
+					DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
+				}
+				else
 				{
 					// FOV 원래대로 설정
-					if (DefaultCameraFOV == 0)
-					{
-						DefaultCameraFOV = PlayerCameraManager->GetFOVAngle();
-					}
-					else
-					{
-						PlayerCameraManager->SetFOV(DefaultCameraFOV);
-					}
+					PlayerCameraManager->SetFOV(DefaultCameraFOV);
 				}
 
 				const UPWSoundData* SoundData = UPWSoundData::Get(this);
