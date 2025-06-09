@@ -57,9 +57,6 @@ private:
 
 	void PlayNotificationSound();
 
-	void EnableWaitingUI(const FText& WaitingText);
-	void DisableWaitingUI();
-
 protected:
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidgetOptional))

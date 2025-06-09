@@ -79,6 +79,9 @@ public:
 	DECLARE_MULTICAST_DELEGATE_OneParam(FShowWidget, EWidgetType TargetWidgetType);
 	FShowWidget ShowWidgetDelegate;
 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FShowNotiWidget, const FText& NotificationText);
+	FShowNotiWidget ShowNotiWidgetDelegate;
+
 	//MatchMaking
 	DECLARE_MULTICAST_DELEGATE(FMatchMakingSuccess);
 	FMatchMakingSuccess MatchMakingSuccessDelegate;

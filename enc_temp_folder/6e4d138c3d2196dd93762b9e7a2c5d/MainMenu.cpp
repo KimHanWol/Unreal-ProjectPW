@@ -247,7 +247,10 @@ void UMainMenu::OnCreateButtonPressed()
 		PWSteamMatchMakingSubsystem->CreateGameSession(DataTableKeyList[CurrentSelectedLevelIndex]);
 	}
 
-	EnableWaitingUI(SessionCreatingText);
+	if (ensure(IsValid(Overlay_Main) == true))
+	{
+		Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
+	}
 
 	BP_PlayClickSound();
 
@@ -296,8 +299,6 @@ void UMainMenu::OnSearchButtonPressed()
 		PWSteamMatchMakingSubsystem->FindAndJoinGameSession(DataTableKeyList[CurrentSelectedLevelIndex]);
 	}
 
-	EnableWaitingUI(SessionSearchingText);
-
 	BP_PlayClickSound();
 
 	bIsMatchMaking = true;
@@ -311,13 +312,26 @@ void UMainMenu::OnQuitButtonPressed()
 
 void UMainMenu::OnStopMatchMakingButtonPressed()
 {
+	if (ensure(IsValid(Overlay_Main) == true))
+	{
+		Overlay_Main->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (ensure(IsValid(Overlay_Waiting) == true))
+	{
+		Overlay_Waiting->SetVisibility(ESlateVisibility::Collapsed);
+	}
+
+	if (ensure(IsValid(Anim_MatchMaking) == true))
+	{
+		StopAnimation(Anim_MatchMaking);
+	}
+
 	UPWSteamMatchMakingSubsystem* PWSteamMatchMakingSubsystem = UPWSteamMatchMakingSubsystem::Get(this);
 	if (IsValid(PWSteamMatchMakingSubsystem) == true)
 	{
 		PWSteamMatchMakingSubsystem->StopMatchMaking();
 	}
-
-	DisableWaitingUI();
 
 	BP_PlayClickSound();
 
@@ -326,7 +340,29 @@ void UMainMenu::OnStopMatchMakingButtonPressed()
 
 void UMainMenu::OnCreateSessionComplete(bool bWasSuccessful)
 {
-	if(bWasSuccessful == false)
+	if (bWasSuccessful == true)
+	{
+		if (IsValid(Text_Process) == true)
+		{
+			Text_Process->SetText(SessionCreatingText);
+		}
+
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Anim_MatchMaking) == true))
+		{
+			PlayAnimation(Anim_MatchMaking, 0.f, 0);
+		}
+	}
+	else
 	{
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (ensure(IsValid(PWEventManager) == true))
@@ -334,9 +370,17 @@ void UMainMenu::OnCreateSessionComplete(bool bWasSuccessful)
 			PWEventManager->ShowNotiWidgetDelegate.Broadcast(CreateSessionFailedText);
 		}
 
-		DisableWaitingUI();
-
 		PlayNotificationSound();
+
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Collapsed);
+		}
 
 		bIsMatchMaking = false;
 	}
@@ -346,17 +390,43 @@ void UMainMenu::OnFindSessionComplete(bool bWasSuccessful)
 {
 	if (bWasSuccessful == true)
 	{
-		EnableWaitingUI(SessionJoiningText);
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (IsValid(Text_Process) == true)
+		{
+			Text_Process->SetText(SessionJoiningText);
+		}
+
+		if (ensure(IsValid(Anim_MatchMaking) == true))
+		{
+			PlayAnimation(Anim_MatchMaking, 0.f, 0);
+		}
 	}
 	else
 	{
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
 		UPWEventManager* PWEventManager = UPWEventManager::Get(this);
 		if (ensure(IsValid(PWEventManager) == true))
 		{
 			PWEventManager->ShowNotiWidgetDelegate.Broadcast(CannotFindSuitableSessionText);
 		}
-
-		DisableWaitingUI();
 
 		PlayNotificationSound();
 
@@ -368,6 +438,21 @@ void UMainMenu::OnJoinSessionComplete(bool bWasSuccessful)
 {
 	if (bWasSuccessful == false)
 	{
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Overlay_Main) == true))
+		{
+			Overlay_Main->SetVisibility(ESlateVisibility::Visible);
+		}
+
+		if (ensure(IsValid(Overlay_Waiting) == true))
+		{
+			Overlay_Waiting->SetVisibility(ESlateVisibility::Collapsed);
+		}
+
 		bIsMatchMaking = false;
 	}
 }
@@ -533,46 +618,5 @@ void UMainMenu::PlayNotificationSound()
 	if (ensure(SoundData->NotificationWidgetSound.IsNull() == false))
 	{
 		UGameplayStatics::PlaySound2D(this, SoundData->NotificationWidgetSound.LoadSynchronous());
-	}
-}
-
-void UMainMenu::EnableWaitingUI(const FText& WaitingText)
-{
-	if (ensure(IsValid(Text_Process) == true))
-	{
-		Text_Process->SetText(WaitingText);
-	}
-
-	if (ensure(IsValid(Overlay_Main) == true))
-	{
-		Overlay_Main->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	if (ensure(IsValid(Overlay_Waiting) == true))
-	{
-		Overlay_Waiting->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (ensure(IsValid(Anim_MatchMaking) == true))
-	{
-		PlayAnimation(Anim_MatchMaking, 0.f, 0);
-	}
-}
-
-void UMainMenu::DisableWaitingUI()
-{
-	if (ensure(IsValid(Overlay_Main) == true))
-	{
-		Overlay_Main->SetVisibility(ESlateVisibility::Visible);
-	}
-
-	if (ensure(IsValid(Overlay_Waiting) == true))
-	{
-		Overlay_Waiting->SetVisibility(ESlateVisibility::Collapsed);
-	}
-
-	if (ensure(IsValid(Anim_MatchMaking) == true))
-	{
-		StopAnimation(Anim_MatchMaking);
 	}
 }

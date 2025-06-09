@@ -288,7 +288,7 @@ void UPWSteamMatchMakingSubsystem::OnCreateSessionComplete(FName SessionName, bo
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Create game session failed"));
+		UE_LOG(LogTemp, Warning, TEXT("Create game session failed"));
 
 		UGameplayStatics::OpenLevel(GetWorld(), FName("MainMenu"), true);
 	}
@@ -315,7 +315,7 @@ void UPWSteamMatchMakingSubsystem::OnStartSessionComplete(FName SessionName, boo
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Start session failed."));
+		UE_LOG(LogTemp, Warning, TEXT("Start session failed."));
 	}
 
 	OnlineSessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(StartSessionCompleteHandle);
@@ -363,7 +363,7 @@ void UPWSteamMatchMakingSubsystem::OnFindSessionComplete(bool bWasSuccessful)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Find game session failed"));
+		UE_LOG(LogTemp, Warning, TEXT("Find game session failed"));
 
 		OnlineSessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionCompleteHandle);
 		OnFindSessionCompleteDelegate.Broadcast(bFindSessionSuccessful);
@@ -402,7 +402,7 @@ void UPWSteamMatchMakingSubsystem::OnJoinSessionComplete(FName SessionName, EOnJ
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Join game session success, but it was not available session."));
+		UE_LOG(LogTemp, Warning, TEXT("Join game session success, but it was not available session."));
 	}
 
 	OnlineSessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteHandle);
@@ -439,7 +439,7 @@ void UPWSteamMatchMakingSubsystem::OnDestroySessionComplete(FName SessionName, b
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Destroy game session failed"));
+		UE_LOG(LogTemp, Warning, TEXT("Destroy game session failed"));
 	}
 
 	OnlineSessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteHandle);
@@ -467,7 +467,7 @@ void UPWSteamMatchMakingSubsystem::OnUserInviteAccepted(bool bWasSuccessful, con
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Invite accept failed."));
+		UE_LOG(LogTemp, Warning, TEXT("Invite accept failed."));
 	}
 
 	OnFindSessionCompleteDelegate.Broadcast(bWasSuccessful);
